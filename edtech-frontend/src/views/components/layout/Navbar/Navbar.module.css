@@ -192,3 +192,9 @@
     display: flex;
   }
 }
+
+@media (max-width: 768px) {
+  .logo img {
+    height: 48px;
+  }
+}
