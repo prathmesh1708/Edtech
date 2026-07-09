@@ -108,8 +108,8 @@ const Contact = () => {
             </div>
           </div>
           <div style={{ background: 'var(--gradient-accent)', borderRadius: 'var(--radius-2xl)', padding: 'var(--space-8)', color: 'white' }}>
-            <h3 style={{ fontSize: 'var(--text-xl)', fontWeight: '700', marginBottom: 'var(--space-3)' }}>🏫 School Partnership</h3>
-            <p style={{ opacity: 0.85, lineHeight: '1.6', marginBottom: 'var(--space-4)' }}>
+            <h3 style={{ fontSize: 'var(--text-xl)', fontWeight: '700', marginBottom: 'var(--space-3)', color: 'white' }}>🏫 School Partnership</h3>
+            <p style={{ opacity: 0.85, lineHeight: '1.6', marginBottom: 'var(--space-4)', color: 'white' }}>
               Want to bring Study Wisely to your school? We offer custom packages for schools and institutions.
             </p>
             <Button variant="secondary" size="sm" style={{ color: 'var(--color-primary)' }}>Learn More</Button>
