@@ -5,6 +5,7 @@ import { gsap } from 'gsap';
 import { ROUTES } from '../../../../config/routes';
 import Button from '../../../components/common/Button/Button';
 import Input from '../../../components/common/Input/Input';
+import Logo from '../../../components/common/Logo/Logo';
 import styles from './Login.module.css';
 
 const Login = () => {
@@ -43,7 +44,7 @@ const Login = () => {
       <div className={styles.left}>
         <div className={styles.formContainer} ref={formRef}>
           <Link to="/" className={styles.logo}>
-            <img src="/assets/images/logo.png" alt="Study Wisely" />
+            <Logo />
           </Link>
           <h1 className={styles.title}>Welcome Back 👋</h1>
           <p className={styles.subtitle}>Sign in to continue your learning journey</p>

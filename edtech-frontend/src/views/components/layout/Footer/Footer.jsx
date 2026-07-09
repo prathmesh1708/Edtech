@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Globe, Video, MessageCircle, Briefcase } from 'lucide-react';
 import { APP_NAME, APP_DESCRIPTION, FOOTER_LINKS, SOCIAL_LINKS } from '../../../../config/constants';
 import styles from './Footer.module.css';
+import Logo from '../../common/Logo/Logo';
 
 const SOCIAL_ICONS = { Instagram: Globe, Youtube: Video, Twitter: MessageCircle, Linkedin: Briefcase };
 
@@ -15,7 +16,7 @@ const Footer = () => {
         <div className={styles.top}>
           {/* Brand */}
           <div className={styles.brand}>
-            <img src="/assets/images/logo.png" alt={APP_NAME} />
+            <Logo dark={true} />
             <p className={styles.brandDesc}>{APP_DESCRIPTION}</p>
             <div className={styles.social}>
               {SOCIAL_LINKS.map((social) => {

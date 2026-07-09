@@ -6,6 +6,7 @@ import { ROUTES } from '../../../../config/routes';
 import { BOARDS, CLASSES } from '../../../../config/constants';
 import Button from '../../../components/common/Button/Button';
 import Input from '../../../components/common/Input/Input';
+import Logo from '../../../components/common/Logo/Logo';
 import styles from '../Login/Login.module.css';
 
 const Register = () => {
@@ -41,7 +42,7 @@ const Register = () => {
       <div className={styles.left}>
         <div className={styles.formContainer} ref={formRef}>
           <Link to="/" className={styles.logo}>
-            <img src="/assets/images/logo.png" alt="Study Wisely" />
+            <Logo />
           </Link>
           <h1 className={styles.title}>Create Account ✨</h1>
           <p className={styles.subtitle}>Step {step} of 3 — {step === 1 ? 'Your Details' : step === 2 ? 'Select Board & Class' : 'Verify Phone'}</p>

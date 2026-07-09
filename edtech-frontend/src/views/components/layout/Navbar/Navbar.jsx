@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LogIn, UserPlus } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
+import Logo from '../../common/Logo/Logo';
 import { NAV_LINKS } from '../../../../config/constants';
 import { ROUTES } from '../../../../config/routes';
 import Button from '../../common/Button/Button';
@@ -35,7 +37,7 @@ const Navbar = () => {
       <div className={styles.inner}>
         {/* Logo */}
         <Link to="/" className={styles.logo}>
-          <img src="/assets/images/logo.png" alt="Study Wisely" />
+          <Logo />
         </Link>
 
         {/* Desktop Nav Links */}

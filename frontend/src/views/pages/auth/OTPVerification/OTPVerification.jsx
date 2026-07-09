@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ROUTES } from '../../../../config/routes';
 import Button from '../../../components/common/Button/Button';
+import Logo from '../../../components/common/Logo/Logo';
 import styles from '../Login/Login.module.css';
 
 const OTPVerification = () => {
@@ -56,7 +57,7 @@ const OTPVerification = () => {
       <div className={styles.left}>
         <div className={styles.formContainer} ref={formRef}>
           <a href="/" className={styles.logo}>
-            <img src="/assets/images/logo.png" alt="Study Wisely" />
+            <Logo />
           </a>
           <h1 className={styles.title}>Verify OTP 🔐</h1>
           <p className={styles.subtitle}>Enter the 6-digit code sent to your phone</p>

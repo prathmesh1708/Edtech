@@ -5,6 +5,7 @@ import { ROUTES } from '../../../config/routes';
 import { useAuth } from '../../../models/context/AuthContext';
 import Button from '../common/Button/Button';
 import Avatar from '../common/Avatar/Avatar';
+import Logo from '../common/Logo/Logo';
 import styles from './AdminLayout.module.css';
 
 const ADMIN_MENU_ITEMS = [
@@ -39,7 +40,7 @@ const AdminLayout = () => {
       <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.logoArea}>
           <Link to="/">
-            <img src="/assets/images/logo.png" alt="Study Wisely" />
+            <Logo dark={true} />
           </Link>
           <button className={styles.closeBtn} onClick={() => setSidebarOpen(false)} aria-label="Close sidebar">
             <X size={20} />

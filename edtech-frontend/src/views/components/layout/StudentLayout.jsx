@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
-import { Home, Bot, FileText, Settings, LogOut, Bell, User, BookOpen } from 'lucide-react';
+import { LogOut, LayoutDashboard, BookOpen, Clock, Settings, User, Bell, Bot, FileText } from 'lucide-react';
+import Logo from '../../common/Logo/Logo';
 import { ROUTES } from '../../../config/routes';
 import { useAuth } from '../../../models/context/AuthContext';
 import Avatar from '../common/Avatar/Avatar';
@@ -28,7 +29,7 @@ const StudentLayout = () => {
       <aside className={styles.sidebar}>
         <div className={styles.logoArea}>
           <Link to="/">
-            <img src="/assets/images/logo.png" alt="Study Wisely" />
+            <Logo />
           </Link>
         </div>
 

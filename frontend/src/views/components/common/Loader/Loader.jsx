@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './Loader.module.css';
+import Logo from '../Logo/Logo';
 
 const Loader = ({ fullScreen = false, text = 'Loading...', variant = 'dots' }) => {
   const Wrapper = fullScreen ? 'div' : 'div';
@@ -9,7 +10,7 @@ const Loader = ({ fullScreen = false, text = 'Loading...', variant = 'dots' }) =
     <div className={wrapperClass}>
       {fullScreen && (
         <div className={styles.logoWrapper}>
-          <img src="/assets/images/logo.png" alt="Study Wisely" />
+          <Logo />
         </div>
       )}
       {variant === 'dots' ? (
