@@ -1,0 +1,8 @@
+{
+  "buildCommand": "cd edtech-frontend && npm run build",
+  "installCommand": "cd edtech-frontend && npm install",
+  "outputDirectory": "edtech-frontend/dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

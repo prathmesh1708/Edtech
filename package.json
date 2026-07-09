@@ -1,0 +1,7 @@
+{
+  "name": "edtech-workspace",
+  "private": true,
+  "scripts": {
+    "vercel-build": "cd edtech-frontend && npm install && npm run build"
+  }
+}
