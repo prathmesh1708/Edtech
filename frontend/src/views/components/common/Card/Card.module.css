@@ -1,0 +1,95 @@
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition-base);
+  overflow: hidden;
+  position: relative;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-4px);
+  border-color: rgba(79, 110, 247, 0.2);
+}
+
+/* Variants */
+.elevated {
+  box-shadow: var(--shadow-md);
+}
+
+.flat {
+  box-shadow: none;
+  border: 1px solid var(--color-border);
+}
+
+.flat:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+}
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+}
+
+.gradient {
+  background: var(--gradient-accent);
+  border: none;
+  color: var(--color-white);
+}
+
+.gradient:hover {
+  box-shadow: var(--shadow-glow);
+}
+
+/* Sizes */
+.sm {
+  padding: var(--space-4);
+}
+
+.md {
+  padding: var(--space-6);
+}
+
+.lg {
+  padding: var(--space-8);
+}
+
+/* Interactive */
+.clickable {
+  cursor: pointer;
+}
+
+/* Feature Card */
+.featureCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.featureIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.featureTitle {
+  font-family: var(--font-heading);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-lg);
+  color: var(--color-text-primary);
+}
+
+.featureDesc {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+}
