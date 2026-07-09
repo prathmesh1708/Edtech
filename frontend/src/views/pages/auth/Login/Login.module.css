@@ -8,7 +8,7 @@
 .rightContent p { opacity: 0.8; font-size: var(--text-lg); }
 .formContainer { width: 100%; max-width: 420px; }
 .logo { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-8); }
-.logo img { height: 42px; }
+.logo img { height: 60px; mix-blend-mode: multiply; }
 .title { font-size: var(--text-3xl); font-weight: 800; margin-bottom: var(--space-2); font-family: var(--font-heading); }
 .subtitle { color: var(--color-text-secondary); margin-bottom: var(--space-8); }
 .form { display: flex; flex-direction: column; gap: var(--space-4); }
