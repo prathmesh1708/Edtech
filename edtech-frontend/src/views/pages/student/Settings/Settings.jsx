@@ -33,12 +33,17 @@ const Settings = () => {
   const [email, setEmail] = useState(currentUser.email);
   const [board, setBoard] = useState(currentUser.board);
   const [classId, setClassId] = useState(currentUser.classId);
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const [saving, setSaving] = useState(false);
 
   const handleSave = (e) => {
     e.preventDefault();
     setSaving(true);
     setTimeout(() => {
+      // Ensure theme is persisted and set
+      localStorage.setItem('theme', theme);
+      document.documentElement.setAttribute('data-theme', theme);
+      
       updateProfile({ name, email, board, classId });
       setSaving(false);
       alert('Profile updated successfully!');
@@ -95,6 +100,25 @@ const Settings = () => {
               {CLASSES.map((c) => (
                 <option key={c.id} value={String(c.id)}>{c.name}</option>
               ))}
+            </select>
+          </div>
+
+          <div>
+            <label style={{ fontSize: 'var(--text-sm)', fontWeight: '500', display: 'block', marginBottom: 'var(--space-2)' }}>
+              App Theme
+            </label>
+            <select
+              style={s.select}
+              value={theme}
+              onChange={(e) => {
+                const newTheme = e.target.value;
+                setTheme(newTheme);
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+              }}
+            >
+              <option value="light">☀️ Light Theme</option>
+              <option value="dark">🌙 Dark Theme</option>
             </select>
           </div>
 

@@ -5,8 +5,8 @@ import { AuthProvider } from './models/context/AuthContext';
 import { SyllabusProvider } from './models/context/SyllabusContext';
 import { ToastProvider } from './views/components/common/Toast/Toast';
 import PublicLayout from './views/components/layout/PublicLayout';
-import StudentLayout from '../admin panel /student/views/components/Layout/StudentLayout';
-import AdminLayout from '../admin panel /admin/views/components/Layout/MasterAdminLayout';
+import StudentLayout from '../admin_panel/student/views/components/Layout/StudentLayout';
+import AdminLayout from '../admin_panel/admin/views/components/Layout/MasterAdminLayout';
 import Loader from './views/components/common/Loader/Loader';
 
 // Lazy load pages for code splitting
@@ -26,7 +26,7 @@ const Register = lazy(() => import('./views/pages/auth/Register/Register'));
 const OTPVerification = lazy(() => import('./views/pages/auth/OTPVerification/OTPVerification'));
 
 // Student Pages
-const StudentDashboard = lazy(() => import('../admin panel /student/views/pages/Dashboard/StudentDashboard'));
+const StudentDashboard = lazy(() => import('../admin_panel/student/views/pages/Dashboard/StudentDashboard'));
 const MySyllabus = lazy(() => import('./views/pages/student/MySyllabus/MySyllabus'));
 const SubjectDetail = lazy(() => import('./views/pages/student/SubjectDetail/SubjectDetail'));
 const ChapterView = lazy(() => import('./views/pages/student/ChapterView/ChapterView'));
@@ -35,11 +35,11 @@ const Notes = lazy(() => import('./views/pages/student/Notes/Notes'));
 const Settings = lazy(() => import('./views/pages/student/Settings/Settings'));
 
 // Admin Pages
-const AdminDashboard = lazy(() => import('../admin panel /admin/views/pages/Dashboard/Dashboard'));
-const StudentManagement = lazy(() => import('../admin panel /admin/views/pages/StudentManagement/StudentManagement'));
+const AdminDashboard = lazy(() => import('../admin_panel/admin/views/pages/Dashboard/Dashboard'));
+const StudentManagement = lazy(() => import('../admin_panel/admin/views/pages/StudentManagement/StudentManagement'));
 const SyllabusManagement = lazy(() => import('./views/pages/admin/SyllabusManagement/SyllabusManagement')); // Assuming this one remains unchanged for now, or point to ContentManagement if combined
-const ContentManagement = lazy(() => import('../admin panel /admin/views/pages/ContentManagement/ContentManagement'));
-const PlatformSettings = lazy(() => import('../admin panel /admin/views/pages/PlatformManagement/PlatformManagement'));
+const ContentManagement = lazy(() => import('../admin_panel/admin/views/pages/ContentManagement/ContentManagement'));
+const PlatformSettings = lazy(() => import('../admin_panel/admin/views/pages/PlatformManagement/PlatformManagement'));
 
 function App() {
   return (

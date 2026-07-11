@@ -14,5 +14,5 @@
 }
 
 .dark .logoImage {
-  filter: brightness(0) invert(1);
+  /* Clean transparency via native PNG */
 }

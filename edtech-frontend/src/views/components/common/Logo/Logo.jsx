@@ -5,7 +5,7 @@ const Logo = ({ dark = false, className = '' }) => {
   return (
     <div className={`${styles.logo} ${dark ? styles.dark : ''} ${className}`}>
       <img 
-        src="/assets/images/logo.png" 
+        src={dark ? "/assets/images/logo-dark.png" : "/assets/images/logo.png"} 
         alt="Study Wisely Logo" 
         className={styles.logoImage} 
       />
