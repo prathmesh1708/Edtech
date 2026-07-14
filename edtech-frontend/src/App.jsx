@@ -37,9 +37,14 @@ const Settings = lazy(() => import('./views/pages/student/Settings/Settings'));
 // Admin Pages
 const AdminDashboard = lazy(() => import('../admin_panel/admin/views/pages/Dashboard/Dashboard'));
 const StudentManagement = lazy(() => import('../admin_panel/admin/views/pages/StudentManagement/StudentManagement'));
+const TeacherManagement = lazy(() => import('../admin_panel/admin/views/pages/TeacherManagement/TeacherManagement'));
+const BannersManagement = lazy(() => import('../admin_panel/admin/views/pages/BannersManagement/BannersManagement'));
+const NotificationManagement = lazy(() => import('../admin_panel/admin/views/pages/NotificationManagement/NotificationManagement'));
 const SyllabusManagement = lazy(() => import('./views/pages/admin/SyllabusManagement/SyllabusManagement')); // Assuming this one remains unchanged for now, or point to ContentManagement if combined
 const ContentManagement = lazy(() => import('../admin_panel/admin/views/pages/ContentManagement/ContentManagement'));
 const PlatformSettings = lazy(() => import('../admin_panel/admin/views/pages/PlatformManagement/PlatformManagement'));
+const AdminProfile = lazy(() => import('../admin_panel/admin/views/pages/Profile/Profile'));
+const SystemSettings = lazy(() => import('../admin_panel/admin/views/pages/SystemSettings/SystemSettings'));
 
 function App() {
   return (
@@ -81,9 +86,14 @@ function App() {
                 <Route element={<AdminLayout />}>
                   <Route path={ROUTES.ADMIN_DASHBOARD} element={<AdminDashboard />} />
                   <Route path={ROUTES.ADMIN_STUDENTS} element={<StudentManagement />} />
+                  <Route path={ROUTES.ADMIN_TEACHERS} element={<TeacherManagement />} />
+                  <Route path={ROUTES.ADMIN_BANNERS} element={<BannersManagement />} />
+                  <Route path={ROUTES.ADMIN_NOTIFICATIONS} element={<NotificationManagement />} />
                   <Route path={ROUTES.ADMIN_SYLLABUS} element={<SyllabusManagement />} />
                   <Route path={ROUTES.ADMIN_CONTENT} element={<ContentManagement />} />
                   <Route path={ROUTES.ADMIN_SETTINGS} element={<PlatformSettings />} />
+                  <Route path={ROUTES.ADMIN_PROFILE} element={<AdminProfile />} />
+                  <Route path={ROUTES.ADMIN_SYSTEM_SETTINGS} element={<SystemSettings />} />
                 </Route>
 
                 {/* 404 */}

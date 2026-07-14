@@ -45,6 +45,8 @@ export const ROUTES = {
   ADMIN_BANNERS: '/admin/banners',
   ADMIN_NOTIFICATIONS: '/admin/notifications',
   ADMIN_SETTINGS: '/admin/settings',
+  ADMIN_PROFILE: '/admin/profile',
+  ADMIN_SYSTEM_SETTINGS: '/admin/system-settings',
   ADMIN_REPORTS: '/admin/reports',
   ADMIN_ACCESS: '/admin/access',
 };
