@@ -17,6 +17,13 @@
 .subtitle { color: var(--color-text-secondary); margin-bottom: var(--space-4); font-size: var(--text-sm); }
 .infoBanner { display: flex; align-items: flex-start; gap: var(--space-2); background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: var(--radius-lg); padding: var(--space-3); margin-bottom: var(--space-5); color: #D97706; font-size: var(--text-xs); line-height: 1.4; font-weight: 500; }
 .bannerIcon { flex-shrink: 0; margin-top: 1px; }
+.rightContent h2 { color: var(--color-white); font-size: var(--text-4xl); font-weight: 800; margin-bottom: var(--space-4); }
+.rightContent p { color: rgba(255, 255, 255, 0.85); font-size: var(--text-lg); }
+.formContainer { width: 100%; max-width: 420px; }
+.logo { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-8); }
+.logo img { height: 60px; mix-blend-mode: multiply; }
+.title { font-size: var(--text-3xl); font-weight: 800; margin-bottom: var(--space-2); font-family: var(--font-heading); }
+.subtitle { color: var(--color-text-secondary); margin-bottom: var(--space-8); }
 .form { display: flex; flex-direction: column; gap: var(--space-4); }
 .toggleRow { display: flex; background: var(--color-bg); border-radius: var(--radius-lg); padding: 4px; margin-bottom: var(--space-4); }
 .toggleBtn { flex: 1; padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); border: none; font-size: var(--text-sm); font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--color-text-secondary); }
