@@ -38,6 +38,7 @@ const Settings = lazy(() => import('./views/pages/student/Settings/Settings'));
 const AdminDashboard = lazy(() => import('../admin_panel/admin/views/pages/Dashboard/Dashboard'));
 const StudentManagement = lazy(() => import('../admin_panel/admin/views/pages/StudentManagement/StudentManagement'));
 const TeacherManagement = lazy(() => import('../admin_panel/admin/views/pages/TeacherManagement/TeacherManagement'));
+const SubscriptionManagement = lazy(() => import('../admin_panel/admin/views/pages/SubscriptionManagement/SubscriptionManagement'));
 const BannersManagement = lazy(() => import('../admin_panel/admin/views/pages/BannersManagement/BannersManagement'));
 const NotificationManagement = lazy(() => import('../admin_panel/admin/views/pages/NotificationManagement/NotificationManagement'));
 const SyllabusManagement = lazy(() => import('./views/pages/admin/SyllabusManagement/SyllabusManagement')); // Assuming this one remains unchanged for now, or point to ContentManagement if combined
@@ -87,6 +88,7 @@ function App() {
                   <Route path={ROUTES.ADMIN_DASHBOARD} element={<AdminDashboard />} />
                   <Route path={ROUTES.ADMIN_STUDENTS} element={<StudentManagement />} />
                   <Route path={ROUTES.ADMIN_TEACHERS} element={<TeacherManagement />} />
+                  <Route path={ROUTES.ADMIN_SUBSCRIPTIONS} element={<SubscriptionManagement />} />
                   <Route path={ROUTES.ADMIN_BANNERS} element={<BannersManagement />} />
                   <Route path={ROUTES.ADMIN_NOTIFICATIONS} element={<NotificationManagement />} />
                   <Route path={ROUTES.ADMIN_SYLLABUS} element={<SyllabusManagement />} />

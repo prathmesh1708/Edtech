@@ -40,6 +40,7 @@ export const ROUTES = {
   ADMIN_DASHBOARD: '/admin',
   ADMIN_STUDENTS: '/admin/students',
   ADMIN_TEACHERS: '/admin/teachers',
+  ADMIN_SUBSCRIPTIONS: '/admin/subscriptions',
   ADMIN_SYLLABUS: '/admin/syllabus',
   ADMIN_CONTENT: '/admin/content',
   ADMIN_BANNERS: '/admin/banners',

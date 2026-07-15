@@ -10,6 +10,7 @@ import {
   Image, 
   LogOut,
   GraduationCap,
+  CreditCard,
   User,
   Cpu
 } from 'lucide-react';
@@ -20,6 +21,7 @@ const Sidebar = () => {
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Students', path: '/admin/students', icon: Users },
     { name: 'Teachers', path: '/admin/teachers', icon: GraduationCap },
+    { name: 'Subscriptions', path: '/admin/subscriptions', icon: CreditCard },
     { name: 'Syllabus & Content', path: '/admin/content', icon: BookOpen },
     { name: 'Banners', path: '/admin/banners', icon: Image },
     { name: 'Notifications', path: '/admin/notifications', icon: Bell },
