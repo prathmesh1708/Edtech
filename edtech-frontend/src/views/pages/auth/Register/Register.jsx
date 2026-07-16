@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, Phone, User, Eye, EyeOff, ArrowLeft, School, Shield } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ROUTES } from '../../../../config/routes';
+import useAuthController from '../../../../controllers/useAuthController';
 import Button from '../../../components/common/Button/Button';
 import Input from '../../../components/common/Input/Input';
 import Logo from '../../../components/common/Logo/Logo';
@@ -24,7 +25,9 @@ const Register = () => {
     schoolName: ''
   });
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+  
+  const { register, loading, error: authError } = useAuthController();
+  
   const formRef = useRef(null);
   const navigate = useNavigate();
 
@@ -35,7 +38,7 @@ const Register = () => {
       if (storedClass) {
         navigate(`${ROUTES.REGISTER}?class=${storedClass}`, { replace: true });
       } else {
-        navigate(ROUTES.SELECT_CLASS, { replace: true });
+        navigate(`${ROUTES.SELECT_CLASS}?mode=register`, { replace: true });
       }
     }
   }, [classParam, navigate]);
@@ -96,18 +99,24 @@ const Register = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
     
-    setLoading(true);
-    // Simulate API registration
-    setTimeout(() => {
-      setLoading(false);
-      localStorage.setItem('study_wisely_user_role', isParentFlow ? 'parent' : 'student');
-      localStorage.setItem('study_wisely_auth_token', 'mock_token_register_xyz');
-      navigate(ROUTES.OTP_VERIFICATION);
-    }, 1500);
+    localStorage.setItem('study_wisely_user_role', isParentFlow ? 'parent' : 'student');
+    const payload = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      password: formData.password,
+      role: isParentFlow ? 'parent' : 'student',
+      schoolName: formData.schoolName,
+      childName: isParentFlow ? formData.childName : undefined,
+      classId: classParam,
+      board: 'CBSE'
+    };
+
+    await register(payload);
   };
 
   return (
@@ -134,6 +143,12 @@ const Register = () => {
               ? "Create parent account to co-manage and review child coursework."
               : "Register your student profile to access interactive learning."}
           </p>
+
+          {authError && (
+            <div style={{ color: 'var(--color-error, #ef4444)', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: 'var(--space-3)', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-sm)', textAlign: 'center', fontWeight: '500' }}>
+              ⚠️ {authError}
+            </div>
+          )}
 
           <form className={styles.form} onSubmit={handleSubmit}>
             <Input 

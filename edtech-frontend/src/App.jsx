@@ -71,6 +71,7 @@ function App() {
                 {/* Auth Pages (no Navbar/Footer) */}
                 <Route path={ROUTES.SELECT_CLASS} element={<ClassSelection />} />
                 <Route path={ROUTES.LOGIN} element={<Login />} />
+                <Route path={ROUTES.ADMIN_LOGIN} element={<Login />} />
                 <Route path={ROUTES.REGISTER} element={<Register />} />
                 <Route path={ROUTES.OTP_VERIFICATION} element={<OTPVerification />} />
 

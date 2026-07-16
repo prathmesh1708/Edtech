@@ -1,20 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Bell, User, X } from 'lucide-react';
 import { useToast } from '../../../../../src/views/components/common/Toast/Toast';
+import { useAuth } from '../../../../../src/models/context/AuthContext';
 import styles from './Topbar.module.css';
 
 const Topbar = () => {
+  const { user, updateProfile } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Profile state
   const [profile, setProfile] = useState(() => {
     const saved = localStorage.getItem('admin_profile');
-    return saved ? JSON.parse(saved) : {
-      name: 'Admin User',
-      email: 'admin@studywisely.in',
-      phone: '+91 98765 43219',
-      role: 'Super Admin'
+    const defaultData = {
+      name: user?.name || 'Admin User',
+      email: user?.email || 'admin@studywisely.in',
+      phone: user?.phone || '+91 98765 43219',
+      role: user?.role || 'Super Admin'
     };
+    return saved ? { ...defaultData, ...JSON.parse(saved) } : defaultData;
   });
 
   // Form temporary values state
@@ -22,7 +25,7 @@ const Topbar = () => {
 
   const toast = useToast();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleSync = () => {
       const saved = localStorage.getItem('admin_profile');
       if (saved) {
@@ -32,6 +35,18 @@ const Topbar = () => {
     window.addEventListener('admin_profile_update', handleSync);
     return () => window.removeEventListener('admin_profile_update', handleSync);
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      setProfile(prev => ({
+        ...prev,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
+        phone: user.phone || prev.phone,
+        role: user.role || prev.role
+      }));
+    }
+  }, [user]);
 
   const handleProfileClick = () => {
     setTempProfile({ ...profile });
@@ -55,6 +70,13 @@ const Topbar = () => {
 
     setProfile({ ...tempProfile });
     localStorage.setItem('admin_profile', JSON.stringify(tempProfile));
+    if (updateProfile) {
+      updateProfile({
+        name: tempProfile.name,
+        email: tempProfile.email,
+        phone: tempProfile.phone
+      });
+    }
     window.dispatchEvent(new Event('admin_profile_update'));
     setIsModalOpen(false);
     toast.success('Your admin profile details have been saved.', 'Profile Updated');

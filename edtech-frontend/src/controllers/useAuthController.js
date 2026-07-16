@@ -15,10 +15,21 @@ const useAuthController = () => {
     setError(null);
     try {
       const { data } = await authService.login({ email, password });
-      setAuth(data.user, data.token);
-      navigate(ROUTES.STUDENT_DASHBOARD);
+      const { token, ...user } = data;
+      
+      const isAdminFlow = window.location.pathname === ROUTES.ADMIN_LOGIN;
+      if (isAdminFlow && user.role !== 'admin') {
+        throw new Error('Access Denied: Only administrators can log in here.');
+      }
+
+      setAuth(user, token);
+      if (user.role === 'admin') {
+        navigate(ROUTES.ADMIN_DASHBOARD);
+      } else {
+        navigate(ROUTES.STUDENT_DASHBOARD);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.message || err.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -42,10 +53,21 @@ const useAuthController = () => {
     setError(null);
     try {
       const { data } = await authService.verifyOTP(phone, otp);
-      setAuth(data.user, data.token);
-      navigate(ROUTES.STUDENT_DASHBOARD);
+      const { token, ...user } = data;
+
+      const isAdminFlow = window.location.pathname === ROUTES.ADMIN_LOGIN;
+      if (isAdminFlow && user.role !== 'admin') {
+        throw new Error('Access Denied: Only administrators can log in here.');
+      }
+
+      setAuth(user, token);
+      if (user.role === 'admin') {
+        navigate(ROUTES.ADMIN_DASHBOARD);
+      } else {
+        navigate(ROUTES.STUDENT_DASHBOARD);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid OTP');
+      setError(err.message || err.response?.data?.message || 'Invalid OTP');
     } finally {
       setLoading(false);
     }
@@ -56,8 +78,9 @@ const useAuthController = () => {
     setError(null);
     try {
       const { data } = await authService.register(userData);
-      setAuth(data.user, data.token);
-      navigate(ROUTES.PROFILE_SETUP);
+      const { token, ...user } = data;
+      setAuth(user, token);
+      navigate(ROUTES.OTP_VERIFICATION);
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     } finally {

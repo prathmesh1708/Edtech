@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import Admin from '../models/Admin.js';
 
 export const protect = async (req, res, next) => {
   let token;
@@ -15,8 +16,12 @@ export const protect = async (req, res, next) => {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Get user from the token, excluding password
-      req.user = await User.findById(decoded.id).select('-password');
+      // Get user from the token, checking both Admin and User collections
+      let user = await Admin.findById(decoded.id).select('-password');
+      if (!user) {
+        user = await User.findById(decoded.id).select('-password');
+      }
+      req.user = user;
 
       if (!req.user) {
         return res.status(401).json({ message: 'Not authorized, user not found' });

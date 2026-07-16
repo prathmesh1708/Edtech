@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-const userSchema = new mongoose.Schema(
+const adminSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -20,28 +20,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please add a password'],
       minlength: [6, 'Password must be at least 6 characters'],
-      select: true, // we will explicitly select it or handle visibility
+      select: true,
     },
     role: {
       type: String,
-      enum: ['student', 'instructor', 'admin', 'parent'],
-      default: 'student',
+      default: 'admin',
     },
     phone: {
       type: String,
-    },
-    schoolName: {
-      type: String,
-    },
-    childName: {
-      type: String,
-    },
-    classId: {
-      type: String,
-    },
-    board: {
-      type: String,
-      default: 'CBSE',
     },
   },
   {
@@ -50,7 +36,7 @@ const userSchema = new mongoose.Schema(
 );
 
 // Encrypt password using bcrypt before saving
-userSchema.pre('save', async function () {
+adminSchema.pre('save', async function () {
   if (!this.isModified('password')) {
     return;
   }
@@ -59,10 +45,10 @@ userSchema.pre('save', async function () {
 });
 
 // Match user entered password to hashed password in database
-userSchema.methods.matchPassword = async function (enteredPassword) {
+adminSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-const User = mongoose.model('User', userSchema);
+const Admin = mongoose.model('Admin', adminSchema, 'admins');
 
-export default User;
+export default Admin;

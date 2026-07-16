@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { Mail, Lock, Phone, Eye, EyeOff, ArrowLeft, Shield, User } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ROUTES } from '../../../../config/routes';
+import useAuthController from '../../../../controllers/useAuthController';
 import Button from '../../../components/common/Button/Button';
 import Input from '../../../components/common/Input/Input';
 import Logo from '../../../components/common/Logo/Logo';
@@ -11,27 +12,18 @@ import styles from './Login.module.css';
 const Login = () => {
   const [searchParams] = useSearchParams();
   const classParam = searchParams.get('class');
+  const location = useLocation();
+  const isAdminFlow = location.pathname === ROUTES.ADMIN_LOGIN;
   
   const [loginMode, setLoginMode] = useState('email'); // 'email' | 'otp'
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ username: '', password: '', phone: '' });
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+  
+  const { loginWithEmail, sendOTP, loading, error: authError } = useAuthController();
   
   const formRef = useRef(null);
   const navigate = useNavigate();
-
-  // Redirect to select-class if no class is selected
-  useEffect(() => {
-    if (!classParam) {
-      const storedClass = localStorage.getItem('study_wisely_selected_class');
-      if (storedClass) {
-        navigate(`${ROUTES.LOGIN}?class=${storedClass}`, { replace: true });
-      } else {
-        navigate(ROUTES.SELECT_CLASS, { replace: true });
-      }
-    }
-  }, [classParam, navigate]);
 
   // Animate form mount
   useEffect(() => {
@@ -41,11 +33,9 @@ const Login = () => {
     gsap.fromTo(formRef.current, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' });
   }, [classParam]);
 
-  if (!classParam) return null;
-
-  const selectedClassNum = parseInt(classParam, 10);
-  const isParentFlow = selectedClassNum <= 6;
-  const roleLabel = isParentFlow ? 'Parent' : 'Student';
+  const selectedClassNum = classParam ? parseInt(classParam, 10) : null;
+  const isParentFlow = selectedClassNum ? selectedClassNum <= 6 : false;
+  const roleLabel = isAdminFlow ? 'Admin' : (selectedClassNum ? (isParentFlow ? 'Parent' : 'Student') : 'User');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -81,19 +71,11 @@ const Login = () => {
     e.preventDefault();
     if (!validateForm()) return;
     
-    setLoading(true);
-    // Simulate API Login
-    setTimeout(() => {
-      setLoading(false);
-      localStorage.setItem('study_wisely_user_role', isParentFlow ? 'parent' : 'student');
-      localStorage.setItem('study_wisely_auth_token', 'mock_token_xyz123');
-      
-      if (loginMode === 'otp') {
-        navigate(ROUTES.OTP_VERIFICATION);
-      } else {
-        navigate(ROUTES.STUDENT_DASHBOARD);
-      }
-    }, 1500);
+    if (loginMode === 'email') {
+      await loginWithEmail(formData.username, formData.password);
+    } else {
+      await sendOTP(formData.phone);
+    }
   };
 
   return (
@@ -101,24 +83,28 @@ const Login = () => {
       <div className={styles.left}>
         <div className={styles.formContainer} ref={formRef}>
           <div className={styles.navHeader}>
-            <Link to={ROUTES.SELECT_CLASS} className={styles.backLink}>
+            <Link to={isAdminFlow ? ROUTES.HOME : ROUTES.SELECT_CLASS} className={styles.backLink}>
               <ArrowLeft size={16} />
-              <span>Back to Class Selection</span>
+              <span>{isAdminFlow ? 'Back to Home' : 'Back to Class Selection'}</span>
             </Link>
           </div>
 
           <div className={styles.logoRow}>
             <Logo />
-            <div className={styles.classBadge}>
-              Class {classParam}
-            </div>
+            {classParam && (
+              <div className={styles.classBadge}>
+                Class {classParam}
+              </div>
+            )}
           </div>
 
           <h1 className={styles.title}>{roleLabel} Login 🔐</h1>
           <p className={styles.subtitle}>
-            {isParentFlow 
-              ? "Access parent portal to oversee and manage your child's lessons."
-              : "Access your student dashboard and resume learning."}
+            {isAdminFlow
+              ? "Access the admin dashboard to manage lessons, students, teachers, and platform settings."
+              : isParentFlow 
+                ? "Access parent portal to oversee and manage your child's lessons."
+                : "Access your student dashboard and resume learning."}
           </p>
 
           {isParentFlow && (
@@ -143,6 +129,12 @@ const Login = () => {
               <Phone size={14} style={{ marginRight: 4, display: 'inline' }} /> Mobile OTP
             </button>
           </div>
+
+          {authError && (
+            <div style={{ color: 'var(--color-error, #ef4444)', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: 'var(--space-3)', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-sm)', textAlign: 'center', fontWeight: '500' }}>
+              ⚠️ {authError}
+            </div>
+          )}
 
           <form className={styles.form} onSubmit={handleSubmit}>
             {loginMode === 'email' ? (
@@ -204,9 +196,11 @@ const Login = () => {
             </Button>
           </form>
 
-          <p className={styles.footer}>
-            Don't have an account? <Link to={`${ROUTES.REGISTER}?class=${classParam}`}>Create {roleLabel} Account</Link>
-          </p>
+          {!isAdminFlow && (
+            <p className={styles.footer}>
+              Don't have an account? <Link to={classParam ? `${ROUTES.REGISTER}?class=${classParam}` : `${ROUTES.SELECT_CLASS}?mode=register`}>Create {roleLabel} Account</Link>
+            </p>
+          )}
         </div>
       </div>
 
@@ -214,9 +208,11 @@ const Login = () => {
         <div className={styles.rightContent}>
           <h2>Study Wisely</h2>
           <p>
-            {isParentFlow 
-              ? "Oversee coursework, tracking sheets, assessment grades, and customized AI recommendations."
-              : "Interactive modules, mock test cards, live analytics, and 24/7 AI-Tutor mentorship."}
+            {isAdminFlow
+              ? "Access the master administrator interface to configure boards, manage subscriptions, monitor system stats, and coordinate platform content."
+              : isParentFlow 
+                ? "Oversee coursework, tracking sheets, assessment grades, and customized AI recommendations."
+                : "Interactive modules, mock test cards, live analytics, and 24/7 AI-Tutor mentorship."}
           </p>
         </div>
       </div>

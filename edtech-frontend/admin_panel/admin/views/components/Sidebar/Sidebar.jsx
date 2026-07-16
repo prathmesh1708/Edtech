@@ -1,6 +1,8 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import Logo from '../../../../../src/views/components/common/Logo/Logo';
+import { useAuth } from '../../../../../src/models/context/AuthContext';
+import { ROUTES } from '../../../../../src/config/routes';
 import { 
   LayoutDashboard, 
   Users, 
@@ -17,6 +19,14 @@ import {
 import styles from './Sidebar.module.css';
 
 const Sidebar = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate(ROUTES.ADMIN_LOGIN);
+  };
+
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Students', path: '/admin/students', icon: Users },
@@ -60,7 +70,7 @@ const Sidebar = () => {
       </nav>
 
       <div className={styles.sidebarFooter}>
-        <button className={styles.logoutButton}>
+        <button className={styles.logoutButton} onClick={handleLogout}>
           <LogOut size={20} className={styles.logoutIcon} />
           <span>Logout</span>
         </button>

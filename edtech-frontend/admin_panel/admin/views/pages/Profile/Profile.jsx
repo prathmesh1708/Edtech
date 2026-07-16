@@ -10,14 +10,16 @@ import {
   FileText 
 } from 'lucide-react';
 import { useToast } from '../../../../../src/views/components/common/Toast/Toast';
+import { useAuth } from '../../../../../src/models/context/AuthContext';
 import styles from './Profile.module.css';
 
 const Profile = () => {
+  const { user, updateProfile } = useAuth();
   const [profile, setProfile] = useState({
-    name: 'Admin User',
-    email: 'admin@studywisely.in',
-    phone: '+91 98765 43219',
-    role: 'Super Admin',
+    name: user?.name || 'Admin User',
+    email: user?.email || 'admin@studywisely.in',
+    phone: user?.phone || '+91 98765 43219',
+    role: user?.role || 'Super Admin',
     location: 'Mumbai, India',
     joined: '2026-06-01',
     bio: 'Lead educational administrator overseeing platform content, syllabus definitions, and teacher onboarding schedules.',
@@ -29,10 +31,22 @@ const Profile = () => {
   // Load from localStorage & setup event listener
   useEffect(() => {
     const saved = localStorage.getItem('admin_profile');
+    const defaultData = {
+      name: user?.name || 'Admin User',
+      email: user?.email || 'admin@studywisely.in',
+      phone: user?.phone || '+91 98765 43219',
+      role: user?.role || 'Super Admin'
+    };
     if (saved) {
       setProfile(prev => ({
         ...prev,
+        ...defaultData,
         ...JSON.parse(saved)
+      }));
+    } else {
+      setProfile(prev => ({
+        ...prev,
+        ...defaultData
       }));
     }
 
@@ -48,7 +62,19 @@ const Profile = () => {
 
     window.addEventListener('admin_profile_update', handleSync);
     return () => window.removeEventListener('admin_profile_update', handleSync);
-  }, []);
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      setProfile(prev => ({
+        ...prev,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
+        phone: user.phone || prev.phone,
+        role: user.role || prev.role
+      }));
+    }
+  }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -66,6 +92,13 @@ const Profile = () => {
     }
 
     localStorage.setItem('admin_profile', JSON.stringify(profile));
+    if (updateProfile) {
+      updateProfile({
+        name: profile.name,
+        email: profile.email,
+        phone: profile.phone
+      });
+    }
     window.dispatchEvent(new Event('admin_profile_update'));
     toast.success('Your admin profile has been successfully saved.', 'Profile Saved');
   };
