@@ -17,6 +17,7 @@ export const ROUTES = {
   SCHOOL_ONBOARDING: '/school-onboarding',
 
   // Auth Pages
+  SELECT_CLASS: '/select-class',
   LOGIN: '/login',
   REGISTER: '/register',
   OTP_VERIFICATION: '/verify-otp',
