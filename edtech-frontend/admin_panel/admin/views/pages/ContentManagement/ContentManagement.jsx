@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   Plus, 
@@ -12,6 +12,8 @@ import {
   Clock
 } from 'lucide-react';
 import { useToast } from '../../../../../src/views/components/common/Toast/Toast';
+import syllabusService from '../../../../../src/models/services/syllabusService';
+import { BOARDS, CLASSES } from '../../../../../src/config/constants';
 import styles from './ContentManagement.module.css';
 
 const initialContent = [
@@ -35,6 +37,33 @@ const ContentManagement = () => {
   const [contentList, setContentList] = useState(initialContent);
   const [activeTab, setActiveTab] = useState('courses');
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const loadBackendSyllabus = async () => {
+      try {
+        const res = await syllabusService.getAllSyllabus();
+        if (res.data && res.data.length > 0) {
+          const backendCourses = res.data.map(item => ({
+            id: item._id,
+            title: `${item.subjectName} (${item.board.toUpperCase()} Class ${item.class})`,
+            type: 'Course',
+            modules: item.chapters ? String(item.chapters.length) : '0',
+            students: '100+',
+            status: item.status || 'Published',
+            isBackend: true,
+            rawId: item._id
+          }));
+          setContentList(prev => {
+            const staticNonCourses = prev.filter(c => c.type !== 'Course');
+            return [...backendCourses, ...staticNonCourses];
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching backend syllabus in ContentManagement:', err);
+      }
+    };
+    loadBackendSyllabus();
+  }, []);
   
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -45,6 +74,8 @@ const ContentManagement = () => {
   // Form states
   const [formData, setFormData] = useState({
     title: '',
+    board: 'cbse',
+    class: '10',
     type: 'Course',
     modules: '',
     students: '',
@@ -56,6 +87,8 @@ const ContentManagement = () => {
   const resetForm = () => {
     setFormData({
       title: '',
+      board: 'cbse',
+      class: '10',
       type: 'Course',
       modules: '',
       students: '',
@@ -98,10 +131,10 @@ const ContentManagement = () => {
     }));
   };
 
-  const handleAddSubmit = (e) => {
+  const handleAddSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title) {
-      toast.error('Title is required.', 'Validation Error');
+      toast?.error?.('Title is required.', 'Validation Error');
       return;
     }
 
@@ -109,32 +142,63 @@ const ContentManagement = () => {
     if (formData.type === 'Document') prefix = 'DOC';
     if (formData.type === 'Video') prefix = 'VID';
 
-    const nextIdNum = Math.max(...contentList
-      .filter(c => c.id.startsWith(prefix))
-      .map(c => parseInt(c.id.replace(prefix, '')) || 0)
-    , 0) + 1;
+    const nextIdNum = Math.max(
+      ...contentList
+        .filter(c => c && c.id && typeof c.id === 'string' && c.id.startsWith(prefix))
+        .map(c => parseInt(c.id.replace(prefix, '')) || 0),
+      0
+    ) + 1;
 
     const formattedId = `${prefix}${String(nextIdNum).padStart(3, '0')}`;
+    const boardLabel = (formData.board || 'cbse').toUpperCase();
 
     const newContent = {
       id: formattedId,
-      title: formData.title,
+      title: `${formData.title} (${boardLabel} Class ${formData.class || '10'})`,
       type: formData.type,
+      board: formData.board,
+      class: formData.class,
       modules: formData.type === 'Course' ? (formData.modules || '0') : '-',
       students: formData.type === 'Course' ? (formData.students || '0') : '-',
       status: formData.status
     };
 
+    if (formData.type === 'Course') {
+      try {
+        const numModules = Math.min(Math.max(parseInt(formData.modules) || 1, 1), 50);
+        const backendRes = await syllabusService.createSyllabus({
+          board: formData.board || 'cbse',
+          class: String(formData.class || '10'),
+          subjectName: formData.title,
+          status: formData.status,
+          description: `Syllabus for ${formData.title}`,
+          chapters: Array.from({ length: numModules }, (_, i) => ({
+            title: `Chapter ${i + 1}: Overview`,
+            description: `Core concepts of ${formData.title}`
+          }))
+        });
+        if (backendRes.data) {
+          newContent.id = backendRes.data._id;
+          newContent.rawId = backendRes.data._id;
+          newContent.isBackend = true;
+        }
+      } catch (err) {
+        console.error('Failed to save syllabus course in backend:', err);
+      }
+    }
+
     setContentList(prev => [newContent, ...prev]);
     setIsAddModalOpen(false);
     resetForm();
-    toast.success(`"${newContent.title}" has been successfully added.`, 'Content Published');
+    toast?.success?.(`"${newContent.title}" has been successfully added.`, 'Content Published');
   };
 
   const handleEditClick = (content) => {
     setCurrentContent(content);
     setFormData({
-      title: content.title,
+      title: content.title ? content.title.split(' (')[0] : '',
+      board: content.board || 'cbse',
+      class: content.class || '10',
       type: content.type,
       modules: content.modules === '-' ? '' : content.modules,
       students: content.students === '-' ? '' : content.students,
@@ -143,18 +207,36 @@ const ContentManagement = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title) {
-      toast.error('Title is required.', 'Validation Error');
+      toast?.error?.('Title is required.', 'Validation Error');
       return;
+    }
+
+    const boardLabel = (formData.board || 'cbse').toUpperCase();
+    const updatedTitle = `${formData.title} (${boardLabel} Class ${formData.class || '10'})`;
+
+    if (currentContent?.rawId || currentContent?.isBackend) {
+      try {
+        await syllabusService.updateSyllabus(currentContent.rawId || currentContent.id, {
+          board: formData.board,
+          class: String(formData.class),
+          subjectName: formData.title,
+          status: formData.status
+        });
+      } catch (err) {
+        console.error('Failed to update syllabus in backend:', err);
+      }
     }
 
     setContentList(prev => 
       prev.map(c => c.id === currentContent.id ? { 
         ...c, 
-        title: formData.title,
+        title: updatedTitle,
         type: formData.type,
+        board: formData.board,
+        class: formData.class,
         modules: formData.type === 'Course' ? (formData.modules || '0') : '-',
         students: formData.type === 'Course' ? (formData.students || '0') : '-',
         status: formData.status
@@ -162,7 +244,7 @@ const ContentManagement = () => {
     );
     setIsEditModalOpen(false);
     resetForm();
-    toast.success(`"${formData.title}" details updated.`, 'Content Updated');
+    toast?.success?.(`"${updatedTitle}" details updated.`, 'Content Updated');
   };
 
   const handleDeleteClick = (content) => {
@@ -170,10 +252,17 @@ const ContentManagement = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
+    if (currentContent?.rawId || currentContent?.isBackend) {
+      try {
+        await syllabusService.deleteSyllabus(currentContent.rawId || currentContent.id);
+      } catch (err) {
+        console.error('Failed to delete syllabus from backend:', err);
+      }
+    }
     setContentList(prev => prev.filter(c => c.id !== currentContent.id));
     setIsDeleteModalOpen(false);
-    toast.success(`"${currentContent.title}" has been deleted.`, 'Content Removed');
+    toast?.success?.(`"${currentContent?.title}" has been deleted.`, 'Content Removed');
     setCurrentContent(null);
   };
 
@@ -345,6 +434,36 @@ const ContentManagement = () => {
 
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Education Board *</label>
+                    <select 
+                      name="board"
+                      className={styles.formSelect}
+                      value={formData.board}
+                      onChange={handleInputChange}
+                    >
+                      {BOARDS.map(b => (
+                        <option key={b.id} value={b.id}>{b.name} ({b.fullName})</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Class / Grade *</label>
+                    <select 
+                      name="class"
+                      className={styles.formSelect}
+                      value={formData.class}
+                      onChange={handleInputChange}
+                    >
+                      {CLASSES.map(c => (
+                        <option key={c.id} value={String(c.id)}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className={styles.formGrid}>
+                  <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Content Type</label>
                     <select 
                       name="type"
@@ -435,6 +554,36 @@ const ContentManagement = () => {
                     value={formData.title}
                     onChange={handleInputChange}
                   />
+                </div>
+
+                <div className={styles.formGrid}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Education Board *</label>
+                    <select 
+                      name="board"
+                      className={styles.formSelect}
+                      value={formData.board}
+                      onChange={handleInputChange}
+                    >
+                      {BOARDS.map(b => (
+                        <option key={b.id} value={b.id}>{b.name} ({b.fullName})</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Class / Grade *</label>
+                    <select 
+                      name="class"
+                      className={styles.formSelect}
+                      value={formData.class}
+                      onChange={handleInputChange}
+                    >
+                      {CLASSES.map(c => (
+                        <option key={c.id} value={String(c.id)}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div className={styles.formGrid}>

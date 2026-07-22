@@ -9,7 +9,7 @@ export const APP_DESCRIPTION = 'All-in-One Companion for Top Grades — Class 1 
 
 // API Configuration
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-export const API_TIMEOUT = 15000;
+export const API_TIMEOUT = 8000;
 
 // Classes
 export const CLASSES = [

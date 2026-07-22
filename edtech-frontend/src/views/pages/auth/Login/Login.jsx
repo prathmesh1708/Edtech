@@ -196,9 +196,18 @@ const Login = () => {
             </Button>
           </form>
 
-          {!isAdminFlow && (
-            <p className={styles.footer}>
-              Don't have an account? <Link to={classParam ? `${ROUTES.REGISTER}?class=${classParam}` : `${ROUTES.SELECT_CLASS}?mode=register`}>Create {roleLabel} Account</Link>
+          {!isAdminFlow ? (
+            <>
+              <p className={styles.footer}>
+                Don't have an account? <Link to={classParam ? `${ROUTES.REGISTER}?class=${classParam}` : `${ROUTES.SELECT_CLASS}?mode=register`}>Create {roleLabel} Account</Link>
+              </p>
+              <p className={styles.footer} style={{ marginTop: '8px', opacity: 0.85 }}>
+                Are you an Administrator? <Link to={ROUTES.ADMIN_LOGIN} style={{ fontWeight: '600' }}>Admin Login Portal</Link>
+              </p>
+            </>
+          ) : (
+            <p className={styles.footer} style={{ marginTop: '16px' }}>
+              Are you a Student or Parent? <Link to={ROUTES.LOGIN} style={{ fontWeight: '600' }}>Student/Parent Sign In</Link>
             </p>
           )}
         </div>
