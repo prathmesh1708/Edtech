@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { Home, LogOut, Settings, Bell, Bot, BookOpen, FileText } from 'lucide-react';
 import Logo from '../../../../../src/views/components/common/Logo/Logo';
 import { ROUTES } from '../../../../../src/config/routes';
@@ -17,9 +17,14 @@ const MENU_ITEMS = [
 ];
 
 const StudentLayout = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, loading, isAuthenticated } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate(ROUTES.HOME);
+  };
 
   // Dropdown states
   const [showNotifications, setShowNotifications] = useState(false);
@@ -32,6 +37,18 @@ const StudentLayout = () => {
     { id: 3, text: '📝 Physics: New study notes uploaded for Chapter 2', time: 'Yesterday', read: true },
     { id: 4, text: '🔥 Streak Protected! Protect your 5-day streak today', time: '1 day ago', read: true }
   ]);
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'var(--color-bg)' }}>
+        <div style={{ fontSize: 'var(--text-lg)', color: 'var(--color-text-secondary)', fontWeight: '600' }}>Loading Student Portal...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to={ROUTES.LOGIN} replace />;
+  }
 
   // Temporary mock user if not logged in
   const currentUser = user || { name: 'Aarav Sharma', classId: '10', board: 'CBSE', email: 'aarav.sharma@gmail.com' };
@@ -79,7 +96,7 @@ const StudentLayout = () => {
             variant="ghost"
             fullWidth
             iconLeft={<LogOut size={18} />}
-            onClick={logout}
+            onClick={handleLogout}
             style={{ justifyContent: 'flex-start' }}
           >
             Logout
@@ -293,7 +310,7 @@ const StudentLayout = () => {
                     <button 
                       onClick={() => {
                         setShowProfileMenu(false);
-                        logout();
+                        handleLogout();
                       }}
                       style={{ 
                         display: 'flex', 

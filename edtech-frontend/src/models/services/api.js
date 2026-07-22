@@ -24,9 +24,28 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      let isAdmin = false;
+      try {
+        const storedUser = localStorage.getItem('sw_user');
+        if (storedUser) {
+          const parsed = JSON.parse(storedUser);
+          if (parsed.role === 'admin') isAdmin = true;
+        }
+      } catch (e) {
+        // ignore JSON parse error
+      }
+      
+      const currentPath = window.location.pathname;
+      const isAdminRoute = currentPath.startsWith('/admin') || currentPath.startsWith('/login/admin') || isAdmin;
+
       localStorage.removeItem('sw_token');
       localStorage.removeItem('sw_user');
-      window.location.href = '/login';
+      
+      if (isAdminRoute) {
+        window.location.href = '/login/admin';
+      } else {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

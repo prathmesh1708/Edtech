@@ -9,9 +9,11 @@ const useSyllabusController = () => {
     selectedClass,
     setSelectedClass,
     subjects,
-    loading: stateLoading
+    loading: stateLoading,
+    refreshSubjects
   } = useSyllabusState();
 
+  const [currentSubject, setCurrentSubject] = useState(null);
   const [chapters, setChapters] = useState([]);
   const [activeChapter, setActiveChapter] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -25,38 +27,67 @@ const useSyllabusController = () => {
   }, [setSelectedClass]);
 
   const fetchChapters = useCallback(async (subjectId) => {
+    if (!subjectId) return;
     setLoading(true);
     try {
-      // Fetch chapters for the given subject
-      // const res = await syllabusService.getChapters(subjectId);
-      // setChapters(res.data);
-      
-      // For mock purposes:
-      const mockChapters = [
-        { id: 'ch-1', title: 'Chapter 1: Real Numbers', description: 'Concepts of HCF, LCM, and Fundamental Theorem of Arithmetic', progress: 80 },
-        { id: 'ch-2', title: 'Chapter 2: Polynomials', description: 'Geometrical meaning of zeroes, relationship between zeroes and coefficients', progress: 40 },
-        { id: 'ch-3', title: 'Chapter 3: Quadratic Equations', description: 'Standard form, solution by factorization and quadratic formula', progress: 0 },
-        { id: 'ch-4', title: 'Chapter 4: Arithmetic Progressions', description: 'Derivation of the nth term and sum of first n terms', progress: 0 },
-      ];
-      setChapters(mockChapters);
+      // First check if subject details are already present in context subjects array
+      const localSubj = subjects.find(s => s.id === subjectId || s.name.toLowerCase() === subjectId.toLowerCase());
+      if (localSubj && localSubj.chapters && localSubj.chapters.length > 0) {
+        setCurrentSubject(localSubj);
+        setChapters(localSubj.chapters.map((ch, i) => ({
+          id: ch._id || `ch-${i + 1}`,
+          title: ch.title,
+          description: ch.description || '',
+          progress: ch.progress || 0,
+          topics: ch.topics || [],
+          resources: ch.resources || []
+        })));
+        return;
+      }
+
+      // If not, fetch from backend via API
+      const res = await syllabusService.getSyllabusById(subjectId);
+      if (res.data) {
+        const item = res.data;
+        setCurrentSubject({
+          id: item._id,
+          name: item.subjectName,
+          code: item.subjectCode,
+          description: item.description,
+          color: item.color || '#4F6EF7',
+          icon: item.icon || 'BookOpen',
+          rawItem: item
+        });
+        const fetchedChapters = (item.chapters || []).map((ch, i) => ({
+          id: ch._id || `ch-${i + 1}`,
+          title: ch.title,
+          description: ch.description || '',
+          progress: ch.progress || 0,
+          topics: ch.topics || [],
+          resources: ch.resources || []
+        }));
+        setChapters(fetchedChapters);
+      }
     } catch (error) {
-      console.error('Error fetching chapters:', error);
+      console.error('Error fetching chapters for subject:', error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [subjects]);
 
   return {
     selectedBoard,
     selectedClass,
     subjects,
+    currentSubject,
     chapters,
     activeChapter,
     setActiveChapter,
     loading: loading || stateLoading,
     selectBoard,
     selectClass,
-    fetchChapters
+    fetchChapters,
+    refreshSubjects
   };
 };
 

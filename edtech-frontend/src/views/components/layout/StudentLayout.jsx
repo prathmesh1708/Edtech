@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, LogOut, LayoutDashboard, BookOpen, Clock, Settings, User, Bell, Bot, FileText } from 'lucide-react';
 import Logo from '../common/Logo/Logo';
 import { ROUTES } from '../../../config/routes';
@@ -19,6 +19,12 @@ const MENU_ITEMS = [
 const StudentLayout = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate(ROUTES.HOME);
+  };
 
   // Temporary mock user if not logged in (so we can test easily)
   const currentUser = user || { name: 'John Doe', classId: '10', board: 'CBSE', email: 'student@example.com' };
@@ -55,7 +61,7 @@ const StudentLayout = () => {
             variant="ghost"
             fullWidth
             iconLeft={<LogOut size={18} />}
-            onClick={logout}
+            onClick={handleLogout}
             style={{ justifyContent: 'flex-start' }}
           >
             Logout

@@ -5,7 +5,7 @@ import authService from '../models/services/authService';
 import { ROUTES } from '../config/routes';
 
 const useAuthController = () => {
-  const { login: setAuth, logout: clearAuth } = useAuth();
+  const { login: setAuth, logout: clearAuth, user: currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -15,10 +15,23 @@ const useAuthController = () => {
     setError(null);
     try {
       const { data } = await authService.login({ email, password });
-      setAuth(data.user, data.token);
-      navigate(ROUTES.STUDENT_DASHBOARD);
+      const { token, ...user } = data;
+      
+      const currentPath = window.location.pathname;
+      const isAdminFlow = currentPath === ROUTES.ADMIN_LOGIN || currentPath.startsWith('/login/admin');
+      
+      if (isAdminFlow && user.role !== 'admin') {
+        throw new Error('Access Denied: Only administrators can log in here.');
+      }
+
+      setAuth(user, token);
+      if (user.role === 'admin') {
+        navigate(ROUTES.ADMIN_DASHBOARD);
+      } else {
+        navigate(ROUTES.STUDENT_DASHBOARD);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.message || err.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -42,10 +55,23 @@ const useAuthController = () => {
     setError(null);
     try {
       const { data } = await authService.verifyOTP(phone, otp);
-      setAuth(data.user, data.token);
-      navigate(ROUTES.STUDENT_DASHBOARD);
+      const { token, ...user } = data;
+
+      const currentPath = window.location.pathname;
+      const isAdminFlow = currentPath === ROUTES.ADMIN_LOGIN || currentPath.startsWith('/login/admin');
+      
+      if (isAdminFlow && user.role !== 'admin') {
+        throw new Error('Access Denied: Only administrators can log in here.');
+      }
+
+      setAuth(user, token);
+      if (user.role === 'admin') {
+        navigate(ROUTES.ADMIN_DASHBOARD);
+      } else {
+        navigate(ROUTES.STUDENT_DASHBOARD);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid OTP');
+      setError(err.message || err.response?.data?.message || 'Invalid OTP');
     } finally {
       setLoading(false);
     }
@@ -56,8 +82,9 @@ const useAuthController = () => {
     setError(null);
     try {
       const { data } = await authService.register(userData);
-      setAuth(data.user, data.token);
-      navigate(ROUTES.PROFILE_SETUP);
+      const { token, ...user } = data;
+      setAuth(user, token);
+      navigate(ROUTES.OTP_VERIFICATION);
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     } finally {
@@ -66,9 +93,14 @@ const useAuthController = () => {
   }, [setAuth, navigate]);
 
   const logout = useCallback(() => {
+    const isAdmin = currentUser?.role === 'admin';
     clearAuth();
-    navigate(ROUTES.HOME);
-  }, [clearAuth, navigate]);
+    if (isAdmin) {
+      navigate(ROUTES.ADMIN_LOGIN);
+    } else {
+      navigate(ROUTES.HOME);
+    }
+  }, [clearAuth, navigate, currentUser]);
 
   return { loginWithEmail, sendOTP, verifyOTP, register, logout, loading, error };
 };

@@ -19,6 +19,7 @@ export const ROUTES = {
   // Auth Pages
   SELECT_CLASS: '/select-class',
   LOGIN: '/login',
+  ADMIN_LOGIN: '/login/admin',
   REGISTER: '/register',
   OTP_VERIFICATION: '/verify-otp',
   FORGOT_PASSWORD: '/forgot-password',

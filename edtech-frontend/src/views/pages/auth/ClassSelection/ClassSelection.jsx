@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, BookOpen, GraduationCap } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ROUTES } from '../../../../config/routes';
@@ -9,6 +9,8 @@ import styles from './ClassSelection.module.css';
 
 const ClassSelection = () => {
   const [selectedClass, setSelectedClass] = useState(null);
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get('mode');
   const containerRef = useRef(null);
   const navigate = useNavigate();
 
@@ -40,7 +42,11 @@ const ClassSelection = () => {
 
   const handleContinue = () => {
     if (!selectedClass) return;
-    navigate(`${ROUTES.LOGIN}?class=${selectedClass}`);
+    if (mode === 'register') {
+      navigate(`${ROUTES.REGISTER}?class=${selectedClass}`);
+    } else {
+      navigate(`${ROUTES.LOGIN}?class=${selectedClass}`);
+    }
   };
 
   return (
@@ -84,7 +90,7 @@ const ClassSelection = () => {
               onClick={handleContinue}
               iconRight={<ArrowRight size={18} />}
             >
-              Continue to Sign In
+              {mode === 'register' ? 'Continue to Sign Up' : 'Continue to Sign In'}
             </Button>
           </div>
         </div>

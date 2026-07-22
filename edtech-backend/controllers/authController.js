@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import Admin from '../models/Admin.js';
 
 // Helper function to generate JWT
 const generateToken = (id) => {
@@ -12,7 +13,7 @@ const generateToken = (id) => {
 // @route   POST /api/auth/register
 // @access  Public
 export const registerUser = async (req, res, next) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password, role, phone, schoolName, childName, classId, board } = req.body;
 
   try {
     if (!name || !email || !password) {
@@ -20,31 +21,65 @@ export const registerUser = async (req, res, next) => {
       throw new Error('Please include name, email, and password');
     }
 
-    const userExists = await User.findOne({ email });
+    const userExists = (await User.findOne({ email })) || (await Admin.findOne({ email }));
 
     if (userExists) {
       res.status(400);
       throw new Error('User already exists');
     }
 
-    const user = await User.create({
-      name,
-      email,
-      password,
-      role: role || 'student',
-    });
-
-    if (user) {
-      res.status(201).json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        token: generateToken(user._id),
+    if (role === 'admin') {
+      const admin = await Admin.create({
+        name,
+        email,
+        password,
+        role: 'admin',
+        phone,
       });
+
+      if (admin) {
+        res.status(201).json({
+          _id: admin._id,
+          name: admin.name,
+          email: admin.email,
+          role: admin.role,
+          phone: admin.phone,
+          token: generateToken(admin._id),
+        });
+      } else {
+        res.status(400);
+        throw new Error('Invalid admin data');
+      }
     } else {
-      res.status(400);
-      throw new Error('Invalid user data');
+      const user = await User.create({
+        name,
+        email,
+        password,
+        role: role || 'student',
+        phone,
+        schoolName,
+        childName,
+        classId,
+        board: board || 'CBSE',
+      });
+
+      if (user) {
+        res.status(201).json({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          schoolName: user.schoolName,
+          childName: user.childName,
+          classId: user.classId,
+          board: user.board,
+          token: generateToken(user._id),
+        });
+      } else {
+        res.status(400);
+        throw new Error('Invalid user data');
+      }
     }
   } catch (error) {
     next(error);
@@ -63,14 +98,26 @@ export const loginUser = async (req, res, next) => {
       throw new Error('Please include email and password');
     }
 
-    const user = await User.findOne({ email });
+    // Check Admin collection first
+    let user = await Admin.findOne({ email });
+    let isAdminModel = true;
+
+    if (!user) {
+      user = await User.findOne({ email });
+      isAdminModel = false;
+    }
 
     if (user && (await user.matchPassword(password))) {
       res.json({
         _id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,
+        role: user.role || (isAdminModel ? 'admin' : 'student'),
+        phone: user.phone,
+        schoolName: user.schoolName,
+        childName: user.childName,
+        classId: user.classId,
+        board: user.board,
         token: generateToken(user._id),
       });
     } else {
@@ -87,7 +134,10 @@ export const loginUser = async (req, res, next) => {
 // @access  Private
 export const getUserProfile = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id);
+    let user = await Admin.findById(req.user._id);
+    if (!user) {
+      user = await User.findById(req.user._id);
+    }
 
     if (user) {
       res.json({
@@ -95,6 +145,11 @@ export const getUserProfile = async (req, res, next) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        phone: user.phone,
+        schoolName: user.schoolName,
+        childName: user.childName,
+        classId: user.classId,
+        board: user.board,
       });
     } else {
       res.status(404);
