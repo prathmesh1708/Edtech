@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   Filter, 
@@ -11,18 +11,12 @@ import {
   Layers
 } from 'lucide-react';
 import { useToast } from '../../../../../src/views/components/common/Toast/Toast';
+import studentService from '../../../../../src/models/services/studentService';
 import styles from './StudentManagement.module.css';
 
-const initialStudents = [
-  { id: 'STU001', name: 'Rahul Sharma', grade: 'Class 10', board: 'CBSE', joined: '2026-06-10', status: 'Active' },
-  { id: 'STU002', name: 'Priya Patel', grade: 'Class 12', board: 'ICSE', joined: '2026-06-12', status: 'Active' },
-  { id: 'STU003', name: 'Amit Kumar', grade: 'Class 9', board: 'State Board', joined: '2026-06-15', status: 'Inactive' },
-  { id: 'STU004', name: 'Sneha Gupta', grade: 'Class 11', board: 'CBSE', joined: '2026-06-18', status: 'Active' },
-  { id: 'STU005', name: 'Rohan Singh', grade: 'Class 10', board: 'ICSE', joined: '2026-06-20', status: 'Active' },
-];
-
 const StudentManagement = () => {
-  const [students, setStudents] = useState(initialStudents);
+  const [students, setStudents] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGrade, setSelectedGrade] = useState('All');
   const [selectedBoard, setSelectedBoard] = useState('All');
@@ -37,6 +31,8 @@ const StudentManagement = () => {
   // Form state
   const [formData, setFormData] = useState({
     name: '',
+    email: '',
+    phone: '',
     grade: 'Class 10',
     board: 'CBSE',
     joined: new Date().toISOString().split('T')[0],
@@ -48,12 +44,41 @@ const StudentManagement = () => {
   const resetForm = () => {
     setFormData({
       name: '',
+      email: '',
+      phone: '',
       grade: 'Class 10',
       board: 'CBSE',
       joined: new Date().toISOString().split('T')[0],
       status: 'Active'
     });
   };
+
+  const fetchStudents = async () => {
+    setIsLoading(true);
+    try {
+      const response = await studentService.getStudentsAdmin();
+      const mapped = (response.data || []).map(user => ({
+        id: user._id,
+        name: user.name,
+        email: user.email || '',
+        phone: user.phone || '',
+        grade: user.classId || 'Class 10',
+        board: user.board || 'CBSE',
+        joined: user.createdAt ? user.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
+        status: user.status || 'Active'
+      }));
+      setStudents(mapped);
+    } catch (err) {
+      toast.error('Failed to load students from server.', 'Error');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -74,11 +99,20 @@ const StudentManagement = () => {
     });
   };
 
+  const getDisplayId = (student) => {
+    if (student.id && student.id.length > 8) {
+      return `STU-${student.id.slice(-4).toUpperCase()}`;
+    }
+    return student.id;
+  };
+
   // Filter students
   const filteredStudents = students.filter(student => {
+    const displayId = getDisplayId(student);
     const matchesSearch = 
       student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.id.toLowerCase().includes(searchTerm.toLowerCase());
+      displayId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (student.email && student.email.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesGrade = selectedGrade === 'All' || student.grade === selectedGrade;
     const matchesBoard = selectedBoard === 'All' || student.board === selectedBoard;
@@ -88,31 +122,57 @@ const StudentManagement = () => {
   });
 
   // Handlers
-  const handleAddSubmit = (e) => {
+  const handleAddSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name) {
       toast.error('Student name is required.', 'Validation Error');
       return;
     }
+    if (!formData.email) {
+      toast.error('Student email is required.', 'Validation Error');
+      return;
+    }
 
-    const nextIdNum = Math.max(...students.map(s => parseInt(s.id.replace('STU', '')) || 0), 0) + 1;
-    const formattedId = `STU${String(nextIdNum).padStart(3, '0')}`;
+    try {
+      const studentData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        classId: formData.grade,
+        board: formData.board,
+        status: formData.status
+      };
+      
+      const response = await studentService.createStudentAdmin(studentData);
+      const created = response.data;
+      
+      const mappedNew = {
+        id: created._id,
+        name: created.name,
+        email: created.email || '',
+        phone: created.phone || '',
+        grade: created.classId || 'Class 10',
+        board: created.board || 'CBSE',
+        joined: created.createdAt ? created.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
+        status: created.status || 'Active'
+      };
 
-    const newStudent = {
-      id: formattedId,
-      ...formData
-    };
-
-    setStudents(prev => [newStudent, ...prev]);
-    setIsAddModalOpen(false);
-    resetForm();
-    toast.success(`Student "${newStudent.name}" enrolled successfully.`, 'Student Added');
+      setStudents(prev => [mappedNew, ...prev]);
+      setIsAddModalOpen(false);
+      resetForm();
+      toast.success(`Student "${mappedNew.name}" enrolled successfully.`, 'Student Added');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to enroll student.', 'Error');
+      console.error(err);
+    }
   };
 
   const handleEditClick = (student) => {
     setCurrentStudent(student);
     setFormData({
       name: student.name,
+      email: student.email || '',
+      phone: student.phone || '',
       grade: student.grade,
       board: student.board,
       joined: student.joined,
@@ -121,19 +181,51 @@ const StudentManagement = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name) {
       toast.error('Student name is required.', 'Validation Error');
       return;
     }
+    if (!formData.email) {
+      toast.error('Student email is required.', 'Validation Error');
+      return;
+    }
 
-    setStudents(prev => 
-      prev.map(s => s.id === currentStudent.id ? { ...s, ...formData } : s)
-    );
-    setIsEditModalOpen(false);
-    resetForm();
-    toast.success(`Student "${formData.name}" profiles updated.`, 'Update Successful');
+    try {
+      const studentData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        classId: formData.grade,
+        board: formData.board,
+        status: formData.status
+      };
+      
+      const response = await studentService.updateStudentAdmin(currentStudent.id, studentData);
+      const updated = response.data;
+      
+      const mappedUpdated = {
+        id: updated._id,
+        name: updated.name,
+        email: updated.email || '',
+        phone: updated.phone || '',
+        grade: updated.classId || 'Class 10',
+        board: updated.board || 'CBSE',
+        joined: updated.createdAt ? updated.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
+        status: updated.status || 'Active'
+      };
+
+      setStudents(prev => 
+        prev.map(s => s.id === currentStudent.id ? mappedUpdated : s)
+      );
+      setIsEditModalOpen(false);
+      resetForm();
+      toast.success(`Student "${formData.name}" profile updated.`, 'Update Successful');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update student.', 'Error');
+      console.error(err);
+    }
   };
 
   const handleDeleteClick = (student) => {
@@ -141,11 +233,17 @@ const StudentManagement = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
-    setStudents(prev => prev.filter(s => s.id !== currentStudent.id));
-    setIsDeleteModalOpen(false);
-    toast.success(`Enrolled student "${currentStudent.name}" has been deleted.`, 'Student Removed');
-    setCurrentStudent(null);
+  const handleDeleteConfirm = async () => {
+    try {
+      await studentService.deleteStudentAdmin(currentStudent.id);
+      setStudents(prev => prev.filter(s => s.id !== currentStudent.id));
+      setIsDeleteModalOpen(false);
+      toast.success(`Enrolled student "${currentStudent.name}" has been deleted.`, 'Student Removed');
+      setCurrentStudent(null);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to delete student.', 'Error');
+      console.error(err);
+    }
   };
 
   return (
@@ -228,10 +326,16 @@ const StudentManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredStudents.length > 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-secondary)' }}>
+                    Loading students...
+                  </td>
+                </tr>
+              ) : filteredStudents.length > 0 ? (
                 filteredStudents.map((student) => (
                   <tr key={student.id}>
-                    <td className={styles.cellId}>{student.id}</td>
+                    <td className={styles.cellId}>{getDisplayId(student)}</td>
                     <td className={styles.cellName}>{student.name}</td>
                     <td>{student.grade}</td>
                     <td>{student.board}</td>
@@ -307,6 +411,32 @@ const StudentManagement = () => {
                     value={formData.name}
                     onChange={handleInputChange}
                   />
+                </div>
+
+                <div className={styles.formGrid}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Email Address *</label>
+                    <input 
+                      type="email" 
+                      name="email" 
+                      required 
+                      placeholder="e.g. sharma@gmail.com"
+                      className={styles.formInput}
+                      value={formData.email}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Phone Number</label>
+                    <input 
+                      type="text" 
+                      name="phone" 
+                      placeholder="e.g. 9876543210"
+                      className={styles.formInput}
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                    />
+                  </div>
                 </div>
 
                 <div className={styles.formGrid}>
@@ -408,6 +538,30 @@ const StudentManagement = () => {
 
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Email Address *</label>
+                    <input 
+                      type="email" 
+                      name="email" 
+                      required 
+                      className={styles.formInput}
+                      value={formData.email}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Phone Number</label>
+                    <input 
+                      type="text" 
+                      name="phone" 
+                      className={styles.formInput}
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formGrid}>
+                  <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Grade / Class</label>
                     <select 
                       name="grade"
@@ -492,7 +646,7 @@ const StudentManagement = () => {
             <div className={styles.modalBody}>
               <p>Are you sure you want to remove the student enrollment for <strong>{currentStudent?.name}</strong>?</p>
               <p style={{ color: 'var(--color-text-tertiary)', fontSize: 'var(--text-xs)' }}>
-                This is a simulation and will only modify local component state. Refreshing the browser will reload the original records.
+                This action is permanent and will delete the student's registration from the database.
               </p>
             </div>
             <div className={styles.modalFooter}>

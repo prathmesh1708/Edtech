@@ -1,6 +1,7 @@
 import Todo from '../models/Todo.js';
 import Activity from '../models/Activity.js';
 import Syllabus from '../models/Syllabus.js';
+import User from '../models/User.js';
 
 const DEFAULT_TODOS = [
   { id: 'todo-1', text: 'Complete Math Quiz on Real Numbers', completed: true },
@@ -209,3 +210,105 @@ export const deleteTodo = async (req, res) => {
   }
   res.json({ message: 'Task removed successfully', id: req.params.id });
 };
+
+/**
+ * @desc    Get all students for admin panel
+ * @route   GET /api/student/admin
+ * @access  Private / Admin
+ */
+export const getStudentsAdmin = async (req, res, next) => {
+  try {
+    const students = await User.find({ role: 'student' }).sort({ createdAt: -1 });
+    res.json(students);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Create/enroll a student from admin panel
+ * @route   POST /api/student/admin
+ * @access  Private / Admin
+ */
+export const createStudentAdmin = async (req, res, next) => {
+  const { name, email, password, phone, classId, board, status } = req.body;
+  try {
+    if (!name || !email) {
+      res.status(400);
+      throw new Error('Please include name and email');
+    }
+
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      res.status(400);
+      throw new Error('Student email already registered');
+    }
+
+    // Default password if not provided
+    const studentPassword = password || '123456';
+
+    const student = await User.create({
+      name,
+      email,
+      password: studentPassword,
+      role: 'student',
+      phone: phone || '',
+      classId: classId || 'Class 10',
+      board: board || 'CBSE',
+      status: status || 'Active'
+    });
+
+    res.status(201).json(student);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Update a student's record from admin panel
+ * @route   PUT /api/student/admin/:id
+ * @access  Private / Admin
+ */
+export const updateStudentAdmin = async (req, res, next) => {
+  const { name, email, phone, classId, board, status } = req.body;
+  try {
+    const student = await User.findById(req.params.id);
+    if (!student || student.role !== 'student') {
+      res.status(404);
+      throw new Error('Student not found');
+    }
+
+    student.name = name || student.name;
+    student.email = email || student.email;
+    student.phone = phone !== undefined ? phone : student.phone;
+    student.classId = classId !== undefined ? classId : student.classId;
+    student.board = board || student.board;
+    student.status = status || student.status;
+
+    const updatedStudent = await student.save();
+    res.json(updatedStudent);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Delete a student from admin panel
+ * @route   DELETE /api/student/admin/:id
+ * @access  Private / Admin
+ */
+export const deleteStudentAdmin = async (req, res, next) => {
+  try {
+    const student = await User.findById(req.params.id);
+    if (!student || student.role !== 'student') {
+      res.status(404);
+      throw new Error('Student not found');
+    }
+
+    await student.deleteOne();
+    res.json({ message: 'Student removed successfully', id: req.params.id });
+  } catch (error) {
+    next(error);
+  }
+};
+

@@ -5,10 +5,15 @@ import {
   getTodos,
   createTodo,
   toggleTodo,
-  deleteTodo
+  deleteTodo,
+  getStudentsAdmin,
+  createStudentAdmin,
+  updateStudentAdmin,
+  deleteStudentAdmin
 } from '../controllers/studentController.js';
 import User from '../models/User.js';
 import Admin from '../models/Admin.js';
+import { protect, authorize } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -37,5 +42,11 @@ router.get('/todos', optionalAuth, getTodos);
 router.post('/todos', optionalAuth, createTodo);
 router.put('/todos/:id', optionalAuth, toggleTodo);
 router.delete('/todos/:id', optionalAuth, deleteTodo);
+
+// Admin Student CRUD Routes
+router.get('/admin', protect, authorize('admin'), getStudentsAdmin);
+router.post('/admin', protect, authorize('admin'), createStudentAdmin);
+router.put('/admin/:id', protect, authorize('admin'), updateStudentAdmin);
+router.delete('/admin/:id', protect, authorize('admin'), deleteStudentAdmin);
 
 export default router;

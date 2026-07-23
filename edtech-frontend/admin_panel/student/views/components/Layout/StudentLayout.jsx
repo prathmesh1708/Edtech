@@ -50,6 +50,10 @@ const StudentLayout = () => {
     return <Navigate to={ROUTES.LOGIN} replace />;
   }
 
+  if (user && user.role === 'admin') {
+    return <Navigate to={ROUTES.ADMIN_DASHBOARD} replace />;
+  }
+
   // Temporary mock user if not logged in
   const currentUser = user || { name: 'Aarav Sharma', classId: '10', board: 'CBSE', email: 'aarav.sharma@gmail.com' };
 

@@ -9,6 +9,12 @@ export const studentService = {
   createTodo: (text) => api.post('/student/todos', { text }),
   toggleTodo: (id) => api.put(`/student/todos/${id}`),
   deleteTodo: (id) => api.delete(`/student/todos/${id}`),
+
+  // Admin Student CRUD
+  getStudentsAdmin: () => api.get('/student/admin'),
+  createStudentAdmin: (studentData) => api.post('/student/admin', studentData),
+  updateStudentAdmin: (id, studentData) => api.put(`/student/admin/${id}`, studentData),
+  deleteStudentAdmin: (id) => api.delete(`/student/admin/${id}`),
 };
 
 export default studentService;
