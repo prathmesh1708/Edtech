@@ -27,8 +27,23 @@
   border-bottom: 1px solid var(--color-border-light);
 }
 
+.logoLink {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.sidebarLogo {
+  justify-content: flex-start !important;
+}
+
 .logoArea img {
   height: 60px;
+}
+
+.mobileLogo {
+  display: none;
 }
 
 .navSection {
@@ -103,6 +118,12 @@
   gap: var(--space-3);
 }
 
+.userMeta {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+}
+
 .userName {
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
@@ -174,7 +195,28 @@
     padding-bottom: 72px; /* Clear the fixed bottom nav */
   }
   .header {
+    height: 72px; /* Reduce from 96px for mobile screens */
     padding: 0 var(--space-4);
+    gap: var(--space-4);
+    justify-content: space-between;
+  }
+  .headerTitle {
+    font-size: var(--text-base);
+    flex: 1;
+  }
+  .mobileLogo {
+    display: flex;
+    align-items: center;
+    height: 40px;
+  }
+  .mobileLogo a {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+  .mobileLogo img {
+    height: 36px;
+    width: auto;
   }
   .contentBody {
     padding: var(--space-3);
@@ -182,5 +224,11 @@
   }
   .bottomNav {
     display: flex;
+  }
+}
+
+@media (max-width: 768px) {
+  .userMeta {
+    display: none;
   }
 }
