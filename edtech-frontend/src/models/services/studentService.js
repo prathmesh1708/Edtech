@@ -15,6 +15,12 @@ export const studentService = {
   createStudentAdmin: (studentData) => api.post('/student/admin', studentData),
   updateStudentAdmin: (id, studentData) => api.put(`/student/admin/${id}`, studentData),
   deleteStudentAdmin: (id) => api.delete(`/student/admin/${id}`),
+  
+  // Access Control & Quick Actions
+  updateStudentStatus: (id, status) => api.put(`/student/admin/${id}`, { status }),
+  resetStudentPassword: (id, newPassword) => api.put(`/student/admin/${id}`, { password: newPassword }),
+  verifyStudentEmail: (id) => api.put(`/student/admin/${id}`, { emailVerified: true }),
+  changeClassBatch: (id, classId, batch) => api.put(`/student/admin/${id}`, { classId, batch }),
 };
 
 export default studentService;

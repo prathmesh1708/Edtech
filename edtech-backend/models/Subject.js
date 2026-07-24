@@ -2,43 +2,47 @@ import mongoose from 'mongoose';
 
 const subjectSchema = new mongoose.Schema(
   {
-    name: {
+    subjectName: {
       type: String,
       required: [true, 'Please add a subject name'],
-      trim: true,
+      trim: true
     },
-    subjectId: {
+    subjectCode: {
       type: String,
-      required: [true, 'Please add a subject ID/slug'],
-      trim: true,
-      lowercase: true,
-    },
-    description: {
-      type: String,
-      trim: true,
-    },
-    color: {
-      type: String,
-      default: '#4F6EF7',
+      required: [true, 'Please add a subject code'],
+      trim: true
     },
     board: {
       type: String,
-      required: [true, 'Please add a board name'],
-      trim: true,
+      required: [true, 'Please select a board'],
+      default: 'CBSE'
     },
     classId: {
       type: String,
-      required: [true, 'Please add a class ID'],
-      trim: true,
+      required: [true, 'Please select a class'],
+      default: 'Class 10'
     },
+    description: {
+      type: String,
+      default: ''
+    },
+    color: {
+      type: String,
+      default: '#1A73E8'
+    },
+    status: {
+      type: String,
+      enum: ['Active', 'Inactive'],
+      default: 'Active'
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    }
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-// Create unique compound index for subject per board and class
-subjectSchema.index({ subjectId: 1, board: 1, classId: 1 }, { unique: true });
-
 const Subject = mongoose.model('Subject', subjectSchema);
+
 export default Subject;

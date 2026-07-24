@@ -40,11 +40,22 @@ export const ROUTES = {
 
   // Admin Panel
   ADMIN_DASHBOARD: '/admin',
+  ADMIN_ANALYTICS: '/admin/analytics',
+  ADMIN_EDUCATIONAL_INSIGHTS: '/admin/educational-insights',
   ADMIN_STUDENTS: '/admin/students',
   ADMIN_TEACHERS: '/admin/teachers',
   ADMIN_SUBSCRIPTIONS: '/admin/subscriptions',
   ADMIN_SYLLABUS: '/admin/syllabus',
   ADMIN_CONTENT: '/admin/content',
+  
+  // Syllabus & Content Submodules
+  ADMIN_SYLLABUS_GLOBAL: '/admin/syllabus/global',
+  ADMIN_SYLLABUS_BOARD: '/admin/syllabus/board-wise',
+  ADMIN_SYLLABUS_SUBJECTS: '/admin/syllabus/subjects',
+  ADMIN_SYLLABUS_CHAPTERS: '/admin/syllabus/chapters',
+  ADMIN_SYLLABUS_APPROVAL: '/admin/syllabus/approval',
+  ADMIN_SYLLABUS_MATERIALS: '/admin/syllabus/materials',
+
   ADMIN_BANNERS: '/admin/banners',
   ADMIN_NOTIFICATIONS: '/admin/notifications',
   ADMIN_SETTINGS: '/admin/settings',

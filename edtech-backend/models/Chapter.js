@@ -2,33 +2,60 @@ import mongoose from 'mongoose';
 
 const chapterSchema = new mongoose.Schema(
   {
-    subject: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Subject',
-      required: [true, 'Please add a reference to a Subject'],
-    },
-    title: {
+    chapterName: {
       type: String,
-      required: [true, 'Please add a chapter title'],
-      trim: true,
+      required: [true, 'Please add a chapter name'],
+      trim: true
+    },
+    chapterNumber: {
+      type: Number,
+      required: [true, 'Please add a chapter number'],
+      default: 1
+    },
+    subject: {
+      type: String,
+      required: [true, 'Please select a subject'],
+      default: 'Mathematics'
+    },
+    board: {
+      type: String,
+      required: [true, 'Please select a board'],
+      default: 'CBSE'
+    },
+    classId: {
+      type: String,
+      required: [true, 'Please select a class'],
+      default: 'Class 10'
     },
     description: {
       type: String,
-      trim: true,
+      default: ''
     },
-    order: {
+    learningObjectives: {
+      type: String,
+      default: ''
+    },
+    estimatedStudyTime: {
+      type: String,
+      default: '4 Hours'
+    },
+    orderIndex: {
       type: Number,
-      required: [true, 'Please add an order index for chapter sorting'],
-      default: 0,
+      default: 1
     },
+    status: {
+      type: String,
+      enum: ['Active', 'Inactive'],
+      default: 'Active'
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    }
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-// Compound index to ensure uniqueness of chapter orders within a subject
-chapterSchema.index({ subject: 1, order: 1 });
-
 const Chapter = mongoose.model('Chapter', chapterSchema);
+
 export default Chapter;

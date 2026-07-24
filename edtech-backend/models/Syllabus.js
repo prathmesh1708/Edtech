@@ -21,6 +21,10 @@ const chapterSchema = new mongoose.Schema({
 
 const syllabusSchema = new mongoose.Schema(
   {
+    _id: {
+      type: String,
+      default: () => `sys-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
+    },
     board: {
       type: String,
       required: [true, 'Please specify education board (e.g. cbse, icse, state)'],
@@ -67,6 +71,7 @@ const syllabusSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    _id: false // Allow custom string _id values
   }
 );
 

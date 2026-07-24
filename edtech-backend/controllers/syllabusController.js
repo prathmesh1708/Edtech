@@ -1,6 +1,24 @@
 import Syllabus from '../models/Syllabus.js';
+import Subject from '../models/Subject.js';
 
-// Default initial data to seed if collection is empty or DB is offline
+// Normalization Helpers
+export const normBoard = (b) => {
+  if (!b) return 'cbse';
+  const s = String(b).toLowerCase().trim();
+  if (s.includes('state')) return 'state';
+  if (s.includes('icse') || s.includes('cisce')) return 'icse';
+  if (s.includes('ib') || s.includes('international')) return 'ib';
+  if (s.includes('cambridge') || s.includes('cie')) return 'cambridge';
+  return s;
+};
+
+export const normClass = (c) => {
+  if (!c) return '10';
+  const match = String(c).match(/\d+/);
+  return match ? match[0] : String(c).replace(/class/i, '').trim();
+};
+
+// Default initial seed data for popular boards
 const DEFAULT_SYLLABUS_SEED = [
   {
     _id: 'seed-math-10',
@@ -41,25 +59,6 @@ const DEFAULT_SYLLABUS_SEED = [
         resources: [
           { title: 'Polynomial Notes (PDF)', type: 'PDF', url: '#' }
         ]
-      },
-      {
-        title: 'Chapter 3: Quadratic Equations',
-        description: 'Standard form, solution by factorization and quadratic formula',
-        progress: 0,
-        topics: [
-          { name: 'Standard form of Quadratic Equations', completed: false },
-          { name: 'Solution by Factorization', completed: false },
-          { name: 'Quadratic Formula & Nature of Roots', completed: false }
-        ]
-      },
-      {
-        title: 'Chapter 4: Arithmetic Progressions',
-        description: 'Derivation of the nth term and sum of first n terms',
-        progress: 0,
-        topics: [
-          { name: 'nth Term of an AP', completed: false },
-          { name: 'Sum of First n Terms of an AP', completed: false }
-        ]
       }
     ]
   },
@@ -83,78 +82,58 @@ const DEFAULT_SYLLABUS_SEED = [
           { name: 'Types of Chemical Reactions', completed: true },
           { name: 'Corrosion and Rancidity', completed: false }
         ]
-      },
+      }
+    ]
+  },
+  {
+    _id: 'seed-state-math-12',
+    board: 'state',
+    class: '12',
+    subjectName: 'Mathematics',
+    subjectCode: 'MATH-12',
+    description: 'Class 12 Higher Secondary Mathematics (Calculus, Vectors & 3D Geometry)',
+    color: '#1A73E8',
+    icon: 'Calculator',
+    status: 'Published',
+    chapters: [
       {
-        title: 'Chapter 2: Acids, Bases and Salts',
-        description: 'Chemical properties of acids and bases, pH scale, salts',
-        progress: 20,
-        topics: [
-          { name: 'Understanding Chemical Properties of Acids & Bases', completed: true },
-          { name: 'pH Scale and Importance in Daily Life', completed: false }
-        ]
-      },
-      {
-        title: 'Chapter 3: Life Processes',
-        description: 'Nutrition, respiration, transportation, and excretion in plants and animals',
+        title: 'Chapter 1: Relations and Functions',
+        description: 'Types of relations, reflexivity, symmetry, and transitivity.',
         progress: 0,
         topics: [
-          { name: 'What are Life Processes?', completed: false },
-          { name: 'Nutrition in Humans', completed: false },
-          { name: 'Respiration & Circulation', completed: false }
-        ]
-      }
-    ]
-  },
-  {
-    _id: 'seed-eng-10',
-    board: 'cbse',
-    class: '10',
-    subjectName: 'English',
-    subjectCode: 'ENG-10',
-    description: 'First Flight & Footprints without Feet Literature & Grammar.',
-    color: '#F59E0B',
-    icon: 'BookOpen',
-    status: 'Published',
-    chapters: [
-      {
-        title: 'Chapter 1: A Letter to God',
-        description: 'Story of Lencho and his unflinching faith in God.',
-        progress: 100,
-        topics: [
-          { name: 'Reading & Analysis', completed: true },
-          { name: 'Character Sketch of Lencho', completed: true },
-          { name: 'Q&A Solutions', completed: true }
+          { name: 'Types of Relations', completed: false },
+          { name: 'One to One and Onto Functions', completed: false }
         ]
       },
       {
-        title: 'Chapter 2: Nelson Mandela - Long Walk to Freedom',
-        description: 'Extracts from Mandela\'s autobiography.',
-        progress: 50,
+        title: 'Chapter 2: Derivatives & Continuity',
+        description: 'Calculus derivatives of composite and implicit functions.',
+        progress: 0,
         topics: [
-          { name: 'Historical Context', completed: true },
-          { name: 'Theme & Important Quotes', completed: false }
+          { name: 'Continuity & Differentiability', completed: false },
+          { name: 'Chain Rule Derivatives', completed: false }
         ]
       }
     ]
   },
   {
-    _id: 'seed-sst-10',
-    board: 'cbse',
-    class: '10',
-    subjectName: 'Social Science',
-    subjectCode: 'SST-10',
-    description: 'History, Geography, Political Science, and Economics.',
-    color: '#7C5CFC',
-    icon: 'Globe',
+    _id: 'seed-state-phy-12',
+    board: 'state',
+    class: '12',
+    subjectName: 'Physics',
+    subjectCode: 'PHY-12',
+    description: 'Class 12 State Board Physics (Electrostatics, Current Electricity & Optics)',
+    color: '#3B82F6',
+    icon: 'Atom',
     status: 'Published',
     chapters: [
       {
-        title: 'Chapter 1: The Rise of Nationalism in Europe',
-        description: 'French Revolution and the idea of nation, making of nationalism.',
-        progress: 30,
+        title: 'Chapter 1: Electrostatics',
+        description: 'Electric charges, Coulomb\'s Law, and Electric Dipole.',
+        progress: 0,
         topics: [
-          { name: 'The French Revolution', completed: true },
-          { name: 'The Making of Nationalism in Europe', completed: false }
+          { name: 'Electric Charge & Conservation', completed: false },
+          { name: 'Coulomb\'s Law & Field Lines', completed: false }
         ]
       }
     ]
@@ -186,9 +165,17 @@ export const getSyllabuses = async (req, res) => {
     await seedIfEmpty();
 
     const filter = {};
-    if (board) filter.board = board.toLowerCase();
-    if (classVal) filter.class = String(classVal);
-    if (status) filter.status = status;
+    if (board) {
+      const nb = normBoard(board);
+      filter.board = { $regex: nb, $options: 'i' };
+    }
+    if (classVal) {
+      const nc = normClass(classVal);
+      filter.class = { $regex: nc, $options: 'i' };
+    }
+    if (status) {
+      filter.status = status;
+    }
     if (search) {
       filter.$or = [
         { subjectName: { $regex: search, $options: 'i' } },
@@ -202,8 +189,14 @@ export const getSyllabuses = async (req, res) => {
   } catch (error) {
     console.warn('MongoDB query timed out/failed in getSyllabuses, returning fallback seed data:', error.message);
     let fallback = DEFAULT_SYLLABUS_SEED;
-    if (board) fallback = fallback.filter(s => s.board === board.toLowerCase());
-    if (classVal) fallback = fallback.filter(s => s.class === String(classVal));
+    if (board) {
+      const nb = normBoard(board);
+      fallback = fallback.filter(s => normBoard(s.board) === nb);
+    }
+    if (classVal) {
+      const nc = normClass(classVal);
+      fallback = fallback.filter(s => normClass(s.class) === nc);
+    }
     res.json(fallback);
   }
 };
@@ -251,23 +244,49 @@ export const createSyllabus = async (req, res) => {
     return res.status(400).json({ message: 'Board, Class, and Subject Name are required.' });
   }
 
+  const normalizedB = normBoard(board);
+  const normalizedC = normClass(classVal);
+
   const syllabusObj = {
     _id: `sys-${Date.now()}`,
-    board: board.toLowerCase(),
-    class: String(classVal),
-    subjectName,
+    board: normalizedB,
+    class: normalizedC,
+    subjectName: subjectName.trim(),
     subjectCode: subjectCode || '',
     description: description || '',
     color: color || '#4F6EF7',
     icon: icon || 'BookOpen',
     status: status || 'Published',
-    chapters: chapters || [],
+    chapters: chapters || [
+      {
+        title: `Chapter 1: ${subjectName} Fundamentals`,
+        description: `Introductory concepts and topics for ${subjectName}`,
+        progress: 0,
+        topics: [{ name: 'Overview & Basics', completed: false }]
+      }
+    ],
     createdBy: req.user ? req.user._id : null
   };
 
   try {
     const syllabus = new Syllabus(syllabusObj);
     const savedSyllabus = await syllabus.save();
+
+    // Sync to Subject Model for SubjectManagement module
+    try {
+      await Subject.create({
+        subjectName: subjectName.trim(),
+        subjectCode: subjectCode || `SUB-${Date.now().toString().slice(-4)}`,
+        board: board,
+        classId: `Class ${normalizedC}`,
+        description: description || '',
+        color: color || '#4F6EF7',
+        status: status === 'Draft' ? 'Inactive' : 'Active'
+      });
+    } catch (e) {
+      console.warn('Subject sync notice:', e.message);
+    }
+
     res.status(201).json(savedSyllabus);
   } catch (error) {
     console.warn('MongoDB save timed out in createSyllabus, returning created memory item:', error.message);
@@ -296,8 +315,8 @@ export const updateSyllabus = async (req, res) => {
   try {
     const syllabus = await Syllabus.findById(req.params.id).maxTimeMS(3000);
     if (syllabus) {
-      if (board !== undefined) syllabus.board = board.toLowerCase();
-      if (classVal !== undefined) syllabus.class = String(classVal);
+      if (board !== undefined) syllabus.board = normBoard(board);
+      if (classVal !== undefined) syllabus.class = normClass(classVal);
       if (subjectName !== undefined) syllabus.subjectName = subjectName;
       if (subjectCode !== undefined) syllabus.subjectCode = subjectCode;
       if (description !== undefined) syllabus.description = description;
@@ -315,8 +334,8 @@ export const updateSyllabus = async (req, res) => {
 
   res.json({
     _id: req.params.id,
-    board: board?.toLowerCase() || 'cbse',
-    class: String(classVal || '10'),
+    board: normBoard(board),
+    class: normClass(classVal),
     subjectName: subjectName || 'Subject',
     status: status || 'Published',
     chapters: chapters || []

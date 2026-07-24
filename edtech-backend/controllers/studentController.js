@@ -218,7 +218,96 @@ export const deleteTodo = async (req, res) => {
  */
 export const getStudentsAdmin = async (req, res, next) => {
   try {
-    const students = await User.find({ role: 'student' }).sort({ createdAt: -1 });
+    let students = await User.find({ role: 'student' }).sort({ createdAt: -1 });
+
+    if (students.length === 0) {
+      const initialSeeds = [
+        {
+          name: 'Alex Morgan',
+          email: 'alex.morgan@student.edu',
+          password: 'password123',
+          role: 'student',
+          phone: '+1 (555) 234-5678',
+          classId: 'Class 10',
+          board: 'CBSE',
+          status: 'Active',
+          studentId: 'STU-2026-1042',
+          dob: '2008-05-15',
+          gender: 'Male',
+          address: '42 Wallaby Way, Sydney',
+          parentName: 'Robert Morgan',
+          parentPhone: '+1 (555) 987-6543',
+          section: 'A',
+          rollNumber: '104',
+          batch: '2025-2026',
+          emailVerified: true
+        },
+        {
+          name: 'Sophia Chen',
+          email: 'sophia.chen@student.edu',
+          password: 'password123',
+          role: 'student',
+          phone: '+1 (555) 345-6789',
+          classId: 'Class 10',
+          board: 'CBSE',
+          status: 'Active',
+          studentId: 'STU-2026-1043',
+          dob: '2008-08-22',
+          gender: 'Female',
+          address: '88 Innovation Ave, Tech City',
+          parentName: 'David Chen',
+          parentPhone: '+1 (555) 876-5432',
+          section: 'B',
+          rollNumber: '108',
+          batch: '2025-2026',
+          emailVerified: true
+        },
+        {
+          name: 'Liam Johnson',
+          email: 'liam.j@student.edu',
+          password: 'password123',
+          role: 'student',
+          phone: '+1 (555) 456-7890',
+          classId: 'Class 9',
+          board: 'ICSE',
+          status: 'Suspended',
+          studentId: 'STU-2026-1044',
+          dob: '2009-03-10',
+          gender: 'Male',
+          address: '15 Oak Street, Springfield',
+          parentName: 'Sarah Johnson',
+          parentPhone: '+1 (555) 765-4321',
+          section: 'A',
+          rollNumber: '102',
+          batch: '2025-2026',
+          emailVerified: false
+        },
+        {
+          name: 'Emma Watson',
+          email: 'emma.w@student.edu',
+          password: 'password123',
+          role: 'student',
+          phone: '+1 (555) 567-8901',
+          classId: 'Class 12',
+          board: 'CBSE',
+          status: 'Active',
+          studentId: 'STU-2026-1045',
+          dob: '2007-11-04',
+          gender: 'Female',
+          address: '742 Evergreen Terrace, Sector 4',
+          parentName: 'John Watson',
+          parentPhone: '+1 (555) 654-3210',
+          section: 'C',
+          rollNumber: '120',
+          batch: '2024-2025',
+          emailVerified: true
+        }
+      ];
+
+      await User.insertMany(initialSeeds);
+      students = await User.find({ role: 'student' }).sort({ createdAt: -1 });
+    }
+
     res.json(students);
   } catch (error) {
     next(error);
@@ -231,7 +320,11 @@ export const getStudentsAdmin = async (req, res, next) => {
  * @access  Private / Admin
  */
 export const createStudentAdmin = async (req, res, next) => {
-  const { name, email, password, phone, classId, board, status } = req.body;
+  const { 
+    name, email, password, phone, classId, board, status,
+    studentId, dob, gender, address, parentName, parentPhone,
+    section, rollNumber, batch, photoUrl, emailVerified
+  } = req.body;
   try {
     if (!name || !email) {
       res.status(400);
@@ -244,7 +337,6 @@ export const createStudentAdmin = async (req, res, next) => {
       throw new Error('Student email already registered');
     }
 
-    // Default password if not provided
     const studentPassword = password || '123456';
 
     const student = await User.create({
@@ -255,7 +347,18 @@ export const createStudentAdmin = async (req, res, next) => {
       phone: phone || '',
       classId: classId || 'Class 10',
       board: board || 'CBSE',
-      status: status || 'Active'
+      status: status || 'Active',
+      studentId: studentId || `STU-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      dob: dob || '',
+      gender: gender || 'Male',
+      address: address || '',
+      parentName: parentName || '',
+      parentPhone: parentPhone || '',
+      section: section || 'A',
+      rollNumber: rollNumber || '',
+      batch: batch || '2025-2026',
+      photoUrl: photoUrl || '',
+      emailVerified: emailVerified !== undefined ? emailVerified : true
     });
 
     res.status(201).json(student);
@@ -270,7 +373,11 @@ export const createStudentAdmin = async (req, res, next) => {
  * @access  Private / Admin
  */
 export const updateStudentAdmin = async (req, res, next) => {
-  const { name, email, phone, classId, board, status } = req.body;
+  const { 
+    name, email, phone, classId, board, status, password,
+    studentId, dob, gender, address, parentName, parentPhone,
+    section, rollNumber, batch, photoUrl, emailVerified
+  } = req.body;
   try {
     const student = await User.findById(req.params.id);
     if (!student || student.role !== 'student') {
@@ -284,6 +391,18 @@ export const updateStudentAdmin = async (req, res, next) => {
     student.classId = classId !== undefined ? classId : student.classId;
     student.board = board || student.board;
     student.status = status || student.status;
+    if (studentId) student.studentId = studentId;
+    if (dob !== undefined) student.dob = dob;
+    if (gender !== undefined) student.gender = gender;
+    if (address !== undefined) student.address = address;
+    if (parentName !== undefined) student.parentName = parentName;
+    if (parentPhone !== undefined) student.parentPhone = parentPhone;
+    if (section !== undefined) student.section = section;
+    if (rollNumber !== undefined) student.rollNumber = rollNumber;
+    if (batch !== undefined) student.batch = batch;
+    if (photoUrl !== undefined) student.photoUrl = photoUrl;
+    if (emailVerified !== undefined) student.emailVerified = emailVerified;
+    if (password) student.password = password;
 
     const updatedStudent = await student.save();
     res.json(updatedStudent);

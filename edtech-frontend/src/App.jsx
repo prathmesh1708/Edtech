@@ -37,6 +37,8 @@ const Settings = lazy(() => import('./views/pages/student/Settings/Settings'));
 
 // Admin Pages
 const AdminDashboard = lazy(() => import('../admin_panel/admin/views/pages/Dashboard/Dashboard'));
+const AdminAnalytics = lazy(() => import('../admin_panel/admin/views/pages/Analytics/Analytics'));
+const EducationalInsights = lazy(() => import('../admin_panel/admin/views/pages/EducationalInsights/EducationalInsights'));
 const StudentManagement = lazy(() => import('../admin_panel/admin/views/pages/StudentManagement/StudentManagement'));
 const TeacherManagement = lazy(() => import('../admin_panel/admin/views/pages/TeacherManagement/TeacherManagement'));
 const SubscriptionManagement = lazy(() => import('../admin_panel/admin/views/pages/SubscriptionManagement/SubscriptionManagement'));
@@ -47,6 +49,14 @@ const ContentManagement = lazy(() => import('../admin_panel/admin/views/pages/Co
 const PlatformSettings = lazy(() => import('../admin_panel/admin/views/pages/PlatformManagement/PlatformManagement'));
 const AdminProfile = lazy(() => import('../admin_panel/admin/views/pages/Profile/Profile'));
 const SystemSettings = lazy(() => import('../admin_panel/admin/views/pages/SystemSettings/SystemSettings'));
+
+// Syllabus & Content Module Pages
+const GlobalSyllabusManagement = lazy(() => import('../admin_panel/admin/views/pages/SyllabusContentManagement/GlobalSyllabusManagement'));
+const BoardSyllabusManagement = lazy(() => import('../admin_panel/admin/views/pages/SyllabusContentManagement/BoardSyllabusManagement'));
+const SubjectManagement = lazy(() => import('../admin_panel/admin/views/pages/SyllabusContentManagement/SubjectManagement'));
+const ChapterManagement = lazy(() => import('../admin_panel/admin/views/pages/SyllabusContentManagement/ChapterManagement'));
+const ContentApprovalSystem = lazy(() => import('../admin_panel/admin/views/pages/SyllabusContentManagement/ContentApprovalSystem'));
+const EducationalMaterialOrganization = lazy(() => import('../admin_panel/admin/views/pages/SyllabusContentManagement/EducationalMaterialOrganization'));
 
 function App() {
   return (
@@ -89,13 +99,24 @@ function App() {
                 {/* Master Admin Portal */}
                 <Route element={<AdminLayout />}>
                   <Route path={ROUTES.ADMIN_DASHBOARD} element={<AdminDashboard />} />
+                  <Route path={ROUTES.ADMIN_ANALYTICS} element={<AdminAnalytics />} />
+                  <Route path={ROUTES.ADMIN_EDUCATIONAL_INSIGHTS} element={<EducationalInsights />} />
                   <Route path={ROUTES.ADMIN_STUDENTS} element={<StudentManagement />} />
                   <Route path={ROUTES.ADMIN_TEACHERS} element={<TeacherManagement />} />
                   <Route path={ROUTES.ADMIN_SUBSCRIPTIONS} element={<SubscriptionManagement />} />
                   <Route path={ROUTES.ADMIN_BANNERS} element={<BannersManagement />} />
                   <Route path={ROUTES.ADMIN_NOTIFICATIONS} element={<NotificationManagement />} />
-                  <Route path={ROUTES.ADMIN_SYLLABUS} element={<SyllabusManagement />} />
-                  <Route path={ROUTES.ADMIN_CONTENT} element={<ContentManagement />} />
+                  <Route path={ROUTES.ADMIN_SYLLABUS} element={<GlobalSyllabusManagement />} />
+                  <Route path={ROUTES.ADMIN_CONTENT} element={<EducationalMaterialOrganization />} />
+                  
+                  {/* Syllabus & Content Submodules */}
+                  <Route path={ROUTES.ADMIN_SYLLABUS_GLOBAL} element={<GlobalSyllabusManagement />} />
+                  <Route path={ROUTES.ADMIN_SYLLABUS_BOARD} element={<BoardSyllabusManagement />} />
+                  <Route path={ROUTES.ADMIN_SYLLABUS_SUBJECTS} element={<SubjectManagement />} />
+                  <Route path={ROUTES.ADMIN_SYLLABUS_CHAPTERS} element={<ChapterManagement />} />
+                  <Route path={ROUTES.ADMIN_SYLLABUS_APPROVAL} element={<ContentApprovalSystem />} />
+                  <Route path={ROUTES.ADMIN_SYLLABUS_MATERIALS} element={<EducationalMaterialOrganization />} />
+
                   <Route path={ROUTES.ADMIN_SETTINGS} element={<PlatformSettings />} />
                   <Route path={ROUTES.ADMIN_PROFILE} element={<AdminProfile />} />
                   <Route path={ROUTES.ADMIN_SYSTEM_SETTINGS} element={<SystemSettings />} />
