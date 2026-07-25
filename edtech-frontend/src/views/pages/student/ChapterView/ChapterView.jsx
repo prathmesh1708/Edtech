@@ -139,23 +139,6 @@ const ChapterView = () => {
               <Badge variant="primary" size="sm">12 Mins</Badge>
             </button>
           </div>
-
-          <div style={{ ...s.sidebarCard, background: 'var(--gradient-accent)', border: 'none', color: 'white' }}>
-            <h3 style={{ fontSize: 'var(--text-base)', fontWeight: '700', marginBottom: 'var(--space-2)' }}>Ask AI Tutor</h3>
-            <p style={{ fontSize: 'var(--text-xs)', opacity: 0.9, marginBottom: 'var(--space-4)', lineHeight: '1.5' }}>
-              Have questions about this chapter? Get step-by-step doubt clearing instantly.
-            </p>
-            <Button
-              variant="secondary"
-              size="sm"
-              fullWidth
-              iconLeft={<Sparkles size={14} />}
-              onClick={() => navigate(ROUTES.AI_TUTOR)}
-              style={{ color: 'var(--color-accent)' }}
-            >
-              Start Doubt Solving
-            </Button>
-          </div>
         </div>
       </div>
     </div>

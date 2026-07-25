@@ -7,6 +7,7 @@ import {
 import { ROUTES, generateRoute } from '../../../../../src/config/routes';
 import { useAuth } from '../../../../../src/models/context/AuthContext';
 import studentService from '../../../../../src/models/services/studentService';
+import bannerService from '../../../../../src/models/services/bannerService';
 import Card from '../../../../../src/views/components/common/Card/Card';
 import Badge from '../../../../../src/views/components/common/Badge/Badge';
 import Button from '../../../../../src/views/components/common/Button/Button';
@@ -31,7 +32,23 @@ const StudentDashboard = () => {
   const [todos, setTodos] = useState([]);
   const [activities, setActivities] = useState([]);
   const [newTodo, setNewTodo] = useState('');
+  const [activeBanners, setActiveBanners] = useState([]);
   const [streakClicked, setStreakClicked] = useState(false);
+
+  // Fetch live active banners managed by Admin
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const res = await bannerService.getActiveBanners();
+        if (res.data) {
+          setActiveBanners(res.data);
+        }
+      } catch (err) {
+        console.warn('Could not fetch active banners:', err);
+      }
+    };
+    fetchBanners();
+  }, []);
 
   // Fetch Dashboard data from Backend API
   const loadDashboardData = useCallback(async () => {
@@ -139,6 +156,51 @@ const StudentDashboard = () => {
           </span>
         </div>
       </div>
+
+      {/* Live Admin Banners Carousel / Banner Cards */}
+      {activeBanners && activeBanners.length > 0 && (
+        <div style={{ margin: 'var(--space-6) 0', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Badge variant="primary">ANNOUNCEMENT</Badge>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-tertiary)', fontWeight: '600' }}>Platform Updates</span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: activeBanners.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-4)' }}>
+            {activeBanners.map(banner => (
+              <div 
+                key={banner._id || banner.id} 
+                style={{ 
+                  borderRadius: 'var(--radius-xl)', 
+                  overflow: 'hidden', 
+                  position: 'relative', 
+                  minHeight: '140px',
+                  boxShadow: 'var(--shadow-sm)',
+                  border: '1px solid var(--color-border-light)',
+                  cursor: banner.link ? 'pointer' : 'default'
+                }}
+                onClick={() => { if (banner.link) window.open(banner.link, '_blank'); }}
+              >
+                <img 
+                  src={banner.imageUrl} 
+                  alt={banner.title} 
+                  style={{ width: '100%', height: '140px', objectFit: 'cover' }} 
+                />
+                <div style={{ 
+                  position: 'absolute', 
+                  bottom: 0, 
+                  left: 0, 
+                  right: 0, 
+                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.85), transparent)', 
+                  padding: '12px 16px',
+                  color: '#fff'
+                }}>
+                  <h4 style={{ fontSize: 'var(--text-sm)', fontWeight: '700', margin: 0 }}>{banner.title}</h4>
+                  <span style={{ fontSize: '10px', opacity: 0.8 }}>Target Audience: {banner.targeting}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Grid of Key Progress statistics */}
       <div className={`${styles.statsGrid} responsive-grid-4`}>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   Image as ImageIcon, 
@@ -14,11 +14,13 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { useToast } from '../../../../../src/views/components/common/Toast/Toast';
+import bannerService from '../../../../../src/models/services/bannerService';
 import styles from './BannersManagement.module.css';
 
 const initialBanners = [
   { 
     id: 'BNR001', 
+    _id: 'BNR001',
     title: '2026 Fall Enrollment Open', 
     imageUrl: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&auto=format&fit=crop', 
     targeting: 'Prospective Students', 
@@ -29,6 +31,7 @@ const initialBanners = [
   },
   { 
     id: 'BNR002', 
+    _id: 'BNR002',
     title: 'Annual Faculty Symposium', 
     imageUrl: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=800&auto=format&fit=crop', 
     targeting: 'Staff & Faculty', 
@@ -39,6 +42,7 @@ const initialBanners = [
   },
   { 
     id: 'BNR003', 
+    _id: 'BNR003',
     title: 'National Scholarship Exam 2026', 
     imageUrl: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=800&auto=format&fit=crop', 
     targeting: 'Existing Students', 
@@ -46,21 +50,12 @@ const initialBanners = [
     startDate: '',
     endDate: '',
     status: 'Active' 
-  },
-  { 
-    id: 'BNR004', 
-    title: 'Parents Orientation Session', 
-    imageUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=800&auto=format&fit=crop', 
-    targeting: 'Parents', 
-    scheduleType: 'Scheduled',
-    startDate: '2026-08-01',
-    endDate: '2026-08-05',
-    status: 'Inactive' 
   }
 ];
 
 const BannersManagement = () => {
-  const [banners, setBanners] = useState(initialBanners);
+  const [banners, setBanners] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTarget, setSelectedTarget] = useState('All');
   const [selectedStatus, setSelectedStatus] = useState('All');
@@ -86,6 +81,27 @@ const BannersManagement = () => {
 
   const toast = useToast();
 
+  const fetchBanners = async () => {
+    try {
+      setLoading(true);
+      const res = await bannerService.getBanners();
+      if (res.data && res.data.length > 0) {
+        setBanners(res.data.map(b => ({ ...b, id: b._id || b.id })));
+      } else {
+        setBanners(initialBanners);
+      }
+    } catch (err) {
+      console.warn('Backend banners fetch fallback to defaults:', err);
+      setBanners(initialBanners);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBanners();
+  }, []);
+
   const resetForm = () => {
     setFormData({
       title: '',
@@ -110,9 +126,9 @@ const BannersManagement = () => {
   // Filters
   const filteredBanners = banners.filter(banner => {
     const matchesSearch = 
-      banner.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      banner.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      banner.targeting.toLowerCase().includes(searchTerm.toLowerCase());
+      (banner.title && banner.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (banner.id && banner.id.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (banner.targeting && banner.targeting.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesTarget = selectedTarget === 'All' || banner.targeting === selectedTarget;
     const matchesStatus = selectedStatus === 'All' || banner.status === selectedStatus;
@@ -136,7 +152,7 @@ const BannersManagement = () => {
   };
 
   // Add banner
-  const handleAddSubmit = (e) => {
+  const handleAddSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title || !formData.imageUrl) {
       toast.error('Title and Image URL are required fields.', 'Validation Error');
@@ -147,18 +163,16 @@ const BannersManagement = () => {
       return;
     }
 
-    const nextIdNum = Math.max(...banners.map(b => parseInt(b.id.replace('BNR', '')))) + 1;
-    const formattedId = `BNR${String(nextIdNum).padStart(3, '0')}`;
-
-    const newBanner = {
-      id: formattedId,
-      ...formData
-    };
-
-    setBanners(prev => [newBanner, ...prev]);
-    setIsAddModalOpen(false);
-    resetForm();
-    toast.success(`Banner "${newBanner.title}" has been successfully added.`, 'Banner Added');
+    try {
+      const res = await bannerService.createBanner(formData);
+      const newBanner = { ...res.data, id: res.data._id || res.data.id };
+      setBanners(prev => [newBanner, ...prev]);
+      setIsAddModalOpen(false);
+      resetForm();
+      toast.success(`Banner "${newBanner.title}" has been successfully added.`, 'Banner Added');
+    } catch (err) {
+      toast.error('Failed to create banner on backend server.', 'API Error');
+    }
   };
 
   // Edit banner
@@ -167,16 +181,16 @@ const BannersManagement = () => {
     setFormData({
       title: banner.title,
       imageUrl: banner.imageUrl,
-      targeting: banner.targeting,
-      scheduleType: banner.scheduleType,
+      targeting: banner.targeting || 'Prospective Students',
+      scheduleType: banner.scheduleType || 'Permanent',
       startDate: banner.startDate || '',
       endDate: banner.endDate || '',
-      status: banner.status
+      status: banner.status || 'Active'
     });
     setIsEditModalOpen(true);
   };
 
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title || !formData.imageUrl) {
       toast.error('Title and Image URL are required fields.', 'Validation Error');
@@ -187,12 +201,19 @@ const BannersManagement = () => {
       return;
     }
 
-    setBanners(prev => 
-      prev.map(b => b.id === currentBanner.id ? { ...b, ...formData } : b)
-    );
-    setIsEditModalOpen(false);
-    resetForm();
-    toast.success(`Banner details for "${formData.title}" updated.`, 'Banner Updated');
+    try {
+      const bannerId = currentBanner._id || currentBanner.id;
+      const res = await bannerService.updateBanner(bannerId, formData);
+      const updated = { ...res.data, id: res.data._id || res.data.id };
+      setBanners(prev => 
+        prev.map(b => (b.id === bannerId || b._id === bannerId) ? updated : b)
+      );
+      setIsEditModalOpen(false);
+      resetForm();
+      toast.success(`Banner details for "${formData.title}" updated.`, 'Banner Updated');
+    } catch (err) {
+      toast.error('Failed to update banner on server.', 'API Error');
+    }
   };
 
   // Schedule modal
@@ -200,32 +221,37 @@ const BannersManagement = () => {
     setCurrentBanner(banner);
     setFormData({
       ...formData,
-      scheduleType: banner.scheduleType,
+      scheduleType: banner.scheduleType || 'Permanent',
       startDate: banner.startDate || '',
       endDate: banner.endDate || '',
-      status: banner.status
+      status: banner.status || 'Active'
     });
     setIsScheduleModalOpen(true);
   };
 
-  const handleScheduleSubmit = (e) => {
+  const handleScheduleSubmit = async (e) => {
     e.preventDefault();
     if (formData.scheduleType === 'Scheduled' && (!formData.startDate || !formData.endDate)) {
       toast.error('Start and End dates are required for Scheduled banners.', 'Validation Error');
       return;
     }
 
-    setBanners(prev => 
-      prev.map(b => b.id === currentBanner.id ? { 
-        ...b, 
-        scheduleType: formData.scheduleType,
-        startDate: formData.startDate,
-        endDate: formData.endDate,
+    try {
+      const bannerId = currentBanner._id || currentBanner.id;
+      const updateData = {
+        ...formData,
         status: formData.scheduleType === 'Scheduled' ? 'Scheduled' : 'Active'
-      } : b)
-    );
-    setIsScheduleModalOpen(false);
-    toast.success(`Schedule updated for "${currentBanner.title}".`, 'Schedule Updated');
+      };
+      const res = await bannerService.updateBanner(bannerId, updateData);
+      const updated = { ...res.data, id: res.data._id || res.data.id };
+      setBanners(prev => 
+        prev.map(b => (b.id === bannerId || b._id === bannerId) ? updated : b)
+      );
+      setIsScheduleModalOpen(false);
+      toast.success(`Schedule updated for "${currentBanner.title}".`, 'Schedule Updated');
+    } catch (err) {
+      toast.error('Failed to update banner schedule.', 'API Error');
+    }
   };
 
   // Delete banner
@@ -234,11 +260,17 @@ const BannersManagement = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
-    setBanners(prev => prev.filter(b => b.id !== currentBanner.id));
-    setIsDeleteModalOpen(false);
-    toast.success(`Banner "${currentBanner.title}" has been deleted.`, 'Banner Removed');
-    setCurrentBanner(null);
+  const handleDeleteConfirm = async () => {
+    try {
+      const bannerId = currentBanner._id || currentBanner.id;
+      await bannerService.deleteBanner(bannerId);
+      setBanners(prev => prev.filter(b => b.id !== bannerId && b._id !== bannerId));
+      setIsDeleteModalOpen(false);
+      toast.success(`Banner "${currentBanner.title}" has been deleted.`, 'Banner Removed');
+      setCurrentBanner(null);
+    } catch (err) {
+      toast.error('Failed to delete banner from server.', 'API Error');
+    }
   };
 
   // View preview modal

@@ -93,7 +93,7 @@ const Navbar = () => {
               Login
             </Button>
           </Link>
-          <Link to={ROUTES.REGISTER}>
+          <Link to={`${ROUTES.SELECT_CLASS}?mode=register`}>
             <Button variant="primary" size="sm" iconLeft={<UserPlus size={16} />}>
               Get Started
             </Button>
@@ -153,7 +153,7 @@ const Navbar = () => {
               Login
             </Button>
           </Link>
-          <Link to={ROUTES.REGISTER}>
+          <Link to={`${ROUTES.SELECT_CLASS}?mode=register`}>
             <Button variant="primary" fullWidth iconLeft={<UserPlus size={18} />}>
               Get Started Free
             </Button>

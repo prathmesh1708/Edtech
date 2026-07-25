@@ -84,7 +84,7 @@ const Features = () => {
                 </div>
               ))}
             </div>
-            <Link to={ROUTES.REGISTER} style={{ marginTop: 'var(--space-4)' }}>
+            <Link to={`${ROUTES.SELECT_CLASS}?mode=register`} style={{ marginTop: 'var(--space-4)' }}>
               <Button variant="primary" iconRight={<ArrowRight size={18} />}>Try AI Tutor Free</Button>
             </Link>
           </div>

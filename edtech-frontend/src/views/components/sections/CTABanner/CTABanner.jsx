@@ -21,7 +21,7 @@ const CTABanner = () => {
               Join thousands of students scoring top grades with personalized AI-powered study tools.
             </p>
             <div className={styles.actions}>
-              <Link to={ROUTES.REGISTER}>
+              <Link to={`${ROUTES.SELECT_CLASS}?mode=register`}>
                 <button className={styles.primaryBtn}>
                   Get Started Free <ArrowRight size={20} />
                 </button>

@@ -11,7 +11,6 @@ import styles from '../../../../../src/views/components/layout/StudentLayout.mod
 
 const MENU_ITEMS = [
   { path: ROUTES.STUDENT_DASHBOARD, label: 'Home', icon: Home },
-  { path: ROUTES.AI_TUTOR, label: 'AI Tutor', icon: Bot },
   { path: ROUTES.MY_SYLLABUS, label: 'My Syllabus', icon: BookOpen },
   { path: ROUTES.NOTES, label: 'Notes', icon: FileText },
   { path: ROUTES.SETTINGS, label: 'Settings', icon: Settings },

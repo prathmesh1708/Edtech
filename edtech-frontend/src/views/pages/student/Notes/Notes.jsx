@@ -20,6 +20,7 @@ import {
   Clock
 } from 'lucide-react';
 import useContentController from '../../../../controllers/useContentController';
+import syllabusManagementService from '../../../../models/services/syllabusManagementService';
 import Button from '../../../components/common/Button/Button';
 import Input from '../../../components/common/Input/Input';
 import Card from '../../../components/common/Card/Card';
@@ -428,7 +429,85 @@ const Notes = () => {
     }, 150);
   };
 
-  const subjectData = MOCK_DATA[activeSubject];
+  const [liveMaterials, setLiveMaterials] = useState([]);
+  const [loadingMaterials, setLoadingMaterials] = useState(false);
+
+  // Fetch live educational materials published by Admin
+  useEffect(() => {
+    const fetchLiveMaterials = async () => {
+      try {
+        setLoadingMaterials(true);
+        const res = await syllabusManagementService.getEducationalMaterials();
+        if (res.data) {
+          setLiveMaterials(res.data);
+        }
+      } catch (err) {
+        console.warn('Could not fetch live educational materials, using fallback mock data:', err);
+      } finally {
+        setLoadingMaterials(false);
+      }
+    };
+    fetchLiveMaterials();
+  }, []);
+
+  // Merge live items with mock data
+  const rawSubjectData = MOCK_DATA[activeSubject];
+
+  const subjectData = React.useMemo(() => {
+    if (!liveMaterials || liveMaterials.length === 0) return rawSubjectData;
+
+    const currentSubjName = activeSubject === 'math' ? 'mathematics' : 'science';
+    const relevantLiveItems = liveMaterials.filter(m => 
+      !m.isDeleted && 
+      (m.subject?.toLowerCase().includes(currentSubjName) || m.subject?.toLowerCase().includes(activeSubject))
+    );
+
+    if (relevantLiveItems.length === 0) return rawSubjectData;
+
+    // Map live backend items into sub-categories
+    const liveChapters = relevantLiveItems
+      .filter(m => m.materialType === 'PDF Notes' || m.materialType === 'Documents')
+      .map(m => ({
+        id: m._id || m.id,
+        title: m.materialTitle,
+        description: `${m.chapter || 'Chapter Material'} • ${m.board} ${m.classId}`,
+        digitalMaterial: m.description || 'Verified study document provided by platform admin.',
+        topics: [
+          { title: m.materialTitle, content: `Format: ${m.materialType}\nFile Size: ${m.fileSize}\nLanguage: ${m.language}\nTags: ${m.tags?.join(', ') || 'NCERT'}` }
+        ]
+      }));
+
+    const liveVideos = relevantLiveItems
+      .filter(m => m.materialType === 'Videos')
+      .map(m => ({
+        id: m._id || m.id,
+        title: m.materialTitle,
+        duration: '10:00',
+        level: 'Standard',
+        thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=400',
+        videoUrl: m.fileUrl || 'https://www.w3schools.com/html/mov_bbb.mp4',
+        views: 'Live Admin Upload',
+        author: 'Platform Instructor'
+      }));
+
+    const liveDownloads = relevantLiveItems
+      .filter(m => m.materialType === 'Worksheets' || m.materialType === 'Sample Papers' || m.materialType === 'PDF Notes' || m.materialType === 'PPT')
+      .map(m => ({
+        id: m._id || m.id,
+        title: m.materialTitle,
+        description: m.description || `Official ${m.materialType} resource for ${m.subject}`,
+        fileSize: m.fileSize || '2.5 MB',
+        fileType: m.materialType,
+        downloadsCount: 150
+      }));
+
+    return {
+      ...rawSubjectData,
+      chapters: liveChapters.length > 0 ? [...liveChapters, ...rawSubjectData.chapters] : rawSubjectData.chapters,
+      videos: liveVideos.length > 0 ? [...liveVideos, ...rawSubjectData.videos] : rawSubjectData.videos,
+      downloads: liveDownloads.length > 0 ? [...liveDownloads, ...rawSubjectData.downloads] : rawSubjectData.downloads
+    };
+  }, [liveMaterials, activeSubject, rawSubjectData]);
 
   // Filters items depending on search query
   const filteredChapters = subjectData.chapters.filter(ch => 
