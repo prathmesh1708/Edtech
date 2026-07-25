@@ -93,7 +93,7 @@ const HeroSection = () => {
           </p>
 
           <div className={`${styles.actions} hero-actions`}>
-            <Link to={ROUTES.REGISTER}>
+            <Link to={`${ROUTES.SELECT_CLASS}?mode=register`}>
               <Button variant="primary" size="lg" iconRight={<ArrowRight size={20} />}>
                 Start Learning Free
               </Button>

@@ -34,7 +34,7 @@ const EducationalMaterialOrganization = () => {
     chapter: 'Chapter 1: Real Numbers',
     tagsStr: 'NCERT, Exam Prep',
     language: 'English',
-    status: 'Pending Review',
+    status: 'Published',
     visibility: 'Public',
     updateNotes: ''
   });
@@ -69,7 +69,7 @@ const EducationalMaterialOrganization = () => {
       chapter: 'Chapter 1: Real Numbers',
       tagsStr: 'NCERT, Solutions',
       language: 'English',
-      status: 'Pending Review',
+      status: 'Published',
       visibility: 'Public',
       updateNotes: ''
     });
@@ -377,10 +377,15 @@ const EducationalMaterialOrganization = () => {
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                     >
                       <option value="Mathematics">Mathematics</option>
+                      <option value="Science">Science</option>
                       <option value="Physics">Physics</option>
                       <option value="Chemistry">Chemistry</option>
                       <option value="Biology">Biology</option>
-                      <option value="English Literature">English Literature</option>
+                      <option value="English">English</option>
+                      <option value="Hindi">Hindi</option>
+                      <option value="Social Science">Social Science</option>
+                      <option value="Computer Science">Computer Science</option>
+                      <option value="Economics">Economics</option>
                     </select>
                   </div>
 
@@ -402,10 +407,9 @@ const EducationalMaterialOrganization = () => {
                         value={formData.classId}
                         onChange={(e) => setFormData({ ...formData, classId: e.target.value })}
                       >
-                        <option value="Class 9">Class 9</option>
-                        <option value="Class 10">Class 10</option>
-                        <option value="Class 11">Class 11</option>
-                        <option value="Class 12">Class 12</option>
+                        {Array.from({ length: 12 }, (_, i) => `Class ${i + 1}`).map(cls => (
+                          <option key={cls} value={cls}>{cls}</option>
+                        ))}
                       </select>
                     </div>
                   </div>

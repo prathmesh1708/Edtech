@@ -204,13 +204,9 @@ const SubjectManagement = () => {
               onChange={(e) => setSelectedClass(e.target.value)}
             >
               <option value="All">All Classes</option>
-              <option value="Class 6">Class 6</option>
-              <option value="Class 7">Class 7</option>
-              <option value="Class 8">Class 8</option>
-              <option value="Class 9">Class 9</option>
-              <option value="Class 10">Class 10</option>
-              <option value="Class 11">Class 11</option>
-              <option value="Class 12">Class 12</option>
+              {Array.from({ length: 12 }, (_, i) => `Class ${i + 1}`).map(cls => (
+                <option key={cls} value={cls}>{cls}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -332,13 +328,9 @@ const SubjectManagement = () => {
                       value={formData.classId}
                       onChange={(e) => setFormData({ ...formData, classId: e.target.value })}
                     >
-                      <option value="Class 6">Class 6</option>
-                      <option value="Class 7">Class 7</option>
-                      <option value="Class 8">Class 8</option>
-                      <option value="Class 9">Class 9</option>
-                      <option value="Class 10">Class 10</option>
-                      <option value="Class 11">Class 11</option>
-                      <option value="Class 12">Class 12</option>
+                      {Array.from({ length: 12 }, (_, i) => `Class ${i + 1}`).map(cls => (
+                        <option key={cls} value={cls}>{cls}</option>
+                      ))}
                     </select>
                   </div>
                 </div>

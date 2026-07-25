@@ -31,15 +31,10 @@ const Register = () => {
   const formRef = useRef(null);
   const navigate = useNavigate();
 
-  // Redirect to select-class if no class is selected
+  // Redirect to select-class if no class is selected in URL
   useEffect(() => {
     if (!classParam) {
-      const storedClass = localStorage.getItem('study_wisely_selected_class');
-      if (storedClass) {
-        navigate(`${ROUTES.REGISTER}?class=${storedClass}`, { replace: true });
-      } else {
-        navigate(`${ROUTES.SELECT_CLASS}?mode=register`, { replace: true });
-      }
+      navigate(`${ROUTES.SELECT_CLASS}?mode=register`, { replace: true });
     }
   }, [classParam, navigate]);
 
@@ -132,8 +127,30 @@ const Register = () => {
 
           <div className={styles.logoRow}>
             <Logo />
-            <div className={styles.classBadge}>
-              Class {classParam}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <select 
+                value={classParam} 
+                onChange={(e) => {
+                  const newClass = e.target.value;
+                  localStorage.setItem('study_wisely_selected_class', newClass);
+                  navigate(`${ROUTES.REGISTER}?class=${newClass}`, { replace: true });
+                }}
+                style={{
+                  background: 'var(--color-accent-light, #e0f2fe)',
+                  color: 'var(--color-accent-dark, #0284c7)',
+                  border: '1px solid var(--color-accent-border, #bae6fd)',
+                  borderRadius: 'var(--radius-full, 9999px)',
+                  padding: '4px 12px',
+                  fontWeight: '600',
+                  fontSize: 'var(--text-xs)',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((cNum) => (
+                  <option key={cNum} value={cNum}>Class {cNum}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -249,15 +266,36 @@ const Register = () => {
             )}
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
-              <Input 
-                label={isParentFlow ? "Child Class (Read Only)" : "Selected Class (Read Only)"} 
-                name="childClassReadOnly" 
-                value={`Class ${classParam}`} 
-                disabled 
-                placeholder={`Class ${classParam}`} 
-                iconLeft={<Shield size={18} />} 
-                style={{ opacity: 0.8 }}
-              />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+                <label style={{ fontSize: 'var(--text-xs)', fontWeight: '600', color: 'var(--color-text-secondary)' }}>
+                  {isParentFlow ? "Child Class" : "Selected Class"}
+                </label>
+                <select 
+                  value={classParam}
+                  onChange={(e) => {
+                    const newClass = e.target.value;
+                    localStorage.setItem('study_wisely_selected_class', newClass);
+                    navigate(`${ROUTES.REGISTER}?class=${newClass}`, { replace: true });
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 'var(--radius-lg)',
+                    border: '1px solid var(--color-border-light)',
+                    background: 'var(--color-surface)',
+                    color: 'var(--color-text-primary)',
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: '600',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    height: '42px'
+                  }}
+                >
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((cNum) => (
+                    <option key={cNum} value={cNum}>Class {cNum} ({cNum <= 6 ? 'Parent Managed' : 'Student Managed'})</option>
+                  ))}
+                </select>
+              </div>
               <Input 
                 label="School Name" 
                 name="schoolName" 

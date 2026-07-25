@@ -15,6 +15,29 @@ const bannerSchema = new mongoose.Schema(
     link: {
       type: String,
       trim: true,
+      default: '',
+    },
+    targeting: {
+      type: String,
+      default: 'Prospective Students',
+    },
+    scheduleType: {
+      type: String,
+      enum: ['Permanent', 'Scheduled'],
+      default: 'Permanent',
+    },
+    startDate: {
+      type: String,
+      default: '',
+    },
+    endDate: {
+      type: String,
+      default: '',
+    },
+    status: {
+      type: String,
+      enum: ['Active', 'Scheduled', 'Inactive'],
+      default: 'Active',
     },
     active: {
       type: Boolean,
@@ -31,7 +54,7 @@ const bannerSchema = new mongoose.Schema(
   }
 );
 
-bannerSchema.index({ active: 1, placement: 1 });
+bannerSchema.index({ active: 1, placement: 1, status: 1 });
 
 const Banner = mongoose.model('Banner', bannerSchema);
 export default Banner;

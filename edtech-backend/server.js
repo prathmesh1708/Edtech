@@ -8,6 +8,7 @@ import studentRoutes from './routes/studentRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import syllabusManagementRoutes from './routes/syllabusManagementRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import bannerRoutes from './routes/bannerRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 // Load environment variables
@@ -60,6 +61,7 @@ app.use('/api/student', studentRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/syllabus-management', syllabusManagementRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/banners', bannerRoutes);
 
 // Error Handling middleware
 app.use(notFound);

@@ -345,10 +345,9 @@ const ChapterManagement = () => {
                         value={formData.classId}
                         onChange={(e) => setFormData({ ...formData, classId: e.target.value })}
                       >
-                        <option value="Class 9">Class 9</option>
-                        <option value="Class 10">Class 10</option>
-                        <option value="Class 11">Class 11</option>
-                        <option value="Class 12">Class 12</option>
+                        {Array.from({ length: 12 }, (_, i) => `Class ${i + 1}`).map(cls => (
+                          <option key={cls} value={cls}>{cls}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
