@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ROUTES } from './config/routes';
 import { AuthProvider } from './models/context/AuthContext';
 import { SyllabusProvider } from './models/context/SyllabusContext';
@@ -84,6 +84,9 @@ function App() {
                 <Route path={ROUTES.ADMIN_LOGIN} element={<Login />} />
                 <Route path={ROUTES.REGISTER} element={<Register />} />
                 <Route path={ROUTES.OTP_VERIFICATION} element={<OTPVerification />} />
+
+                {/* Student Route Redirect */}
+                <Route path="/student" element={<Navigate to={ROUTES.STUDENT_DASHBOARD} replace />} />
 
                 {/* Student Dashboard Portal */}
                 <Route element={<StudentLayout />}>

@@ -18,14 +18,19 @@ connectDB();
 const app = express();
 
 // Standard middleware
-<<<<<<< HEAD
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://localhost:5174',
   'http://localhost:3000',
   'http://127.0.0.1:5173',
+  'http://127.0.0.1:5174',
   'https://edtech-frontend-lovat.vercel.app',
   process.env.CLIENT_URL
 ].filter(Boolean);
+
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(...process.env.FRONTEND_URL.split(',').map(url => url.trim()));
+}
 
 app.use(
   cors({
@@ -35,16 +40,6 @@ app.use(
       }
       return callback(null, true);
     },
-=======
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'];
-if (process.env.FRONTEND_URL) {
-  allowedOrigins.push(...process.env.FRONTEND_URL.split(',').map(url => url.trim()));
-}
-
-app.use(
-  cors({
-    origin: allowedOrigins,
->>>>>>> 8b05e848111a3727382f6e7ae2f35bbe839c8389
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
