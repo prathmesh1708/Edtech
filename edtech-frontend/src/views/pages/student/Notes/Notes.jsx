@@ -747,133 +747,7 @@ const Notes = () => {
     }, 150);
   };
 
-  const [liveMaterials, setLiveMaterials] = useState([]);
-  const [loadingMaterials, setLoadingMaterials] = useState(false);
 
-  // Fetch live educational materials published by Admin
-  useEffect(() => {
-    const fetchLiveMaterials = async () => {
-      try {
-        setLoadingMaterials(true);
-        const res = await syllabusManagementService.getEducationalMaterials();
-        if (res.data) {
-          setLiveMaterials(res.data);
-        }
-      } catch (err) {
-        console.warn('Could not fetch live educational materials, using fallback mock data:', err);
-      } finally {
-        setLoadingMaterials(false);
-      }
-    };
-    fetchLiveMaterials();
-  }, []);
-
-  // Merge live items with mock data safely for all subjects
-  const rawSubjectData = MOCK_DATA[activeSubject] || { 
-    name: activeSubject ? activeSubject.charAt(0).toUpperCase() + activeSubject.slice(1) : 'Subject', 
-    color: 'var(--color-primary)', 
-    chapters: [], 
-    videos: [], 
-    downloads: [] 
-  };
-
-  const subjectData = React.useMemo(() => {
-    const baseChapters = rawSubjectData.chapters || [];
-    const baseVideos = rawSubjectData.videos || [];
-    const baseDownloads = rawSubjectData.downloads || [];
-
-    if (!liveMaterials || liveMaterials.length === 0) return { ...rawSubjectData, chapters: baseChapters, videos: baseVideos, downloads: baseDownloads };
-
-    // Match live materials for active subject or all subjects
-    const relevantLiveItems = liveMaterials.filter(m => {
-      if (m.isDeleted) return false;
-      if (!activeSubject || activeSubject === 'all') return true;
-      const subjLower = m.subject?.toLowerCase() || '';
-      const actLower = activeSubject.toLowerCase();
-      if (subjLower.includes(actLower)) return true;
-      if (actLower === 'math' && subjLower.includes('math')) return true;
-      if (actLower === 'science' && (subjLower.includes('sci') || subjLower.includes('phy') || subjLower.includes('chem') || subjLower.includes('bio'))) return true;
-      return false;
-    });
-
-    if (relevantLiveItems.length === 0) return { ...rawSubjectData, chapters: baseChapters, videos: baseVideos, downloads: baseDownloads };
-
-    // Map live backend items into sub-categories
-    const liveChapters = relevantLiveItems
-      .filter(m => m.materialType === 'PDF Notes' || m.materialType === 'Documents' || m.materialType === 'PPT' || m.materialType === 'Assignments')
-      .map(m => ({
-        id: m._id || m.id,
-        title: m.materialTitle,
-        description: `${m.chapter || 'Chapter Material'} • ${m.board || 'CBSE'} ${m.classId || ''}`,
-        digitalMaterial: m.description || 'Verified study document provided by platform admin.',
-        fileUrl: m.fileUrl,
-        topics: [
-          { title: m.materialTitle, content: `${m.description ? m.description + '\n\n' : ''}Format: ${m.materialType}\nFile Size: ${m.fileSize || '2.5 MB'}\nLanguage: ${m.language || 'English'}${m.fileUrl ? '\nFile URL: ' + m.fileUrl : ''}` }
-        ]
-      }));
-
-    const liveVideos = relevantLiveItems
-      .filter(m => m.materialType === 'Videos' || m.materialType === 'External Links' || (m.fileUrl && (m.fileUrl.includes('youtube') || m.fileUrl.includes('youtu') || m.fileUrl.includes('.mp4'))))
-      .map(m => ({
-        id: m._id || m.id,
-        title: m.materialTitle,
-        duration: '10:00',
-        level: m.classId || 'Standard',
-        thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=400',
-        videoUrl: m.fileUrl || 'https://www.w3schools.com/html/mov_bbb.mp4',
-        views: `${m.board || 'CBSE'} ${m.classId || ''}`,
-        author: 'Platform Instructor'
-      }));
-
-    const liveDownloads = relevantLiveItems
-      .filter(m => m.materialType === 'Worksheets' || m.materialType === 'Sample Papers' || m.materialType === 'PDF Notes' || m.materialType === 'Documents' || m.materialType === 'PPT' || m.materialType === 'Previous Year Papers')
-      .map(m => ({
-        id: m._id || m.id,
-        title: m.materialTitle,
-        description: m.description || `Official ${m.materialType} resource for ${m.subject}`,
-        fileSize: m.fileSize || '2.5 MB',
-        fileType: m.materialType,
-        fileUrl: m.fileUrl,
-        downloadsCount: 150
-      }));
-
-    return {
-      ...rawSubjectData,
-      chapters: [...liveChapters, ...baseChapters],
-      videos: [...liveVideos, ...baseVideos],
-      downloads: [...liveDownloads, ...baseDownloads]
-    };
-  }, [liveMaterials, activeSubject, rawSubjectData]);
-
-  // Helper for YouTube embed links
-  const getEmbedUrl = (url) => {
-    if (!url) return '';
-    if (url.includes('youtube.com/watch?v=')) {
-      return url.replace('watch?v=', 'embed/').split('&')[0];
-    }
-    if (url.includes('youtu.be/')) {
-      const id = url.split('youtu.be/')[1]?.split('?')[0];
-      return `https://www.youtube.com/embed/${id}`;
-    }
-    return url;
-  };
-
-  // Filters items depending on search query
-  const filteredChapters = (subjectData.chapters || []).filter(ch => 
-    ch.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    ch.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (ch.topics && ch.topics.some(t => t.title.toLowerCase().includes(searchQuery.toLowerCase())))
-  );
-
-  const filteredVideos = (subjectData.videos || []).filter(v =>
-    v.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (v.author && v.author.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
-
-  const filteredDownloads = (subjectData.downloads || []).filter(d =>
-    d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (d.description && d.description.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
 
   return (
     <div style={s.container}>
@@ -1394,13 +1268,6 @@ const Notes = () => {
               <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>
                 This educational video explains fundamental concepts and provides step-by-step visual calculations led by <b>{playingVideo.author}</b>. Pause the video anytime to copy notes to your personal scratchpad.
               </p>
-            <div style={{ width: '100%', height: '380px', background: '#000' }}>
-              <video src={playingVideo.videoUrl} controls autoPlay style={{ width: '100%', height: '100%' }} />
-            </div>
-            <div style={{ padding: 'var(--space-4) var(--space-6)', background: 'var(--color-bg)' }}>
-              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)' }}>
-                Instructor: <b>{playingVideo.author}</b> • {playingVideo.views}
-              </span>
             </div>
           </div>
         </div>
