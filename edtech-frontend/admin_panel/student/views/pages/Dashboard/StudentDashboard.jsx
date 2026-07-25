@@ -203,7 +203,7 @@ const StudentDashboard = () => {
       )}
 
       {/* Grid of Key Progress statistics */}
-      <div className={`${styles.statsGrid} responsive-grid-4`}>
+      <div className={`${styles.statsGrid} responsive-grid-3`}>
         <Card style={{ padding: 0 }}>
           <div className={styles.statCard}>
             <div>
@@ -212,18 +212,6 @@ const StudentDashboard = () => {
             </div>
             <div className={styles.statIcon} style={{ background: 'rgba(79, 110, 247, 0.1)', color: 'var(--color-accent)' }}>
               <BookOpen size={20} />
-            </div>
-          </div>
-        </Card>
-
-        <Card style={{ padding: 0 }}>
-          <div className={styles.statCard}>
-            <div>
-              <span style={{ fontSize: '10px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', fontWeight: '700' }}>AI Tutor Queries</span>
-              <h3 style={{ fontSize: 'var(--text-2xl)', fontWeight: '800', marginTop: '4px' }}>{stats.aiQueriesCount} asked</h3>
-            </div>
-            <div className={styles.statIcon} style={{ background: 'rgba(124, 92, 252, 0.1)', color: 'var(--color-secondary)' }}>
-              <Bot size={20} />
             </div>
           </div>
         </Card>
@@ -251,21 +239,6 @@ const StudentDashboard = () => {
             </div>
           </div>
         </Card>
-      </div>
-
-      {/* AI Doubt Solver Banner */}
-      <div className={`${styles.aiCard} responsive-flex-between subject-card-hover`} onClick={() => navigate(ROUTES.AI_TUTOR)}>
-        <div className={styles.aiCardContent}>
-          <Badge variant="success" style={{ width: 'fit-content', background: 'rgba(255,255,255,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}>AI ASSISTANT</Badge>
-          <h3 style={{ fontSize: 'var(--text-xl)', fontWeight: '700', color: 'var(--color-white)', fontFamily: 'var(--font-heading)' }}>Stuck on a homework question?</h3>
-          <p style={{ opacity: 0.9, color: 'var(--color-white)', fontSize: 'var(--text-sm)' }}>Ask our smart AI doubt solver for step-by-step assistance and clear visual guides instantly.</p>
-        </div>
-        <div className={styles.aiCardIcon}>
-          <ArrowRight size={20} />
-        </div>
-        <div className={styles.aiCardDecorator}>
-          <Bot size={150} />
-        </div>
       </div>
 
       {/* Subject Progress Cards */}

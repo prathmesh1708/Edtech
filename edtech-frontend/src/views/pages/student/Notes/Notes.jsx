@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Plus, 
   Trash2, 
@@ -17,7 +17,10 @@ import {
   Bookmark,
   FileDown,
   Info,
-  Clock
+  Clock,
+  Filter,
+  Check,
+  Layers
 } from 'lucide-react';
 import useContentController from '../../../../controllers/useContentController';
 import syllabusManagementService from '../../../../models/services/syllabusManagementService';
@@ -26,14 +29,17 @@ import Input from '../../../components/common/Input/Input';
 import Card from '../../../components/common/Card/Card';
 import Badge from '../../../components/common/Badge/Badge';
 
-// Robust mock dataset containing syllabus material, videos, and PDFs
+// Comprehensive Multi-Subject Mock Dataset for Notes & Study Hub
 const MOCK_DATA = {
   math: {
+    id: 'math',
     name: 'Mathematics',
-    color: 'var(--color-accent)',
+    color: '#3B82F6',
     chapters: [
       {
         id: 'm-ch-1',
+        subjectName: 'Mathematics',
+        subjectColor: '#3B82F6',
         title: 'Chapter 1: Real Numbers',
         description: 'Explore the fundamental properties of integers, divisors, algorithms, and irrationality.',
         digitalMaterial: 'Real numbers form the foundation of algebra. In this chapter, we focus on Euclid\'s Division Algorithm, prime factorization representations, and proofs of irrationality.',
@@ -45,6 +51,8 @@ const MOCK_DATA = {
       },
       {
         id: 'm-ch-2',
+        subjectName: 'Mathematics',
+        subjectColor: '#3B82F6',
         title: 'Chapter 2: Polynomials',
         description: 'Study expressions containing variables, degree of polynomials, coefficients, and graphical representations.',
         digitalMaterial: 'Polynomial expressions are essential for mathematical modeling. Here, we analyze quadratic expressions, relationship of zeroes, and coefficient division theorems.',
@@ -58,6 +66,7 @@ const MOCK_DATA = {
     videos: [
       {
         id: 'm-vid-1',
+        subjectName: 'Mathematics',
         title: 'Visualizing Quadratic Equations & Zeroes Graphically',
         duration: '12:45',
         level: 'Intermediate',
@@ -68,6 +77,7 @@ const MOCK_DATA = {
       },
       {
         id: 'm-vid-2',
+        subjectName: 'Mathematics',
         title: 'Euclid\'s Division Algorithm Step-by-Step Proof',
         duration: '8:20',
         level: 'Basic',
@@ -80,6 +90,7 @@ const MOCK_DATA = {
     downloads: [
       {
         id: 'm-dl-1',
+        subjectName: 'Mathematics',
         title: 'NCERT Class 10 Mathematics Exemplar Solutions',
         description: 'Complete solved exemplars and practice questions with detailed proofs for CBSE Board prep.',
         fileSize: '4.2 MB',
@@ -88,6 +99,7 @@ const MOCK_DATA = {
       },
       {
         id: 'm-dl-2',
+        subjectName: 'Mathematics',
         title: 'Formula Cheat Sheet & Quick Revision Notes',
         description: 'One-page summary sheet containing all theorems, identities, and equations for quick revision.',
         fileSize: '750 KB',
@@ -97,35 +109,39 @@ const MOCK_DATA = {
     ]
   },
   science: {
+    id: 'science',
     name: 'Science',
-    color: 'var(--color-secondary)',
+    color: '#8B5CF6',
     chapters: [
       {
         id: 's-ch-1',
+        subjectName: 'Science',
+        subjectColor: '#8B5CF6',
         title: 'Chapter 1: Chemical Reactions and Equations',
         description: 'Understand how substance compositions undergo change, write chemical equations, and classify chemical reactions.',
         digitalMaterial: 'Chemical processes are described using chemical equations. In this chapter, we master the law of conservation of mass, balancing equation coefficients, and reaction conditions.',
         topics: [
           { title: "Writing & Balancing Chemical Equations", content: "A chemical equation shows reactants, products, and physical states. To satisfy the law of conservation of mass, we must balance equations by making the number of atoms of each element equal on both sides." },
-          { title: "Types of Chemical Reactions", content: "1. Combination: Two reactants form one product.\n2. Decomposition: One reactant breaks down into multiple products.\n3. Displacement: A reactive element displaces a less reactive one.\n4. Double Displacement: Exchange of ions between compounds.\n5. Oxidation and Reduction (Redox): Involves transfer of oxygen/hydrogen or electrons." },
-          { title: "Effects of Oxidation in Everyday Life", content: "1. Corrosion: Damage to metals caused by air, moisture, or chemical reactions (e.g. rusting of iron).\n2. Rancidity: Oxidation of fats and oils in food materials causing bad smell and taste." }
+          { title: "Types of Chemical Reactions", content: "1. Combination: Two reactants form one product.\n2. Decomposition: One reactant breaks down into multiple products.\n3. Displacement: A reactive element displaces a less reactive one.\n4. Double Displacement: Exchange of ions between compounds." }
         ]
       },
       {
         id: 's-ch-2',
+        subjectName: 'Science',
+        subjectColor: '#8B5CF6',
         title: 'Chapter 2: Acids, Bases and Salts',
         description: 'Analyze chemical properties, indicators, pH scale strength, and practical significance of household salts.',
-        digitalMaterial: 'Acids and bases neutralise each other. We evaluate hydrogen ion concentration (pH scale) and study standard salts like sodium hydroxide, bleaching powder, baking soda, and plaster of Paris.',
+        digitalMaterial: 'Acids and bases neutralise each other. We evaluate hydrogen ion concentration (pH scale) and study standard salts like sodium hydroxide and bleaching powder.',
         topics: [
-          { title: "Chemical Properties of Acids & Bases", content: "Acids turn blue litmus red, conduct electricity in solution, and react with metals to release Hydrogen gas. Bases turn red litmus blue, feel soapy, and neutralise acids to form salt and water." },
-          { title: "The pH Scale and Importance", content: "A scale for measuring Hydrogen ion concentration (0 to 14). pH < 7 is acidic, pH > 7 is basic, and pH = 7 is neutral. pH values govern digestive systems, soil quality, tooth decay prevention, and self-defense of organisms." },
-          { title: "Common Salts Chemistry & Uses", content: "We study chemical formulas and preparation of:\n1. Sodium Hydroxide (Chlor-alkali process)\n2. Bleaching Powder (CaOCl₂)\n3. Baking Soda (NaHCO₃)\n4. Washing Soda (Na₂CO₃·10H₂O)\n5. Plaster of Paris (CaSO₄·½H₂O)" }
+          { title: "Chemical Properties of Acids & Bases", content: "Acids turn blue litmus red, conduct electricity in solution, and react with metals to release Hydrogen gas." },
+          { title: "The pH Scale and Importance", content: "A scale for measuring Hydrogen ion concentration (0 to 14). pH < 7 is acidic, pH > 7 is basic, and pH = 7 is neutral." }
         ]
       }
     ],
     videos: [
       {
         id: 's-vid-1',
+        subjectName: 'Science',
         title: 'Decomposition and Displacement Reactions Demo',
         duration: '9:15',
         level: 'Basic',
@@ -133,34 +149,189 @@ const MOCK_DATA = {
         videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
         views: '3.1k views',
         author: 'Prof. Ramesh Sharma'
-      },
-      {
-        id: 's-vid-2',
-        title: 'Understanding pH scale & Acid-Base Titration Graph',
-        duration: '14:50',
-        level: 'Advanced',
-        thumbnail: 'https://images.unsplash.com/photo-1617155093730-a8bf47be792d?auto=format&fit=crop&q=80&w=400',
-        videoUrl: 'https://www.w3schools.com/html/movie.mp4',
-        views: '2.2k views',
-        author: 'Dr. Anita Desai'
       }
     ],
     downloads: [
       {
         id: 's-dl-1',
+        subjectName: 'Science',
         title: 'Chemical Equations Practice Worksheets with Keys',
         description: 'Contains 50+ balanced/unbalanced chemical equation practice questions with step-by-step solutions.',
         fileSize: '1.2 MB',
         fileType: 'PDF Document',
         downloadsCount: 2950
-      },
+      }
+    ]
+  },
+  english: {
+    id: 'english',
+    name: 'English',
+    color: '#EC4899',
+    chapters: [
       {
-        id: 's-dl-2',
-        title: 'Science Lab Manual & Practical Activities Guide',
-        description: 'Complete board experiment guide with procedures, observations, and safety measures.',
-        fileSize: '3.1 MB',
+        id: 'e-ch-1',
+        subjectName: 'English',
+        subjectColor: '#EC4899',
+        title: 'Chapter 1: A Letter to God & Dust of Snow',
+        description: 'Master literary elements, theme analysis, character sketches of Lencho, and poetic devices.',
+        digitalMaterial: 'Explore Lencho\'s unshakeable faith in God and how nature\'s small moments can lift human spirits.',
+        topics: [
+          { title: "Theme & Character Sketch of Lencho", content: "Lencho represents innocent and unwavering faith. The story highlights the irony of human nature when Lencho suspects the post office employees who actually helped him." },
+          { title: "Poetic Devices in Dust of Snow", content: "Robert Frost uses symbolism (crow, hemlock tree) to illustrate how negative symbols can bring positive mental transformations." }
+        ]
+      }
+    ],
+    videos: [
+      {
+        id: 'e-vid-1',
+        subjectName: 'English',
+        title: 'Mastering Formal Letter Writing & Analytical Paragraphs',
+        duration: '11:10',
+        level: 'Basic',
+        thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=400',
+        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        views: '4.2k views',
+        author: 'Ma\'am Sunita Verma'
+      }
+    ],
+    downloads: [
+      {
+        id: 'e-dl-1',
+        subjectName: 'English',
+        title: 'Class 10 English Literature Important Question Bank',
+        description: 'Top selected short and long answer questions with marking scheme solutions.',
+        fileSize: '2.1 MB',
         fileType: 'PDF Document',
-        downloadsCount: 1590
+        downloadsCount: 1890
+      }
+    ]
+  },
+  social: {
+    id: 'social',
+    name: 'Social Studies',
+    color: '#F59E0B',
+    chapters: [
+      {
+        id: 'sst-ch-1',
+        subjectName: 'Social Studies',
+        subjectColor: '#F59E0B',
+        title: 'Chapter 1: The Rise of Nationalism in Europe',
+        description: 'Understand the French Revolution, Liberal Nationalism, Revolutionaries, and Unification of Italy & Germany.',
+        digitalMaterial: 'Detailed timeline of European nation-state formations, Frederic Sorrieu vision, Napoleonic Code 1804, and Treaty of Vienna 1815.',
+        topics: [
+          { title: "The French Revolution and the Idea of the Nation", content: "The French Revolution introduced la patrie (the fatherland) and le citoyen (the citizen), replacing the royal standard with the tricolour flag." },
+          { title: "Unification of Italy & Germany", content: "Count Cavour and Giuseppe Garibaldi spearheaded Italian unification. Otto von Bismarck led German unification under Prussian leadership." }
+        ]
+      }
+    ],
+    videos: [
+      {
+        id: 'sst-vid-1',
+        subjectName: 'Social Studies',
+        title: 'Interactive Map Practice & Geography Location Tricks',
+        duration: '15:30',
+        level: 'Intermediate',
+        thumbnail: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=400',
+        videoUrl: 'https://www.w3schools.com/html/movie.mp4',
+        views: '5.0k views',
+        author: 'Prof. Vikram Singh'
+      }
+    ],
+    downloads: [
+      {
+        id: 'sst-dl-1',
+        subjectName: 'Social Studies',
+        title: 'CBSE Class 10 Map Work & Historical Events Booklet',
+        description: 'High-resolution maps covering major ports, dams, airports, and freedom movement locations.',
+        fileSize: '5.6 MB',
+        fileType: 'PDF Document',
+        downloadsCount: 4120
+      }
+    ]
+  },
+  computer: {
+    id: 'computer',
+    name: 'Computer Science',
+    color: '#10B981',
+    chapters: [
+      {
+        id: 'cs-ch-1',
+        subjectName: 'Computer Science',
+        subjectColor: '#10B981',
+        title: 'Chapter 1: Python Programming Fundamentals',
+        description: 'Data types, control structures, loops, functions, lists, dictionaries, and debugging.',
+        digitalMaterial: 'Hands-on guide to writing clean Python programs, implementing conditional logic, and handling data collections.',
+        topics: [
+          { title: "Python Loops & Conditionals", content: "Understand if-elif-else branching, while loops, for loops with range(), and list comprehension syntax." },
+          { title: "User-Defined Functions & Modules", content: "Define functions using def, pass parameters, return values, and import built-in math and random modules." }
+        ]
+      }
+    ],
+    videos: [
+      {
+        id: 'cs-vid-1',
+        subjectName: 'Computer Science',
+        title: 'Building a Full Python Project from Scratch',
+        duration: '18:20',
+        level: 'Advanced',
+        thumbnail: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=400',
+        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        views: '6.1k views',
+        author: 'Er. Alok Mehta'
+      }
+    ],
+    downloads: [
+      {
+        id: 'cs-dl-1',
+        subjectName: 'Computer Science',
+        title: 'Class 10 IT & Computer Science Lab Practical Codebook',
+        description: 'Executable Python codes, SQL query cheatsheet, and HTML/CSS web projects.',
+        fileSize: '3.8 MB',
+        fileType: 'PDF Document',
+        downloadsCount: 2780
+      }
+    ]
+  },
+  hindi: {
+    id: 'hindi',
+    name: 'Hindi',
+    color: '#EF4444',
+    chapters: [
+      {
+        id: 'h-ch-1',
+        subjectName: 'Hindi',
+        subjectColor: '#EF4444',
+        title: 'अध्याय 1: पदबंध और समास विचार',
+        description: 'हिंदी व्याकरण: पदबंध के भेद (संज्ञा, सर्वनाम, विशेषण, क्रिया) एवं समास विग्रह।',
+        digitalMaterial: 'हिंदी भाषा के व्याकरण नियम, मुहावरे, अपठित गद्यांश एवं पत्र लेखन का विस्तृत विवरण।',
+        topics: [
+          { title: "पदबंध की परिभाषा एवं प्रकार", content: "जब दो या दो से अधिक पद मिलकर एक शब्द का कार्य करते हैं, तो उस बंधे हुए पद समूह को पदबंध कहते हैं।" },
+          { title: "समास एवं समास विग्रह", content: "तत्पुरुष, द्विगु, द्वंद्व, बहुव्रीहि, कर्मधारय और अव्ययीभाव समास की सरल व्याख्या।" }
+        ]
+      }
+    ],
+    videos: [
+      {
+        id: 'h-vid-1',
+        subjectName: 'Hindi',
+        title: 'हिंदी व्याकरण: समास और पदबंध आसान उदाहरणों के साथ',
+        duration: '10:15',
+        level: 'Basic',
+        thumbnail: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&q=80&w=400',
+        videoUrl: 'https://www.w3schools.com/html/movie.mp4',
+        views: '1.9k views',
+        author: 'डॉ. मीनाक्षी शर्मा'
+      }
+    ],
+    downloads: [
+      {
+        id: 'h-dl-1',
+        subjectName: 'Hindi',
+        title: 'हिंदी स्पर्श एवं संचयन महत्वपूर्ण प्रश्न उत्तर',
+        description: 'सीबीएसई बोर्ड परीक्षा हेतु पाठ्यपुस्तक के सभी अध्यायों के हल प्रश्न।',
+        fileSize: '2.8 MB',
+        fileType: 'PDF Document',
+        downloadsCount: 1640
       }
     ]
   }
@@ -183,7 +354,9 @@ const s = {
     alignItems: 'center',
     boxShadow: 'var(--shadow-sm)',
     position: 'relative',
-    overflow: 'hidden'
+    overflow: 'visible',
+    flexWrap: 'wrap',
+    gap: 'var(--space-4)'
   },
   glowEffect: {
     position: 'absolute',
@@ -197,49 +370,31 @@ const s = {
     opacity: 0.15,
     pointerEvents: 'none'
   },
-  subjectFilters: {
-    display: 'flex',
-    gap: 'var(--space-3)',
-    alignItems: 'center'
-  },
-  filterPill: (active, color) => ({
-    padding: '8px 18px',
-    borderRadius: 'var(--radius-full)',
-    border: active ? `2px solid ${color || 'var(--color-primary)'}` : '1px solid var(--color-border)',
-    background: active ? `${color || 'var(--color-primary)'}14` : 'var(--color-surface)',
-    color: active ? (color || 'var(--color-primary)') : 'var(--color-text-secondary)',
-    fontWeight: '700',
-    fontSize: 'var(--text-sm)',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px'
-  }),
   primaryTabs: {
     display: 'flex',
-    borderBottom: '1px solid var(--color-border)',
-    gap: 'var(--space-6)',
-    marginBottom: 'var(--space-4)'
+    gap: 'var(--space-3)',
+    borderBottom: '2px solid var(--color-border-light)',
+    paddingBottom: 'var(--space-2)'
   },
   tabButton: (active) => ({
-    padding: 'var(--space-3) 0',
-    background: 'none',
+    padding: 'var(--space-3) var(--space-5)',
     border: 'none',
-    borderBottom: active ? '3px solid var(--color-primary)' : '3px solid transparent',
-    color: active ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+    background: 'transparent',
+    color: active ? 'var(--color-primary-dark)' : 'var(--color-text-tertiary)',
     fontWeight: '700',
     fontSize: 'var(--text-base)',
     cursor: 'pointer',
-    transition: 'all 0.2s',
     display: 'flex',
     alignItems: 'center',
-    gap: '8px'
+    gap: 'var(--space-2)',
+    position: 'relative',
+    borderBottom: active ? '3px solid var(--color-accent)' : '3px solid transparent',
+    transition: 'all 0.2s',
+    borderRadius: 'var(--radius-md) var(--radius-md) 0 0'
   }),
   subTabs: {
     display: 'flex',
     gap: 'var(--space-2)',
-    margin: 'var(--space-2) 0 var(--space-6)',
     background: 'var(--color-bg-alt)',
     padding: '6px',
     borderRadius: 'var(--radius-lg)',
@@ -289,34 +444,13 @@ const s = {
     display: 'flex',
     flexDirection: 'column',
     transition: 'all 0.25s',
-    boxShadow: 'var(--shadow-sm)',
-    position: 'relative'
-  },
-  videoThumbnailWrapper: {
-    position: 'relative',
-    height: '180px',
-    width: '100%',
-    overflow: 'hidden',
-    background: 'var(--color-bg-alt)'
-  },
-  playOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'rgba(0, 0, 0, 0.4)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    opacity: 0.9,
-    transition: 'opacity 0.2s'
+    boxShadow: 'var(--shadow-sm)'
   },
   downloadCard: {
+    padding: 'var(--space-5)',
     background: 'var(--color-surface)',
     border: '1px solid var(--color-border-light)',
     borderRadius: 'var(--radius-xl)',
-    padding: 'var(--space-5)',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
@@ -338,11 +472,6 @@ const s = {
     display: 'flex',
     flexDirection: 'column',
     gap: 'var(--space-3)'
-  },
-  noteList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 'var(--space-4)'
   },
   modalOverlay: {
     position: 'fixed',
@@ -376,7 +505,11 @@ const Notes = () => {
   const { notes, addNote, deleteNote } = useContentController();
   
   // Custom interface states
-  const [activeSubject, setActiveSubject] = useState('math'); // 'math' or 'science'
+  const [selectedSubjects, setSelectedSubjects] = useState(['math', 'science']); // Multi-subject selection keys
+  const [adminSubjects, setAdminSubjects] = useState([]);                       // Subjects from Admin Panel API
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
   const [primaryTab, setPrimaryTab] = useState('materials');  // 'materials' or 'personal'
   const [subTab, setSubTab] = useState('chapters');            // 'chapters', 'videos', or 'downloads'
   const [searchQuery, setSearchQuery] = useState('');
@@ -390,6 +523,188 @@ const Notes = () => {
   // Personal Note inputs
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+
+  const [liveMaterials, setLiveMaterials] = useState([]);
+  const [loadingMaterials, setLoadingMaterials] = useState(false);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Fetch subjects & live educational materials from Admin Panel Backend
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      try {
+        setLoadingMaterials(true);
+        // Fetch Subjects from Admin Panel
+        const subjRes = await syllabusManagementService.getSubjects();
+        if (subjRes.data && subjRes.data.length > 0) {
+          setAdminSubjects(subjRes.data);
+        }
+
+        // Fetch Educational Materials from Admin Panel
+        const matRes = await syllabusManagementService.getEducationalMaterials();
+        if (matRes.data) {
+          setLiveMaterials(matRes.data);
+        }
+      } catch (err) {
+        console.warn('Using fallback subject and material mock datasets:', err);
+      } finally {
+        setLoadingMaterials(false);
+      }
+    };
+    fetchAdminData();
+  }, []);
+
+  // Combine Admin Subjects with Default Mock Subjects
+  const availableSubjectsList = useMemo(() => {
+    const defaultList = [
+      { id: 'math', name: 'Mathematics', color: '#3B82F6' },
+      { id: 'science', name: 'Science', color: '#8B5CF6' },
+      { id: 'english', name: 'English', color: '#EC4899' },
+      { id: 'social', name: 'Social Studies', color: '#F59E0B' },
+      { id: 'computer', name: 'Computer Science', color: '#10B981' },
+      { id: 'hindi', name: 'Hindi', color: '#EF4444' }
+    ];
+
+    if (!adminSubjects || adminSubjects.length === 0) return defaultList;
+
+    // Map Admin subjects to list
+    const adminMapped = adminSubjects.map(sItem => {
+      const sName = sItem.subjectName || sItem.name || 'Subject';
+      const sKey = sName.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return {
+        id: MOCK_DATA[sKey] ? sKey : sName.toLowerCase(),
+        name: sName,
+        color: MOCK_DATA[sKey]?.color || '#6366F1'
+      };
+    });
+
+    // Merge uniquely
+    const existingKeys = new Set(adminMapped.map(s => s.id));
+    defaultList.forEach(d => {
+      if (!existingKeys.has(d.id)) {
+        adminMapped.push(d);
+      }
+    });
+
+    return adminMapped;
+  }, [adminSubjects]);
+
+  // Handle multi-subject toggle
+  const toggleSubjectSelect = (subjId) => {
+    setSelectedSubjects(prev => {
+      if (prev.includes(subjId)) {
+        if (prev.length === 1) return prev; // Keep at least 1 subject selected
+        return prev.filter(id => id !== subjId);
+      } else {
+        return [...prev, subjId];
+      }
+    });
+  };
+
+  const selectAllSubjects = () => {
+    setSelectedSubjects(availableSubjectsList.map(s => s.id));
+  };
+
+  const clearSubjectSelection = () => {
+    if (availableSubjectsList.length > 0) {
+      setSelectedSubjects([availableSubjectsList[0].id]);
+    }
+  };
+
+  // Aggregate chapters, videos, downloads across all selected subjects
+  const aggregatedData = useMemo(() => {
+    let chapters = [];
+    let videos = [];
+    let downloads = [];
+
+    // Collect mock items for selected keys
+    selectedSubjects.forEach(key => {
+      const dataObj = MOCK_DATA[key];
+      if (dataObj) {
+        if (dataObj.chapters) chapters.push(...dataObj.chapters);
+        if (dataObj.videos) videos.push(...dataObj.videos);
+        if (dataObj.downloads) downloads.push(...dataObj.downloads);
+      }
+    });
+
+    // Merge live Admin-published materials if available
+    if (liveMaterials && liveMaterials.length > 0) {
+      const liveChapters = liveMaterials
+        .filter(m => !m.isDeleted && (m.materialType === 'PDF Notes' || m.materialType === 'Documents'))
+        .map(m => ({
+          id: m._id || m.id,
+          subjectName: m.subject || 'Admin Asset',
+          subjectColor: '#2563EB',
+          title: m.materialTitle,
+          description: `${m.chapter || 'Chapter Material'} • ${m.board} ${m.classId}`,
+          digitalMaterial: m.description || 'Verified study document provided by platform admin.',
+          topics: [
+            { title: m.materialTitle, content: `Format: ${m.materialType}\nFile Size: ${m.fileSize}\nLanguage: ${m.language}` }
+          ]
+        }));
+
+      const liveVideos = liveMaterials
+        .filter(m => !m.isDeleted && m.materialType === 'Videos')
+        .map(m => ({
+          id: m._id || m.id,
+          subjectName: m.subject || 'Admin Asset',
+          title: m.materialTitle,
+          duration: '10:00',
+          level: 'Standard',
+          thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=400',
+          videoUrl: m.fileUrl || 'https://www.w3schools.com/html/mov_bbb.mp4',
+          views: 'Live Admin Upload',
+          author: 'Platform Instructor'
+        }));
+
+      const liveDownloads = liveMaterials
+        .filter(m => !m.isDeleted && (m.materialType === 'Worksheets' || m.materialType === 'Sample Papers' || m.materialType === 'PPT'))
+        .map(m => ({
+          id: m._id || m.id,
+          subjectName: m.subject || 'Admin Asset',
+          title: m.materialTitle,
+          description: m.description || `Official ${m.materialType} resource`,
+          fileSize: m.fileSize || '2.5 MB',
+          fileType: m.materialType,
+          downloadsCount: 220
+        }));
+
+      chapters = [...liveChapters, ...chapters];
+      videos = [...liveVideos, ...videos];
+      downloads = [...liveDownloads, ...downloads];
+    }
+
+    return { chapters, videos, downloads };
+  }, [selectedSubjects, liveMaterials]);
+
+  // Filters items depending on search query
+  const filteredChapters = aggregatedData.chapters.filter(ch => 
+    ch.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    ch.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (ch.subjectName && ch.subjectName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    ch.topics.some(t => t.title.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const filteredVideos = aggregatedData.videos.filter(v =>
+    v.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    v.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (v.subjectName && v.subjectName.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const filteredDownloads = aggregatedData.downloads.filter(d =>
+    d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    d.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (d.subjectName && d.subjectName.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   // Handle personal notes addition
   const handleAdd = (e) => {
@@ -429,106 +744,9 @@ const Notes = () => {
     }, 150);
   };
 
-  const [liveMaterials, setLiveMaterials] = useState([]);
-  const [loadingMaterials, setLoadingMaterials] = useState(false);
-
-  // Fetch live educational materials published by Admin
-  useEffect(() => {
-    const fetchLiveMaterials = async () => {
-      try {
-        setLoadingMaterials(true);
-        const res = await syllabusManagementService.getEducationalMaterials();
-        if (res.data) {
-          setLiveMaterials(res.data);
-        }
-      } catch (err) {
-        console.warn('Could not fetch live educational materials, using fallback mock data:', err);
-      } finally {
-        setLoadingMaterials(false);
-      }
-    };
-    fetchLiveMaterials();
-  }, []);
-
-  // Merge live items with mock data
-  const rawSubjectData = MOCK_DATA[activeSubject];
-
-  const subjectData = React.useMemo(() => {
-    if (!liveMaterials || liveMaterials.length === 0) return rawSubjectData;
-
-    const currentSubjName = activeSubject === 'math' ? 'mathematics' : 'science';
-    const relevantLiveItems = liveMaterials.filter(m => 
-      !m.isDeleted && 
-      (m.subject?.toLowerCase().includes(currentSubjName) || m.subject?.toLowerCase().includes(activeSubject))
-    );
-
-    if (relevantLiveItems.length === 0) return rawSubjectData;
-
-    // Map live backend items into sub-categories
-    const liveChapters = relevantLiveItems
-      .filter(m => m.materialType === 'PDF Notes' || m.materialType === 'Documents')
-      .map(m => ({
-        id: m._id || m.id,
-        title: m.materialTitle,
-        description: `${m.chapter || 'Chapter Material'} • ${m.board} ${m.classId}`,
-        digitalMaterial: m.description || 'Verified study document provided by platform admin.',
-        topics: [
-          { title: m.materialTitle, content: `Format: ${m.materialType}\nFile Size: ${m.fileSize}\nLanguage: ${m.language}\nTags: ${m.tags?.join(', ') || 'NCERT'}` }
-        ]
-      }));
-
-    const liveVideos = relevantLiveItems
-      .filter(m => m.materialType === 'Videos')
-      .map(m => ({
-        id: m._id || m.id,
-        title: m.materialTitle,
-        duration: '10:00',
-        level: 'Standard',
-        thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=400',
-        videoUrl: m.fileUrl || 'https://www.w3schools.com/html/mov_bbb.mp4',
-        views: 'Live Admin Upload',
-        author: 'Platform Instructor'
-      }));
-
-    const liveDownloads = relevantLiveItems
-      .filter(m => m.materialType === 'Worksheets' || m.materialType === 'Sample Papers' || m.materialType === 'PDF Notes' || m.materialType === 'PPT')
-      .map(m => ({
-        id: m._id || m.id,
-        title: m.materialTitle,
-        description: m.description || `Official ${m.materialType} resource for ${m.subject}`,
-        fileSize: m.fileSize || '2.5 MB',
-        fileType: m.materialType,
-        downloadsCount: 150
-      }));
-
-    return {
-      ...rawSubjectData,
-      chapters: liveChapters.length > 0 ? [...liveChapters, ...rawSubjectData.chapters] : rawSubjectData.chapters,
-      videos: liveVideos.length > 0 ? [...liveVideos, ...rawSubjectData.videos] : rawSubjectData.videos,
-      downloads: liveDownloads.length > 0 ? [...liveDownloads, ...rawSubjectData.downloads] : rawSubjectData.downloads
-    };
-  }, [liveMaterials, activeSubject, rawSubjectData]);
-
-  // Filters items depending on search query
-  const filteredChapters = subjectData.chapters.filter(ch => 
-    ch.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    ch.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    ch.topics.some(t => t.title.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
-
-  const filteredVideos = subjectData.videos.filter(v =>
-    v.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    v.author.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const filteredDownloads = subjectData.downloads.filter(d =>
-    d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    d.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
     <div style={s.container}>
-      {/* Immersive Header Banner */}
+      {/* Immersive Header Banner with Multi-Subject Selection Dropdown */}
       <div style={s.headerBanner}>
         <div style={s.glowEffect} />
         <div style={{ zIndex: 2 }}>
@@ -540,23 +758,155 @@ const Notes = () => {
           </p>
         </div>
 
-        {/* Dynamic Subject Switchers */}
-        <div style={{ ...s.subjectFilters, zIndex: 2 }}>
+        {/* Multi-Select Subject Dropdown Component */}
+        <div style={{ position: 'relative', zIndex: 20 }} ref={dropdownRef}>
           <button 
-            style={s.filterPill(activeSubject === 'math', 'var(--color-accent)')}
-            onClick={() => { setActiveSubject('math'); setSearchQuery(''); }}
+            type="button"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            style={{
+              padding: '10px 18px',
+              borderRadius: 'var(--radius-xl)',
+              background: 'var(--color-surface)',
+              border: '1px solid var(--color-accent)',
+              color: 'var(--color-text-primary)',
+              fontWeight: '700',
+              fontSize: 'var(--text-sm)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              boxShadow: 'var(--shadow-sm)',
+              transition: 'all 0.2s'
+            }}
           >
-            <BookOpen size={16} />
-            <span>Mathematics</span>
+            <Filter size={16} color="var(--color-accent)" />
+            <span>
+              {selectedSubjects.length === availableSubjectsList.length
+                ? 'All Subjects Selected'
+                : selectedSubjects.length === 1
+                ? (availableSubjectsList.find(s => s.id === selectedSubjects[0])?.name || '1 Subject Selected')
+                : `${selectedSubjects.length} Subjects Selected`}
+            </span>
+            <ChevronDown size={16} style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
           </button>
-          <button 
-            style={s.filterPill(activeSubject === 'science', 'var(--color-secondary)')}
-            onClick={() => { setActiveSubject('science'); setSearchQuery(''); }}
-          >
-            <Sparkles size={16} />
-            <span>Science</span>
-          </button>
+
+          {/* Floating Dropdown Menu */}
+          {isDropdownOpen && (
+            <div style={{
+              position: 'absolute',
+              top: 'calc(100% + 8px)',
+              right: 0,
+              width: '280px',
+              background: 'var(--color-surface)',
+              border: '1px solid var(--color-border-light)',
+              borderRadius: 'var(--radius-xl)',
+              boxShadow: 'var(--shadow-xl)',
+              padding: 'var(--space-3)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              zIndex: 999
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '6px', borderBottom: '1px solid var(--color-border-light)' }}>
+                <span style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>
+                  Filter Subjects
+                </span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button 
+                    type="button"
+                    onClick={selectAllSubjects}
+                    style={{ background: 'none', border: 'none', color: 'var(--color-accent)', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}
+                  >
+                    Select All
+                  </button>
+                  <span style={{ color: 'var(--color-border-light)' }}>|</span>
+                  <button 
+                    type="button"
+                    onClick={clearSubjectSelection}
+                    style={{ background: 'none', border: 'none', color: 'var(--color-text-tertiary)', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+
+              {/* Subject Checkbox Options */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '240px', overflowY: 'auto' }}>
+                {availableSubjectsList.map(subj => {
+                  const isChecked = selectedSubjects.includes(subj.id);
+                  return (
+                    <div 
+                      key={subj.id}
+                      onClick={() => toggleSubjectSelect(subj.id)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justify: 'space-between',
+                        padding: '8px 12px',
+                        borderRadius: 'var(--radius-md)',
+                        background: isChecked ? 'var(--color-bg-alt)' : 'transparent',
+                        cursor: 'pointer',
+                        transition: 'background 0.15s'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{
+                          width: '18px',
+                          height: '18px',
+                          borderRadius: '4px',
+                          border: `2px solid ${isChecked ? subj.color : 'var(--color-border-light)'}`,
+                          background: isChecked ? subj.color : 'transparent',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#fff',
+                          transition: 'all 0.15s'
+                        }}>
+                          {isChecked && <Check size={12} strokeWidth={3} />}
+                        </div>
+                        <span style={{ fontSize: 'var(--text-sm)', fontWeight: isChecked ? '700' : '500', color: 'var(--color-text-primary)' }}>
+                          {subj.name}
+                        </span>
+                      </div>
+                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: subj.color }} />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
+      </div>
+
+      {/* Selected Subjects Chips bar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Active Filters:</span>
+        {selectedSubjects.map(key => {
+          const sObj = availableSubjectsList.find(s => s.id === key);
+          if (!sObj) return null;
+          return (
+            <div 
+              key={sObj.id}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 10px',
+                borderRadius: 'var(--radius-full)',
+                background: `${sObj.color}15`,
+                color: sObj.color,
+                border: `1px solid ${sObj.color}30`,
+                fontSize: 'var(--text-xs)',
+                fontWeight: '700'
+              }}
+            >
+              <span>{sObj.name}</span>
+              {selectedSubjects.length > 1 && (
+                <X size={12} style={{ cursor: 'pointer' }} onClick={() => toggleSubjectSelect(sObj.id)} />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Primary Tab Navigation */}
@@ -604,86 +954,76 @@ const Notes = () => {
                 onClick={() => setSubTab('downloads')}
               >
                 <Download size={14} />
-                <span>PDFs & Worksheets</span>
+                <span>Educational PDFs & Resources</span>
               </button>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: '6px 12px', width: '300px' }}>
-              <Search size={16} color="var(--color-text-tertiary)" style={{ marginRight: '8px' }} />
-              <input 
-                type="text" 
-                placeholder="Search material..."
+            <div style={{ width: '280px' }}>
+              <Input 
+                placeholder="Search notes, topics, videos..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ border: 'none', background: 'none', width: '100%', outline: 'none', color: 'var(--color-text-primary)', fontSize: 'var(--text-sm)' }}
+                iconLeft={<Search size={16} />}
               />
-              {searchQuery && (
-                <X size={16} color="var(--color-text-tertiary)" style={{ cursor: 'pointer' }} onClick={() => setSearchQuery('')} />
-              )}
             </div>
           </div>
 
-          {/* Sub-tab 1: Chapter Wise & Topic Wise Notes */}
+          {/* SECTION A: CHAPTER & TOPIC NOTES */}
           {subTab === 'chapters' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
               {filteredChapters.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: 'var(--space-12)', background: 'var(--color-surface)', border: '1px dashed var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
-                  <BookOpen size={48} style={{ margin: '0 auto var(--space-4)', color: 'var(--color-text-tertiary)', opacity: 0.5 }} />
-                  <p style={{ color: 'var(--color-text-secondary)' }}>No chapter notes match your search term.</p>
-                </div>
+                <Card style={{ textAlign: 'center', padding: 'var(--space-8)' }}>
+                  <BookOpen size={40} color="var(--color-text-tertiary)" style={{ marginBottom: 'var(--space-2)' }} />
+                  <h4>No chapter notes found</h4>
+                  <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)' }}>Try adjusting your search query or selecting additional subjects in the dropdown filter.</p>
+                </Card>
               ) : (
                 filteredChapters.map(ch => {
-                  const isOpen = !!expandedChapters[ch.id];
+                  const isExpanded = expandedChapters[ch.id];
                   return (
-                    <div 
-                      key={ch.id} 
-                      style={s.chapterCard} 
-                      className="subject-card-hover"
-                      onClick={() => toggleChapter(ch.id)}
-                    >
+                    <div key={ch.id} style={s.chapterCard}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
-                          <div style={{ width: '42px', height: '42px', borderRadius: 'var(--radius-lg)', background: `${subjectData.color}12`, color: subjectData.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <BookOpen size={20} />
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                            <Badge variant="primary" style={{ background: `${ch.subjectColor || 'var(--color-accent)'}20`, color: ch.subjectColor || 'var(--color-accent)', border: `1px solid ${ch.subjectColor || 'var(--color-accent)'}40` }}>
+                              {ch.subjectName || 'Syllabus Note'}
+                            </Badge>
+                            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-tertiary)', fontWeight: '600' }}>{ch.topics.length} Topic Highlights</span>
                           </div>
-                          <div>
-                            <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', color: 'var(--color-text-primary)' }}>{ch.title}</h4>
-                            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', marginTop: '2px' }}>{ch.description}</p>
-                          </div>
+                          <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '800', color: 'var(--color-primary-dark)', fontFamily: 'var(--font-heading)' }}>
+                            {ch.title}
+                          </h3>
+                          <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)', marginTop: '4px' }}>
+                            {ch.description}
+                          </p>
                         </div>
-                        <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-secondary)' }}>
-                          {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                        </button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => toggleChapter(ch.id)}
+                          iconRight={isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        >
+                          {isExpanded ? 'Collapse' : 'Explore Topics'}
+                        </Button>
                       </div>
 
-                      {isOpen && (
-                        <div 
-                          style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}
-                          onClick={(e) => e.stopPropagation()} // Prevent collapse toggling when reading content
-                        >
-                          {/* Digital Study Material Guide Banner */}
-                          <div style={{ padding: 'var(--space-4)', background: 'var(--color-surface-hover)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                            <Info size={16} color="var(--color-primary)" style={{ marginTop: '2px', flexShrink: 0 }} />
-                            <div>
-                              <span style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: 'var(--color-primary)', letterSpacing: '0.5px' }}>Digital Study Material Summary</span>
-                              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', marginTop: '4px', lineHeight: '1.5' }}>
-                                {ch.digitalMaterial}
-                              </p>
-                            </div>
+                      {/* Expandable Topic Highlights */}
+                      {isExpanded && (
+                        <div style={{ marginTop: 'var(--space-2)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                          <div style={{ padding: 'var(--space-4)', background: 'var(--color-surface-hover)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border-light)' }}>
+                            <span style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-accent)', textTransform: 'uppercase' }}>Digital Study Summary:</span>
+                            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)', marginTop: '4px', lineHeight: '1.6' }}>
+                              {ch.digitalMaterial}
+                            </p>
                           </div>
 
-                          {/* Topic-Based Educational Content */}
-                          <div>
-                            <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--color-text-primary)', display: 'block', marginBottom: '8px' }}>Topic Based Content:</span>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                              {ch.topics.map((t, idx) => (
-                                <div key={idx} style={s.topicRow}>
-                                  <span style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-primary-dark)' }}>{t.title}</span>
-                                  <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', marginTop: '2px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>{t.content}</p>
-                                </div>
-                              ))}
+                          <span style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', marginTop: 'var(--space-2)' }}>Key Topic Explanations:</span>
+                          {ch.topics.map((t, idx) => (
+                            <div key={idx} style={s.topicRow}>
+                              <span style={{ fontWeight: '700', fontSize: 'var(--text-sm)', color: 'var(--color-primary-dark)' }}>{t.title}</span>
+                              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5', whitespace: 'pre-line' }}>{t.content}</p>
                             </div>
-                          </div>
+                          ))}
                         </div>
                       )}
                     </div>
@@ -693,48 +1033,44 @@ const Notes = () => {
             </div>
           )}
 
-          {/* Sub-tab 2: Video Tutorials */}
+          {/* SECTION B: VIDEO TUTORIALS */}
           {subTab === 'videos' && (
-            <div className="responsive-grid-3" style={{ gap: 'var(--space-5)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 'var(--space-5)' }}>
               {filteredVideos.length === 0 ? (
-                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 'var(--space-12)', background: 'var(--color-surface)', border: '1px dashed var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
-                  <Video size={48} style={{ margin: '0 auto var(--space-4)', color: 'var(--color-text-tertiary)', opacity: 0.5 }} />
-                  <p style={{ color: 'var(--color-text-secondary)' }}>No video tutorials match your search term.</p>
-                </div>
+                <Card style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 'var(--space-8)' }}>
+                  <Video size={40} color="var(--color-text-tertiary)" style={{ marginBottom: 'var(--space-2)' }} />
+                  <h4>No video tutorials found</h4>
+                  <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)' }}>Try adjusting your search query or subject filters.</p>
+                </Card>
               ) : (
-                filteredVideos.map(v => (
-                  <div key={v.id} style={s.videoCard} className="subject-card-hover">
-                    <div style={s.videoThumbnailWrapper}>
-                      <img 
-                        src={v.thumbnail} 
-                        alt={v.title}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                      <div style={s.playOverlay} onClick={() => setPlayingVideo(v)}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--color-white)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: 'var(--shadow-lg)' }}>
-                          <Play size={20} color="var(--color-primary)" fill="var(--color-primary)" style={{ marginLeft: '2px' }} />
-                        </div>
+                filteredVideos.map(vid => (
+                  <div key={vid.id} style={s.videoCard} className="subject-card-hover">
+                    <div style={{ position: 'relative', width: '100%', height: '180px', overflow: 'hidden' }}>
+                      <img src={vid.thumbnail} alt={vid.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <button 
+                          onClick={() => setPlayingVideo(vid)}
+                          style={{ width: '54px', height: '54px', borderRadius: '50%', background: 'var(--color-accent)', border: 'none', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: 'var(--shadow-lg)', transition: 'transform 0.2s' }}
+                        >
+                          <Play size={24} fill="white" style={{ marginLeft: '4px' }} />
+                        </button>
                       </div>
-                      <span style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(0,0,0,0.75)', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Clock size={10} /> {v.duration}
+                      <span style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(0, 0, 0, 0.75)', color: 'white', fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '4px' }}>
+                        {vid.duration}
                       </span>
                     </div>
 
-                    <div style={{ padding: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', flexGrow: 1 }}>
+                    <div style={{ padding: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Badge variant={v.level === 'Basic' ? 'neutral' : v.level === 'Advanced' ? 'primary' : 'neutral'}>
-                          {v.level}
-                        </Badge>
-                        <span style={{ fontSize: '10px', color: 'var(--color-text-tertiary)' }}>{v.views}</span>
+                        <Badge variant="secondary">{vid.subjectName || 'Tutorial'}</Badge>
+                        <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>{vid.views}</span>
                       </div>
-                      <h4 style={{ fontSize: 'var(--text-sm)', fontWeight: '700', color: 'var(--color-text-primary)', lineHeight: '1.4', margin: '2px 0 6px' }}>
-                        {v.title}
+                      <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', color: 'var(--color-primary-dark)', lineHeight: '1.4' }}>
+                        {vid.title}
                       </h4>
-                      <div style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: '6px', marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: '600' }}>{v.author}</span>
-                        <Button variant="ghost" size="xs" iconRight={<ArrowRight size={12} />} onClick={() => setPlayingVideo(v)}>
-                          Watch
-                        </Button>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
+                        <Info size={14} />
+                        <span>Instructor: {vid.author}</span>
                       </div>
                     </div>
                   </div>
@@ -743,56 +1079,50 @@ const Notes = () => {
             </div>
           )}
 
-          {/* Sub-tab 3: PDFs & Worksheets Downloads */}
+          {/* SECTION C: EDUCATIONAL PDFS & DOWNLOADS */}
           {subTab === 'downloads' && (
-            <div className="responsive-grid-2" style={{ gap: 'var(--space-5)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 'var(--space-5)' }}>
               {filteredDownloads.length === 0 ? (
-                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 'var(--space-12)', background: 'var(--color-surface)', border: '1px dashed var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
-                  <Download size={48} style={{ margin: '0 auto var(--space-4)', color: 'var(--color-text-tertiary)', opacity: 0.5 }} />
-                  <p style={{ color: 'var(--color-text-secondary)' }}>No worksheets or solutions match your search term.</p>
-                </div>
+                <Card style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 'var(--space-8)' }}>
+                  <Download size={40} color="var(--color-text-tertiary)" style={{ marginBottom: 'var(--space-2)' }} />
+                  <h4>No downloadable PDFs found</h4>
+                  <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)' }}>Try searching for a different topic or adding subjects.</p>
+                </Card>
               ) : (
-                filteredDownloads.map(d => {
-                  const isDownloading = downloadingFile === d.id;
+                filteredDownloads.map(dl => {
+                  const isDownloading = downloadingFile === dl.id;
                   return (
-                    <div key={d.id} style={s.downloadCard} className="subject-card-hover">
-                      <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'flex-start' }}>
-                        <div style={{ padding: '12px', borderRadius: 'var(--radius-lg)', background: 'var(--color-bg)', color: 'var(--color-error)' }}>
-                          <FileDown size={24} />
+                    <div key={dl.id} style={s.downloadCard}>
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
+                          <Badge variant="primary">{dl.subjectName || dl.fileType}</Badge>
+                          <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', fontWeight: '600' }}>{dl.fileSize}</span>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                            <Badge variant="neutral">{d.fileType}</Badge>
-                            <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>{d.fileSize}</span>
-                          </div>
-                          <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', color: 'var(--color-text-primary)' }}>{d.title}</h4>
-                          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.4' }}>{d.description}</p>
-                        </div>
+                        <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', color: 'var(--color-primary-dark)', marginBottom: '4px' }}>
+                          {dl.title}
+                        </h4>
+                        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>
+                          {dl.description}
+                        </p>
                       </div>
 
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--color-border-light)', paddingTop: '12px', marginTop: '4px' }}>
-                        <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>Downloads: <b>{d.downloadsCount}</b></span>
-                        
-                        {isDownloading ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '120px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', fontWeight: '700', color: 'var(--color-primary)' }}>
-                              <span>Downloading...</span>
-                              <span>{downloadProgress}%</span>
-                            </div>
-                            <div style={{ width: '100%', height: '5px', background: 'var(--color-bg-alt)', borderRadius: '9px', overflow: 'hidden' }}>
-                              <div style={{ width: `${downloadProgress}%`, height: '100%', background: 'var(--color-success)', transition: 'width 0.15s ease' }} />
-                            </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {isDownloading && (
+                          <div style={{ width: '100%', background: 'var(--color-bg-alt)', height: '6px', borderRadius: '3px', overflow: 'hidden' }}>
+                            <div style={{ width: `${downloadProgress}%`, background: 'var(--color-accent)', height: '100%', transition: 'width 0.15s ease-out' }} />
                           </div>
-                        ) : (
-                          <Button 
-                            variant="secondary" 
-                            size="sm" 
-                            iconLeft={<Download size={14} />}
-                            onClick={() => startMockDownload(d)}
-                          >
-                            Download PDF
-                          </Button>
                         )}
+
+                        <Button 
+                          variant="secondary"
+                          size="sm"
+                          fullWidth
+                          loading={isDownloading}
+                          onClick={() => startMockDownload(dl)}
+                          iconLeft={<FileDown size={16} />}
+                        >
+                          {isDownloading ? `Downloading (${downloadProgress}%)...` : `Download Resource PDF`}
+                        </Button>
                       </div>
                     </div>
                   );
@@ -803,110 +1133,105 @@ const Notes = () => {
         </div>
       )}
 
-      {/* TAB 2: PERSONAL SCRATCHPAD / NOTES LIST */}
+      {/* TAB 2: MY PERSONAL NOTES */}
       {primaryTab === 'personal' && (
-        <div style={s.personalNotesGrid} className="responsive-grid-1-2">
-          {/* Create Note Form Card */}
-          <div>
-            <Card>
-              <h3 style={{ fontSize: 'var(--text-base)', fontWeight: '700', marginBottom: 'var(--space-4)', fontFamily: 'var(--font-heading)', color: 'var(--color-text-primary)' }}>
-                Create Study Note
-              </h3>
-              <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                <Input
-                  label="Note Title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Science formula"
-                  required
-                />
-                <Input
-                  label="Note Content"
+        <div style={s.personalNotesGrid}>
+          {/* Note Editor */}
+          <Card style={{ height: 'fit-content' }}>
+            <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '700', marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Plus size={18} color="var(--color-accent)" /> Create Personal Note
+            </h3>
+            <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+              <Input
+                label="Note Title"
+                placeholder="e.g. Chemical Formulas Cheat Sheet"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
+              <div>
+                <label style={{ fontSize: 'var(--text-xs)', fontWeight: '600', color: 'var(--color-text-secondary)', marginBottom: '4px', display: 'block' }}>
+                  Note Contents
+                </label>
+                <textarea
+                  placeholder="Write your study takeaways, key formulas, or questions..."
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  placeholder="Write summaries or equations..."
-                  textarea
                   required
+                  rows={6}
+                  style={{
+                    width: '100%',
+                    padding: 'var(--space-3)',
+                    borderRadius: 'var(--radius-lg)',
+                    border: '1px solid var(--color-border-light)',
+                    background: 'var(--color-surface)',
+                    color: 'var(--color-text-primary)',
+                    fontFamily: 'inherit',
+                    fontSize: 'var(--text-sm)',
+                    outline: 'none'
+                  }}
                 />
-                <Button variant="primary" size="lg" fullWidth iconLeft={<Plus size={18} />} type="submit">
-                  Save Note
-                </Button>
-              </form>
-            </Card>
-          </div>
+              </div>
+              <Button variant="primary" fullWidth type="submit" iconLeft={<Plus size={16} />}>
+                Save Note
+              </Button>
+            </form>
+          </Card>
 
-          {/* Saved Study Notes List */}
-          <div>
-            <h3 style={{ fontSize: 'var(--text-base)', fontWeight: '700', marginBottom: 'var(--space-4)', fontFamily: 'var(--font-heading)', color: 'var(--color-text-primary)' }}>
-              Saved Study Notes
-            </h3>
-            
+          {/* Personal Notes List */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             {notes.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 'var(--space-12)', color: 'var(--color-text-tertiary)', background: 'var(--color-surface)', borderRadius: 'var(--radius-xl)', border: '1px dashed var(--color-border)' }}>
-                <FileText size={48} style={{ margin: '0 auto var(--space-4)', opacity: 0.5 }} />
-                <p>No notes saved yet. Create one to get started!</p>
-              </div>
+              <Card style={{ textAlign: 'center', padding: 'var(--space-8)' }}>
+                <FileText size={40} color="var(--color-text-tertiary)" style={{ marginBottom: 'var(--space-2)' }} />
+                <h4>No personal notes created yet</h4>
+                <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)' }}>Create your first personal study note using the form on the left.</p>
+              </Card>
             ) : (
-              <div style={s.noteList}>
-                {notes.map((note) => (
-                  <div key={note.id} style={s.noteCard}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <h4 style={{ fontWeight: '700', color: 'var(--color-primary)' }}>{note.title}</h4>
-                      <button
-                        onClick={() => deleteNote(note.id)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-error)' }}
-                      >
-                        <Trash2 size={16} />
-                      </button>
+              notes.map((note) => (
+                <div key={note.id} style={s.noteCard}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', color: 'var(--color-primary-dark)' }}>{note.title}</h4>
+                      <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                        <Clock size={12} /> {note.createdAt || 'Just now'}
+                      </span>
                     </div>
-                    <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>
-                      {note.content}
-                    </p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: 'var(--space-2)', fontSize: '10px', color: 'var(--color-text-tertiary)' }}>
-                      <Calendar size={12} />
-                      <span>Saved on: {note.date}</span>
-                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => deleteNote(note.id)}
+                      style={{ color: 'var(--color-error)' }}
+                    >
+                      <Trash2 size={16} />
+                    </Button>
                   </div>
-                ))}
-              </div>
+                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', lineHeight: '1.5', whitespace: 'pre-line' }}>
+                    {note.content}
+                  </p>
+                </div>
+              ))
             )}
           </div>
         </div>
       )}
 
-      {/* VIDEO LEARNING DIALOG / OVERLAY MODAL */}
+      {/* Video Modal Player */}
       {playingVideo && (
         <div style={s.modalOverlay} onClick={() => setPlayingVideo(null)}>
           <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', borderBottom: '1px solid var(--color-border-light)' }}>
-              <span style={{ fontSize: 'var(--text-xs)', fontWeight: '700', textTransform: 'uppercase', color: 'var(--color-primary)' }}>
-                Learning Walkthrough Support
-              </span>
-              <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-secondary)' }} onClick={() => setPlayingVideo(null)}>
+            <div style={{ padding: 'var(--space-4) var(--space-6)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-border-light)' }}>
+              <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', margin: 0 }}>{playingVideo.title}</h4>
+              <button onClick={() => setPlayingVideo(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-secondary)' }}>
                 <X size={20} />
               </button>
             </div>
-            
-            <div style={{ padding: '0', background: '#000', height: '360px', position: 'relative' }}>
-              {/* HTML5 video element with default controls */}
-              <video 
-                key={playingVideo.id}
-                src={playingVideo.videoUrl}
-                controls 
-                autoPlay
-                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-              />
+            <div style={{ width: '100%', height: '380px', background: '#000' }}>
+              <video src={playingVideo.videoUrl} controls autoPlay style={{ width: '100%', height: '100%' }} />
             </div>
-            
-            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <Badge variant="primary">{playingVideo.level}</Badge>
-                <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>Duration: {playingVideo.duration} • {playingVideo.views}</span>
-              </div>
-              <h3 style={{ fontSize: 'var(--text-base)', fontWeight: '800', color: 'var(--color-text-primary)' }}>{playingVideo.title}</h3>
-              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>
-                This educational video explains fundamental concepts and provides step-by-step visual calculations led by <b>{playingVideo.author}</b>. Pause the video anytime to copy notes to your personal scratchpad.
-              </p>
+            <div style={{ padding: 'var(--space-4) var(--space-6)', background: 'var(--color-bg)' }}>
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)' }}>
+                Instructor: <b>{playingVideo.author}</b> • {playingVideo.views}
+              </span>
             </div>
           </div>
         </div>
