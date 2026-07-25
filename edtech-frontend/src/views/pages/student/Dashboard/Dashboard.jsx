@@ -83,38 +83,12 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* AI Doubt Solver Banner */}
-      <div style={s.aiCard} onClick={() => navigate(ROUTES.AI_TUTOR)} className="responsive-flex-between">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <Badge variant="gradient" style={{ width: 'fit-content' }}>AI Doubt Solver</Badge>
-          <h3 style={{ fontSize: 'var(--text-2xl)', fontWeight: '700', color: 'var(--color-white)' }}>Stuck on a question?</h3>
-          <p style={{ opacity: 0.9, color: 'var(--color-white)' }}>Snap it, solve it, understand it instantly.</p>
-        </div>
-        <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)', flexShrink: 0 }}>
-          <ArrowRight size={24} />
-        </div>
-      </div>
-
       {/* Learning Tools */}
       <div>
         <h3 style={s.sectionTitle}>
           <span>Learning Tools</span>
         </h3>
-        <div style={s.toolsGrid} className="responsive-grid-4">
-          <FeatureCard
-            icon={Bot}
-            title="Ask AI Tutor"
-            description="Chat with your personalized tutor"
-            color="var(--color-secondary)"
-            onClick={() => navigate(ROUTES.AI_TUTOR)}
-          />
-          <FeatureCard
-            icon={FileText}
-            title="PDF Study"
-            description="Chat with your textbooks"
-            color="#EF4444"
-            onClick={() => navigate(ROUTES.AI_TUTOR)}
-          />
+        <div style={s.toolsGrid} className="responsive-grid-2">
           <FeatureCard
             icon={Zap}
             title="Resources"
