@@ -26,17 +26,17 @@ export const ROUTES = {
   PROFILE_SETUP: '/profile-setup',
 
   // Student Dashboard
-  STUDENT_DASHBOARD: '/dashboard',
-  MY_SYLLABUS: '/dashboard/syllabus',
-  SUBJECT_DETAIL: '/dashboard/subject/:subjectId',
-  CHAPTER_VIEW: '/dashboard/chapter/:chapterId',
-  STUDY_MATERIALS: '/dashboard/materials',
-  AI_TUTOR: '/dashboard/ai-tutor',
-  BOOKMARKS: '/dashboard/bookmarks',
-  NOTES: '/dashboard/notes',
-  STUDENT_PROFILE: '/dashboard/profile',
-  NOTIFICATIONS: '/dashboard/notifications',
-  SETTINGS: '/dashboard/settings',
+  STUDENT_DASHBOARD: '/student/dashboard',
+  MY_SYLLABUS: '/student/dashboard/syllabus',
+  SUBJECT_DETAIL: '/student/dashboard/subject/:subjectId',
+  CHAPTER_VIEW: '/student/dashboard/chapter/:chapterId',
+  STUDY_MATERIALS: '/student/dashboard/materials',
+  AI_TUTOR: '/student/dashboard/ai-tutor',
+  BOOKMARKS: '/student/dashboard/bookmarks',
+  NOTES: '/student/dashboard/notes',
+  STUDENT_PROFILE: '/student/dashboard/profile',
+  NOTIFICATIONS: '/student/dashboard/notifications',
+  SETTINGS: '/student/dashboard/settings',
 
   // Admin Panel
   ADMIN_DASHBOARD: '/admin',
