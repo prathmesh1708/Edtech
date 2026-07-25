@@ -272,6 +272,14 @@ export const createSyllabus = async (req, res) => {
     const syllabus = new Syllabus(syllabusObj);
     const savedSyllabus = await syllabus.save();
 
+    // Always keep in-memory seed updated for fallbacks
+    const existingSeedIdx = DEFAULT_SYLLABUS_SEED.findIndex(s => s._id === syllabusObj._id);
+    if (existingSeedIdx !== -1) {
+      DEFAULT_SYLLABUS_SEED[existingSeedIdx] = savedSyllabus.toObject ? savedSyllabus.toObject() : savedSyllabus;
+    } else {
+      DEFAULT_SYLLABUS_SEED.unshift(savedSyllabus.toObject ? savedSyllabus.toObject() : savedSyllabus);
+    }
+
     // Sync to Subject Model for SubjectManagement module
     try {
       await Subject.create({
@@ -290,6 +298,12 @@ export const createSyllabus = async (req, res) => {
     res.status(201).json(savedSyllabus);
   } catch (error) {
     console.warn('MongoDB save timed out in createSyllabus, returning created memory item:', error.message);
+    const existingSeedIdx = DEFAULT_SYLLABUS_SEED.findIndex(s => s._id === syllabusObj._id);
+    if (existingSeedIdx !== -1) {
+      DEFAULT_SYLLABUS_SEED[existingSeedIdx] = syllabusObj;
+    } else {
+      DEFAULT_SYLLABUS_SEED.unshift(syllabusObj);
+    }
     res.status(201).json(syllabusObj);
   }
 };
@@ -312,6 +326,8 @@ export const updateSyllabus = async (req, res) => {
     chapters
   } = req.body;
 
+  let updatedObj = null;
+
   try {
     const syllabus = await Syllabus.findById(req.params.id).maxTimeMS(3000);
     if (syllabus) {
@@ -323,23 +339,44 @@ export const updateSyllabus = async (req, res) => {
       if (color !== undefined) syllabus.color = color;
       if (icon !== undefined) syllabus.icon = icon;
       if (status !== undefined) syllabus.status = status;
-      if (chapters !== undefined) syllabus.chapters = chapters;
+      if (chapters !== undefined) {
+        syllabus.chapters = chapters;
+        syllabus.markModified('chapters');
+      }
 
-      const updatedSyllabus = await syllabus.save();
-      return res.json(updatedSyllabus);
+      const savedSyllabus = await syllabus.save();
+      updatedObj = savedSyllabus.toObject ? savedSyllabus.toObject() : savedSyllabus;
     }
   } catch (error) {
     console.warn('MongoDB update failed in updateSyllabus:', error.message);
   }
 
-  res.json({
-    _id: req.params.id,
-    board: normBoard(board),
-    class: normClass(classVal),
-    subjectName: subjectName || 'Subject',
-    status: status || 'Published',
-    chapters: chapters || []
-  });
+  // Fallback for seed / in-memory objects if MongoDB fails or item not in DB
+  if (!updatedObj) {
+    const seedMatch = DEFAULT_SYLLABUS_SEED.find(s => s._id === req.params.id);
+    updatedObj = {
+      _id: req.params.id,
+      board: board !== undefined ? normBoard(board) : (seedMatch?.board || 'cbse'),
+      class: classVal !== undefined ? normClass(classVal) : (seedMatch?.class || '10'),
+      subjectName: subjectName !== undefined ? subjectName : (seedMatch?.subjectName || 'Subject'),
+      subjectCode: subjectCode !== undefined ? subjectCode : (seedMatch?.subjectCode || ''),
+      description: description !== undefined ? description : (seedMatch?.description || ''),
+      color: color !== undefined ? color : (seedMatch?.color || '#4F6EF7'),
+      icon: icon !== undefined ? icon : (seedMatch?.icon || 'BookOpen'),
+      status: status !== undefined ? status : (seedMatch?.status || 'Published'),
+      chapters: chapters !== undefined ? chapters : (seedMatch?.chapters || [])
+    };
+  }
+
+  // Sync with in-memory seed list so re-fetching immediately reflects the updated chapters
+  const seedIdx = DEFAULT_SYLLABUS_SEED.findIndex(s => s._id === req.params.id);
+  if (seedIdx !== -1) {
+    DEFAULT_SYLLABUS_SEED[seedIdx] = { ...DEFAULT_SYLLABUS_SEED[seedIdx], ...updatedObj };
+  } else {
+    DEFAULT_SYLLABUS_SEED.unshift(updatedObj);
+  }
+
+  res.json(updatedObj);
 };
 
 /**
@@ -356,5 +393,12 @@ export const deleteSyllabus = async (req, res) => {
   } catch (error) {
     console.warn('MongoDB delete failed in deleteSyllabus:', error.message);
   }
+
+  // Also remove from in-memory seed array
+  const seedIdx = DEFAULT_SYLLABUS_SEED.findIndex(s => s._id === req.params.id);
+  if (seedIdx !== -1) {
+    DEFAULT_SYLLABUS_SEED.splice(seedIdx, 1);
+  }
+
   res.json({ message: 'Syllabus item removed successfully', id: req.params.id });
 };

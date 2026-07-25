@@ -243,12 +243,29 @@ const SyllabusManagement = () => {
       return;
     }
 
+    const cleanedChapters = (formData.chapters || []).map((ch, i) => ({
+      title: ch.title?.trim() || `Chapter ${i + 1}: Overview`,
+      description: ch.description?.trim() || '',
+      progress: Number(ch.progress) || 0,
+      topics: (ch.topics || [])
+        .map(t => typeof t === 'string' ? { name: t.trim(), completed: false } : { name: (t?.name || '').trim(), completed: Boolean(t?.completed) })
+        .filter(t => t.name.length > 0)
+    })).map(ch => ({
+      ...ch,
+      topics: ch.topics.length > 0 ? ch.topics : [{ name: 'Topic 1', completed: false }]
+    }));
+
+    const payload = {
+      ...formData,
+      chapters: cleanedChapters
+    };
+
     try {
       if (editingId) {
-        await syllabusService.updateSyllabus(editingId, formData);
+        await syllabusService.updateSyllabus(editingId, payload);
         toast?.success?.(`"${formData.subjectName}" updated successfully!`);
       } else {
-        await syllabusService.createSyllabus(formData);
+        await syllabusService.createSyllabus(payload);
         toast?.success?.(`"${formData.subjectName}" added dynamically to backend!`);
       }
       setIsModalOpen(false);
