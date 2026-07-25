@@ -2,16 +2,41 @@ import mongoose from 'mongoose';
 
 const notificationSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: [true, 'Please add a reference to a User'],
+    customId: {
+      type: String,
+      trim: true,
     },
-    text: {
+    title: {
+      type: String,
+      required: [true, 'Please add a notification title'],
+      trim: true,
+    },
+    message: {
       type: String,
       required: [true, 'Please specify notification message text'],
       trim: true,
     },
+    target: {
+      type: String,
+      enum: ['All Users', 'Students', 'Teachers', 'Parents'],
+      default: 'All Users',
+    },
+    category: {
+      type: String,
+      enum: ['Announcement', 'Reminder', 'Warning', 'Syllabus Update'],
+      default: 'Announcement',
+    },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
+    readBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
     readStatus: {
       type: Boolean,
       default: false,
@@ -26,7 +51,7 @@ const notificationSchema = new mongoose.Schema(
   }
 );
 
-notificationSchema.index({ user: 1, readStatus: 1 });
+notificationSchema.index({ target: 1, createdAt: -1 });
 
 const Notification = mongoose.model('Notification', notificationSchema);
 export default Notification;

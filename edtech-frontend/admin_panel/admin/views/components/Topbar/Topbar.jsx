@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Bell, User, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../../../../src/views/components/common/Toast/Toast';
 import { useAuth } from '../../../../../src/models/context/AuthContext';
+import { API_BASE_URL } from '../../../../../src/config/constants';
 import styles from './Topbar.module.css';
 
 const Topbar = () => {
   const { user, updateProfile } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const navigate = useNavigate();
   
   // Profile state
   const [profile, setProfile] = useState(() => {
@@ -24,6 +28,21 @@ const Topbar = () => {
   const [tempProfile, setTempProfile] = useState({ ...profile });
 
   const toast = useToast();
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/notifications/admin`);
+        if (res.ok) {
+          const logs = await res.json();
+          setNotificationCount(logs.length);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchCount();
+  }, []);
 
   useEffect(() => {
     const handleSync = () => {
@@ -104,9 +123,13 @@ const Topbar = () => {
       </div>
 
       <div className={styles.actions}>
-        <button className={styles.iconButton}>
+        <button 
+          className={styles.iconButton}
+          onClick={() => navigate('/admin/notifications')}
+          title="View Notifications Portal"
+        >
           <Bell size={20} />
-          <span className={styles.badge}>3</span>
+          {notificationCount > 0 && <span className={styles.badge}>{notificationCount}</span>}
         </button>
         
         <div className={styles.profileMenu} onClick={handleProfileClick} title="View Admin Profile">

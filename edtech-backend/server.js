@@ -7,6 +7,7 @@ import syllabusRoutes from './routes/syllabusRoutes.js';
 import studentRoutes from './routes/studentRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import syllabusManagementRoutes from './routes/syllabusManagementRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 // Load environment variables
@@ -18,7 +19,6 @@ connectDB();
 const app = express();
 
 // Standard middleware
-<<<<<<< HEAD
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
@@ -26,6 +26,10 @@ const allowedOrigins = [
   'https://edtech-frontend-lovat.vercel.app',
   process.env.CLIENT_URL
 ].filter(Boolean);
+
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(...process.env.FRONTEND_URL.split(',').map(url => url.trim()));
+}
 
 app.use(
   cors({
@@ -35,16 +39,6 @@ app.use(
       }
       return callback(null, true);
     },
-=======
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'];
-if (process.env.FRONTEND_URL) {
-  allowedOrigins.push(...process.env.FRONTEND_URL.split(',').map(url => url.trim()));
-}
-
-app.use(
-  cors({
-    origin: allowedOrigins,
->>>>>>> 8b05e848111a3727382f6e7ae2f35bbe839c8389
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -63,6 +57,7 @@ app.use('/api/syllabus', syllabusRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/syllabus-management', syllabusManagementRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Error Handling middleware
 app.use(notFound);

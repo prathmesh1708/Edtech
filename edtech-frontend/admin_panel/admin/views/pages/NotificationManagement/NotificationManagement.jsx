@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Bell, 
   Send, 
@@ -7,22 +7,18 @@ import {
   RefreshCw, 
   Search, 
   Users, 
-  Layers, 
   MessageSquare,
-  X
+  X,
+  Loader2
 } from 'lucide-react';
 import { useToast } from '../../../../../src/views/components/common/Toast/Toast';
+import { API_BASE_URL } from '../../../../../src/config/constants';
 import styles from './NotificationManagement.module.css';
 
-const initialLogs = [
-  { id: 'NTF001', title: 'System Maintenance Scheduled', message: 'The study platform will undergo scheduled maintenance this Sunday from 2 AM to 4 AM IST. Live classes will not be available.', target: 'All Users', category: 'Warning', time: '10 mins ago' },
-  { id: 'NTF002', title: 'Mathematics Exam Postponed', message: 'The mock test for Mathematics Class 10 scheduled for tomorrow has been rescheduled to Friday at 10 AM.', target: 'Students', category: 'Reminder', time: '2 hours ago' },
-  { id: 'NTF003', title: 'New Physics Study Material Uploaded', message: 'Chapter 5 Lecture Notes on Electrostatics are now available in the Syllabus & Content portal.', target: 'Students', category: 'Syllabus Update', time: '1 day ago' },
-  { id: 'NTF004', title: 'Faculty Meet Reminder', message: 'Please attend the monthly alignment meeting today at 4:00 PM in Seminar Hall B.', target: 'Teachers', category: 'Announcement', time: '2 days ago' },
-];
-
 const NotificationManagement = () => {
-  const [logs, setLogs] = useState(initialLogs);
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
@@ -37,6 +33,27 @@ const NotificationManagement = () => {
 
   const toast = useToast();
 
+  const fetchAdminNotifications = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE_URL}/notifications/admin`);
+      if (res.ok) {
+        const data = await res.json();
+        setLogs(data);
+      } else {
+        toast.error('Failed to load broadcast history from server.', 'Fetch Error');
+      }
+    } catch (err) {
+      console.error('Error fetching admin notifications:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAdminNotifications();
+  }, []);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -46,39 +63,59 @@ const NotificationManagement = () => {
   };
 
   // Submit new notification
-  const handleSendNotification = (e) => {
+  const handleSendNotification = async (e) => {
     e.preventDefault();
     if (!formData.title || !formData.message) {
       toast.error('Title and message body are required.', 'Validation Error');
       return;
     }
 
-    const nextIdNum = Math.max(...logs.map(l => parseInt(l.id.replace('NTF', '')) || 0), 0) + 1;
-    const formattedId = `NTF${String(nextIdNum).padStart(3, '0')}`;
+    try {
+      setIsSubmitting(true);
+      const res = await fetch(`${API_BASE_URL}/notifications/broadcast`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
 
-    const newLog = {
-      id: formattedId,
-      title: formData.title,
-      message: formData.message,
-      target: formData.target,
-      category: formData.category,
-      time: 'Just now'
-    };
-
-    setLogs(prev => [newLog, ...prev]);
-    setFormData({
-      title: '',
-      message: '',
-      target: 'All Users',
-      category: 'Announcement'
-    });
-    toast.success(`Announcement "${newLog.title}" sent successfully.`, 'Notification Dispatched');
+      if (res.ok) {
+        const newLog = await res.json();
+        setLogs(prev => [newLog, ...prev.filter(l => l.id !== newLog.id)]);
+        setFormData({
+          title: '',
+          message: '',
+          target: 'All Users',
+          category: 'Announcement'
+        });
+        toast.success(`Announcement "${newLog.title}" dispatched to ${newLog.target}.`, 'Notification Broadcasted');
+      } else {
+        const errData = await res.json();
+        toast.error(errData.message || 'Failed to dispatch notification.', 'Server Error');
+      }
+    } catch (err) {
+      console.error('Error sending notification:', err);
+      toast.error('Network error when sending notification.', 'Connection Error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Delete Log
-  const handleDeleteLog = (id, title) => {
-    setLogs(prev => prev.filter(l => l.id !== id));
-    toast.success(`Log record for "${title}" has been deleted.`, 'Log Removed');
+  const handleDeleteLog = async (id, title) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/notifications/${id}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setLogs(prev => prev.filter(l => l.id !== id && l._id !== id));
+        toast.success(`Log record for "${title}" has been deleted.`, 'Log Removed');
+      } else {
+        toast.error('Failed to delete notification record.', 'Error');
+      }
+    } catch (err) {
+      console.error('Error deleting notification:', err);
+      toast.error('Network error deleting notification.', 'Error');
+    }
   };
 
   // Resend / copy back to form
@@ -100,10 +137,10 @@ const NotificationManagement = () => {
 
   // Filters search
   const filteredLogs = logs.filter(log => 
-    log.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    log.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    log.target.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    log.category.toLowerCase().includes(searchTerm.toLowerCase())
+    (log.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (log.message || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (log.target || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (log.category || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Stats
@@ -215,9 +252,18 @@ const NotificationManagement = () => {
               />
             </div>
 
-            <button type="submit" className={styles.primaryButton}>
-              <Send size={16} />
-              <span>Broadcast Announcement</span>
+            <button type="submit" className={styles.primaryButton} disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  <span>Broadcasting...</span>
+                </>
+              ) : (
+                <>
+                  <Send size={16} />
+                  <span>Broadcast Announcement</span>
+                </>
+              )}
             </button>
           </form>
         </div>
@@ -242,79 +288,86 @@ const NotificationManagement = () => {
           </div>
 
           <div className={styles.tableContainer}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Title & Info</th>
-                  <th>Target Group</th>
-                  <th>Type</th>
-                  <th>Dispatched</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLogs.length > 0 ? (
-                  filteredLogs.map((log) => (
-                    <tr key={log.id}>
-                      <td style={{ color: 'var(--color-text-tertiary)', fontWeight: 'var(--font-medium)' }}>{log.id}</td>
-                      <td>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <span className={styles.cellTitle}>{log.title}</span>
-                          <span className={styles.cellMessage}>{log.message}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--font-semibold)', color: '#1B3A8C', backgroundColor: 'rgba(27, 58, 140, 0.05)', padding: '2px 8px', borderRadius: '4px' }}>
-                          {log.target}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`${styles.statusBadge} ${
-                          log.category === 'Announcement' ? styles.announcement :
-                          log.category === 'Reminder' ? styles.reminder :
-                          log.category === 'Warning' ? styles.warning : styles.syllabus
-                        }`}>
-                          {log.category}
-                        </span>
-                      </td>
-                      <td style={{ fontSize: 'var(--text-xs)' }}>{log.time}</td>
-                      <td>
-                        <div className={styles.actionButtons}>
-                          <button 
-                            className={styles.iconButton} 
-                            title="Preview Content"
-                            onClick={() => handlePreviewClick(log)}
-                          >
-                            <Eye size={14} />
-                          </button>
-                          <button 
-                            className={styles.iconButton} 
-                            title="Copy to Composer"
-                            onClick={() => handleResendClick(log)}
-                          >
-                            <RefreshCw size={14} />
-                          </button>
-                          <button 
-                            className={`${styles.iconButton} ${styles.danger}`} 
-                            title="Delete Log"
-                            onClick={() => handleDeleteLog(log.id, log.title)}
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
+            {loading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '40px 0', gap: '10px', color: 'var(--color-text-secondary)' }}>
+                <Loader2 size={20} className="animate-spin" />
+                <span>Loading broadcast history...</span>
+              </div>
+            ) : (
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Title & Info</th>
+                    <th>Target Group</th>
+                    <th>Type</th>
+                    <th>Dispatched</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredLogs.length > 0 ? (
+                    filteredLogs.map((log) => (
+                      <tr key={log.id || log._id}>
+                        <td style={{ color: 'var(--color-text-tertiary)', fontWeight: 'var(--font-medium)' }}>{log.id}</td>
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span className={styles.cellTitle}>{log.title}</span>
+                            <span className={styles.cellMessage}>{log.message}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--font-semibold)', color: '#1B3A8C', backgroundColor: 'rgba(27, 58, 140, 0.05)', padding: '2px 8px', borderRadius: '4px' }}>
+                            {log.target}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`${styles.statusBadge} ${
+                            log.category === 'Announcement' ? styles.announcement :
+                            log.category === 'Reminder' ? styles.reminder :
+                            log.category === 'Warning' ? styles.warning : styles.syllabus
+                          }`}>
+                            {log.category}
+                          </span>
+                        </td>
+                        <td style={{ fontSize: 'var(--text-xs)' }}>{log.time}</td>
+                        <td>
+                          <div className={styles.actionButtons}>
+                            <button 
+                              className={styles.iconButton} 
+                              title="Preview Content"
+                              onClick={() => handlePreviewClick(log)}
+                            >
+                              <Eye size={14} />
+                            </button>
+                            <button 
+                              className={styles.iconButton} 
+                              title="Copy to Composer"
+                              onClick={() => handleResendClick(log)}
+                            >
+                              <RefreshCw size={14} />
+                            </button>
+                            <button 
+                              className={`${styles.iconButton} ${styles.danger}`} 
+                              title="Delete Log"
+                              onClick={() => handleDeleteLog(log.id || log._id, log.title)}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="6" style={{ textAlign: 'center', padding: '30px 0', color: 'var(--color-text-tertiary)' }}>
+                        No history records found matching search.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="6" style={{ textAlign: 'center', padding: '30px 0', color: 'var(--color-text-tertiary)' }}>
-                      No history records found matching search.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       </div>

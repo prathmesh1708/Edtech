@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { Home, LogOut, Settings, Bell, Bot, BookOpen, FileText } from 'lucide-react';
 import Logo from '../../../../../src/views/components/common/Logo/Logo';
@@ -6,6 +6,7 @@ import { ROUTES } from '../../../../../src/config/routes';
 import { useAuth } from '../../../../../src/models/context/AuthContext';
 import Avatar from '../../../../../src/views/components/common/Avatar/Avatar';
 import Button from '../../../../../src/views/components/common/Button/Button';
+import { API_BASE_URL } from '../../../../../src/config/constants';
 import styles from '../../../../../src/views/components/layout/StudentLayout.module.css';
 
 const MENU_ITEMS = [
@@ -30,13 +31,28 @@ const StudentLayout = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-  // Mock notifications data
-  const [notifications, setNotifications] = useState([
-    { id: 1, text: '🎉 You completed 75% of Mathematics syllabus!', time: '10 mins ago', read: false },
-    { id: 2, text: '🤖 AI Tutor has resolved your doubt about Euclid\'s Lemma', time: '2 hours ago', read: false },
-    { id: 3, text: '📝 Physics: New study notes uploaded for Chapter 2', time: 'Yesterday', read: true },
-    { id: 4, text: '🔥 Streak Protected! Protect your 5-day streak today', time: '1 day ago', read: true }
-  ]);
+  // Dynamic notifications state
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const userId = user?._id || '';
+        const role = user?.role || 'student';
+        const res = await fetch(`${API_BASE_URL}/notifications/user?role=${role}&userId=${userId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setNotifications(data);
+        }
+      } catch (err) {
+        console.error('Error fetching student notifications:', err);
+      }
+    };
+
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 10000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   if (loading) {
     return (
@@ -60,12 +76,30 @@ const StudentLayout = () => {
   // Calculate unread count
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  const markAllRead = () => {
+  const markAllRead = async () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    try {
+      await fetch(`${API_BASE_URL}/notifications/read-all`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user?._id }),
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const toggleRead = (id) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: !n.read } : n));
+  const toggleRead = async (id) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    try {
+      await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user?._id }),
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
