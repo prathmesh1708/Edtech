@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
-import { Home, LogOut, Settings, Bell, Bot, BookOpen, FileText } from 'lucide-react';
+import { Home, LogOut, Settings, Bell, BookOpen, FileText, Trash2, X } from 'lucide-react';
 import Logo from '../../../../../src/views/components/common/Logo/Logo';
 import { ROUTES } from '../../../../../src/config/routes';
 import { useAuth } from '../../../../../src/models/context/AuthContext';
@@ -65,10 +65,6 @@ const StudentLayout = () => {
     return <Navigate to={ROUTES.LOGIN} replace />;
   }
 
-  if (user && user.role === 'admin') {
-    return <Navigate to={ROUTES.ADMIN_DASHBOARD} replace />;
-  }
-
   // Temporary mock user if not logged in
   const currentUser = user || { name: 'Aarav Sharma', classId: '10', board: 'CBSE', email: 'aarav.sharma@gmail.com' };
 
@@ -98,6 +94,32 @@ const StudentLayout = () => {
       });
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const clearAllNotifications = async () => {
+    setNotifications([]);
+    try {
+      await fetch(`${API_BASE_URL}/notifications/clear-all`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user?._id }),
+      });
+    } catch (err) {
+      console.warn('Cleared notifications locally:', err);
+    }
+  };
+
+  const clearSingleNotification = async (id) => {
+    setNotifications(prev => prev.filter(n => n.id !== id && n._id !== id));
+    try {
+      await fetch(`${API_BASE_URL}/notifications/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user?._id }),
+      });
+    } catch (err) {
+      console.warn('Cleared notification item locally:', err);
     }
   };
 
@@ -218,14 +240,25 @@ const StudentLayout = () => {
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-border-light)', paddingBottom: '8px' }}>
                       <span style={{ fontWeight: '700', fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)' }}>Notifications</span>
-                      {unreadCount > 0 && (
-                        <button 
-                          onClick={markAllRead} 
-                          style={{ fontSize: '11px', color: 'var(--color-accent)', fontWeight: '600', cursor: 'pointer' }}
-                        >
-                          Mark all read
-                        </button>
-                      )}
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        {notifications.length > 0 && (
+                          <button 
+                            onClick={clearAllNotifications} 
+                            style={{ fontSize: '11px', color: 'var(--color-error)', fontWeight: '600', cursor: 'pointer', background: 'none', border: 'none', display: 'flex', alignItems: 'center', gap: '2px' }}
+                            title="Clear all notifications"
+                          >
+                            <Trash2 size={12} /> Clear All
+                          </button>
+                        )}
+                        {unreadCount > 0 && (
+                          <button 
+                            onClick={markAllRead} 
+                            style={{ fontSize: '11px', color: 'var(--color-accent)', fontWeight: '600', cursor: 'pointer', background: 'none', border: 'none' }}
+                          >
+                            Mark all read
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '240px', overflowY: 'auto' }}>
                       {notifications.length === 0 ? (
@@ -246,17 +279,30 @@ const StudentLayout = () => {
                               transition: 'all 0.2s',
                               display: 'flex',
                               flexDirection: 'column',
-                              gap: '2px'
+                              gap: '4px'
                             }}
                           >
-                            <p style={{ 
-                              fontSize: 'var(--text-xs)', 
-                              fontWeight: n.read ? '400' : '600', 
-                              color: 'var(--color-text-primary)',
-                              lineHeight: '1.4'
-                            }}>
-                              {n.text}
-                            </p>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                              <p style={{ 
+                                fontSize: 'var(--text-xs)', 
+                                fontWeight: n.read ? '400' : '600', 
+                                color: 'var(--color-text-primary)',
+                                lineHeight: '1.4',
+                                flex: 1
+                              }}>
+                                {n.text}
+                              </p>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  clearSingleNotification(n.id);
+                                }}
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-tertiary)', padding: '2px' }}
+                                title="Clear notification"
+                              >
+                                <X size={12} />
+                              </button>
+                            </div>
                             <span style={{ fontSize: '9px', color: 'var(--color-text-tertiary)' }}>{n.time}</span>
                           </div>
                         ))
