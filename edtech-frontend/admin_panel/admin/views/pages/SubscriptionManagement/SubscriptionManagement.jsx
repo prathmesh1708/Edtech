@@ -22,11 +22,6 @@ import styles from './SubscriptionManagement.module.css';
 
 const CLASS_OPTIONS = [
   'All Classes',
-  'Class 1',
-  'Class 2',
-  'Class 3',
-  'Class 4',
-  'Class 5',
   'Class 6',
   'Class 7',
   'Class 8',
@@ -65,8 +60,39 @@ const initialSubscriptions = [
 
 const SubscriptionManagement = () => {
   const [activeTab, setActiveTab] = useState('subscriptions'); // 'subscriptions' or 'plans'
-  const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
-  const [plans, setPlans] = useState(initialPlans);
+  const [subscriptions, setSubscriptions] = useState(() => {
+    const saved = localStorage.getItem('admin_subscriptions_list');
+    return saved ? JSON.parse(saved) : initialSubscriptions;
+  });
+
+  const [plans, setPlans] = useState(() => {
+    const saved = localStorage.getItem('admin_subscription_plans');
+    return saved ? JSON.parse(saved) : initialPlans;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('admin_subscription_plans', JSON.stringify(plans));
+  }, [plans]);
+
+  useEffect(() => {
+    localStorage.setItem('admin_subscriptions_list', JSON.stringify(subscriptions));
+  }, [subscriptions]);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      const saved = localStorage.getItem('admin_subscriptions_list');
+      if (saved) {
+        setSubscriptions(JSON.parse(saved));
+      }
+    };
+    window.addEventListener('admin_subscription_updated', handleUpdate);
+    return () => window.removeEventListener('admin_subscription_updated', handleUpdate);
+  }, []);
+
+  const [subjectPricing, setSubjectPricing] = useState(() => {
+    const saved = localStorage.getItem('admin_subject_pricing');
+    return saved ? JSON.parse(saved) : { perSubjectMonthly: 499, perSubjectQuarterly: 1299, perSubjectYearly: 3999 };
+  });
   
   // Search & Filter (Subscriptions)
   const [searchTerm, setSearchTerm] = useState('');
@@ -487,17 +513,10 @@ const SubscriptionManagement = () => {
           <Layers size={16} />
           <span>Subscription Plans</span>
         </button>
-        <button 
-          className={`${styles.tabButton} ${activeTab === 'billing_cycles' ? styles.activeTab : ''}`}
-          onClick={() => setActiveTab('billing_cycles')}
-        >
-          <Calendar size={16} />
-          <span>Billing Cycle Rules</span>
-        </button>
       </div>
 
       {/* Conditional Rendering based on selected tab */}
-      {activeTab === 'subscriptions' && (
+      {activeTab === 'subscriptions' ? (
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <div className={styles.searchContainer}>
@@ -644,10 +663,8 @@ const SubscriptionManagement = () => {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Plans Tab view */}
-      {activeTab === 'plans' && (
+      ) : (
+        /* Plans Tab view */
         <div>
           {/* Admin Subject-Wise Pricing Config Card */}
           <div className={styles.card} style={{ marginBottom: '24px', padding: '24px' }}>
@@ -820,71 +837,6 @@ const SubscriptionManagement = () => {
               </div>
             )}
           </div>
-        </div>
-      )}
-
-      {/* Billing Cycles Tab view */}
-      {activeTab === 'billing_cycles' && (
-        <div className={styles.card} style={{ padding: '28px' }}>
-          <div style={{ marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#0F172A', marginBottom: '4px' }}>Global Billing Cycle Settings</h2>
-            <p style={{ color: '#64748B', fontSize: '14px', margin: 0 }}>
-              Configure platform-default discount rates applied during custom subject subscription calculations (Monthly, Quarterly, Yearly).
-            </p>
-          </div>
-
-          <form onSubmit={handleSaveCycleSettings} style={{ maxWidth: '600px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Monthly Billing Cycle</label>
-              <input 
-                type="text" 
-                disabled 
-                value="Standard Base Monthly Rate (0% Discount)" 
-                className={styles.formInput}
-                style={{ background: '#F8FAFC', color: '#64748B', cursor: 'not-allowed' }}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Quarterly Billing Cycle Discount (%)</label>
-              <input 
-                type="number" 
-                min="0" 
-                max="100"
-                required
-                className={styles.formInput}
-                value={cycleSettings.quarterlyDiscount}
-                onChange={(e) => setCycleSettings({ ...cycleSettings, quarterlyDiscount: Number(e.target.value) })}
-                placeholder="e.g. 10"
-              />
-              <span style={{ fontSize: '12px', color: '#64748B', marginTop: '4px', display: 'block' }}>
-                Applied to 3-month total base price. Example: ₹500/mo × 3 = ₹1,500 - 10% = ₹1,350.
-              </span>
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Yearly Billing Cycle Discount (%)</label>
-              <input 
-                type="number" 
-                min="0" 
-                max="100"
-                required
-                className={styles.formInput}
-                value={cycleSettings.yearlyDiscount}
-                onChange={(e) => setCycleSettings({ ...cycleSettings, yearlyDiscount: Number(e.target.value) })}
-                placeholder="e.g. 20"
-              />
-              <span style={{ fontSize: '12px', color: '#64748B', marginTop: '4px', display: 'block' }}>
-                Applied to 12-month total base price. Example: ₹500/mo × 12 = ₹6,000 - 20% = ₹4,800.
-              </span>
-            </div>
-
-            <div>
-              <button type="submit" className={styles.primaryButton} style={{ marginTop: '8px' }}>
-                Save Billing Cycle Settings
-              </button>
-            </div>
-          </form>
         </div>
       )}
 
