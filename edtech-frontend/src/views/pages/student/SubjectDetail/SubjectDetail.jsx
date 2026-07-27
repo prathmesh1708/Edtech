@@ -44,9 +44,9 @@ const SubjectDetail = () => {
   const { subjectId } = useParams();
   const navigate = useNavigate();
   const {
-    subjects,
+    subjects = [],
     currentSubject,
-    chapters,
+    chapters = [],
     fetchChapters,
     loading,
     selectedBoard,
@@ -59,7 +59,10 @@ const SubjectDetail = () => {
     }
   }, [subjectId, fetchChapters]);
 
-  const activeSubject = currentSubject || subjects.find(s => s.id === subjectId) || {
+  const safeSubjects = Array.isArray(subjects) ? subjects : [];
+  const safeChapters = Array.isArray(chapters) ? chapters : [];
+
+  const activeSubject = currentSubject || safeSubjects.find(s => s.id === subjectId || s._id === subjectId) || {
     name: 'Subject',
     color: '#4F6EF7',
     description: ''
@@ -105,7 +108,7 @@ const SubjectDetail = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
         <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '700', fontFamily: 'var(--font-heading)' }}>Chapters</h3>
         <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-tertiary)' }}>
-          {chapters.length} {chapters.length === 1 ? 'Chapter' : 'Chapters'}
+          {safeChapters.length} {safeChapters.length === 1 ? 'Chapter' : 'Chapters'}
         </span>
       </div>
 
@@ -113,9 +116,9 @@ const SubjectDetail = () => {
         <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
           Loading chapters...
         </div>
-      ) : chapters.length > 0 ? (
+      ) : safeChapters.length > 0 ? (
         <div style={s.chapterList}>
-          {chapters.map((ch, idx) => (
+          {safeChapters.map((ch, idx) => (
             <div
               key={ch.id || idx}
               style={s.chapterCard}

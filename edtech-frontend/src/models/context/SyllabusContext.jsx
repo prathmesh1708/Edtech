@@ -196,7 +196,7 @@ export const SyllabusProvider = ({ children }) => {
         localStorage.setItem('selected_subscription_plan_id', planId);
         setUserSubscriptionStatus('ACTIVE');
         localStorage.setItem('user_payment_status', 'ACTIVE');
-        setPaymentMessage(`Payment Successful! ₹${res.amount} paid via Razorpay (ID: ${res.paymentId}). Your subscription is active and subjects are unlocked.`);
+        setPaymentMessage(`Payment Successful! ₹${res.amount} paid via Razorpay (ID: ${res.paymentId}). Your subscription is active and selected subjects are unlocked.`);
         logAdminTransaction(plan, 'Active');
         if (onCompleted) onCompleted(true);
       },
@@ -260,6 +260,7 @@ export const SyllabusProvider = ({ children }) => {
     initiateRazorpayPayment(newCustomPlan);
   }, [selectedClass, plans, initiateRazorpayPayment]);
 
+  // Filter subjects based on selected subscription plan AND payment status
   const filteredSubjects = useMemo(() => {
     if (userSubscriptionStatus === 'FAILED') {
       return [];
@@ -270,15 +271,40 @@ export const SyllabusProvider = ({ children }) => {
 
     const targetSubj = activePlan.targetSubject || 'All Subjects';
 
-    if (targetSubj === 'All Subjects' || targetSubj.toLowerCase().includes('all')) {
+    if (targetSubj === 'All Subjects' || targetSubj.toLowerCase().includes('all subjects') || targetSubj.toLowerCase().includes('all classes')) {
       return subjects;
     }
 
-    const allowedList = targetSubj.split(',').map(s => s.trim().toLowerCase());
+    // Build normalized allowed target list from selectedSubjectList array or targetSubject string
+    const rawAllowed = activePlan.selectedSubjectList || targetSubj.split(',').map(s => s.trim());
+    const allowedList = rawAllowed.map(s => String(s).trim().toLowerCase());
 
     return subjects.filter(s => {
-      const sName = s.name.toLowerCase();
-      return allowedList.some(target => sName.includes(target) || target.includes(sName));
+      const sName = (s.name || s.subjectName || '').toLowerCase();
+      const sCode = (s.code || s.subjectCode || '').toLowerCase();
+      const sRawName = (s.rawItem?.subjectName || '').toLowerCase();
+
+      return allowedList.some(target => {
+        if (!target) return false;
+        const t = target.toLowerCase();
+
+        // Exact match or substring match
+        if (sName.includes(t) || t.includes(sName)) return true;
+        if (sRawName && (sRawName.includes(t) || t.includes(sRawName))) return true;
+        if (sCode && (sCode.includes(t) || t.includes(sCode))) return true;
+
+        // Strip parenthetical codes e.g. "Maths (5585)" -> "maths"
+        const cleanName = sName.replace(/\(.*\)/, '').trim();
+        const cleanTarget = t.replace(/\(.*\)/, '').trim();
+        if (cleanName.includes(cleanTarget) || cleanTarget.includes(cleanName)) return true;
+
+        // Common subject prefix alias matching
+        const tStem = cleanTarget.slice(0, 4);
+        const sStem = cleanName.slice(0, 4);
+        if (tStem.length >= 3 && sStem.length >= 3 && tStem === sStem) return true;
+
+        return false;
+      });
     });
   }, [subjects, plans, selectedPlanId, userSubscriptionStatus]);
 
