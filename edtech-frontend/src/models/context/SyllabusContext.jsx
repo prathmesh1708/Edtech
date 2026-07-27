@@ -25,6 +25,11 @@ const DEFAULT_PRICING = {
   perSubjectYearly: 3999
 };
 
+const DEFAULT_CYCLE_SETTINGS = {
+  quarterlyDiscount: 10,
+  yearlyDiscount: 20
+};
+
 export const SyllabusProvider = ({ children }) => {
   const { user } = useAuth();
 
@@ -50,6 +55,12 @@ export const SyllabusProvider = ({ children }) => {
   const [subjectPricing, setSubjectPricing] = useState(() => {
     const saved = localStorage.getItem('admin_subject_pricing');
     return saved ? JSON.parse(saved) : DEFAULT_PRICING;
+  });
+
+  // Billing Cycle Discount Rules (managed by Admin)
+  const [cycleSettings, setCycleSettings] = useState(() => {
+    const saved = localStorage.getItem('admin_billing_cycle_settings');
+    return saved ? JSON.parse(saved) : DEFAULT_CYCLE_SETTINGS;
   });
 
   const [loading, setLoading] = useState(false);
@@ -116,14 +127,13 @@ export const SyllabusProvider = ({ children }) => {
       const saved = localStorage.getItem('admin_subject_pricing');
       if (saved) {
         setSubjectPricing(JSON.parse(saved));
-        return;
       }
-      const res = await subscriptionService.getSubjectPricing();
-      if (res.data) {
-        setSubjectPricing(res.data);
+      const savedCycles = localStorage.getItem('admin_billing_cycle_settings');
+      if (savedCycles) {
+        setCycleSettings(JSON.parse(savedCycles));
       }
     } catch (err) {
-      console.warn('Could not fetch subject pricing:', err);
+      console.warn('Could not fetch subject pricing or cycles:', err);
     }
   }, []);
 
@@ -148,7 +158,6 @@ export const SyllabusProvider = ({ children }) => {
     localStorage.setItem('selected_subscription_plan_id', planId);
   }, []);
 
-  // Helper to append a new transaction entry into Admin subscriptions list
   const logAdminTransaction = useCallback((plan, status) => {
     const today = new Date().toISOString().split('T')[0];
     const expiryDateObj = new Date();
@@ -172,11 +181,9 @@ export const SyllabusProvider = ({ children }) => {
     const updatedList = [newSubRecord, ...existingList];
     localStorage.setItem('admin_subscriptions_list', JSON.stringify(updatedList));
 
-    // Dispatch event so Admin view refreshes if open
     window.dispatchEvent(new Event('admin_subscription_updated'));
   }, [user?.name, selectedClass]);
 
-  // Initiate Razorpay Checkout Payment Flow
   const initiateRazorpayPayment = useCallback((plan, onCompleted) => {
     openRazorpayCheckout({
       planName: plan.name,
@@ -203,24 +210,38 @@ export const SyllabusProvider = ({ children }) => {
     });
   }, [user?.name, user?.email, logAdminTransaction]);
 
-  // Create & activate custom subject-wise subscription plan
+  // Create & activate custom subject-wise subscription plan with Admin Billing Cycle Rules (%)
   const createCustomPlan = useCallback((selectedSubjectNames, duration = 'Monthly') => {
     if (!selectedSubjectNames || selectedSubjectNames.length === 0) return;
 
-    const rate = duration === 'Yearly'
-      ? (subjectPricing.perSubjectYearly || 3999)
-      : duration === 'Quarterly'
-      ? (subjectPricing.perSubjectQuarterly || 1299)
-      : (subjectPricing.perSubjectMonthly || 499);
+    const savedCycles = localStorage.getItem('admin_billing_cycle_settings');
+    const cycles = savedCycles ? JSON.parse(savedCycles) : DEFAULT_CYCLE_SETTINGS;
+    const savedPricing = localStorage.getItem('admin_subject_pricing');
+    const pricing = savedPricing ? JSON.parse(savedPricing) : DEFAULT_PRICING;
 
-    const totalPrice = selectedSubjectNames.length * rate;
+    const baseRate = pricing.perSubjectMonthly || 499;
+    const count = selectedSubjectNames.length;
+
+    let totalPrice = 0;
+    if (duration === 'Yearly') {
+      const gross = count * baseRate * 12;
+      const discount = gross * ((cycles.yearlyDiscount || 20) / 100);
+      totalPrice = Math.round(gross - discount);
+    } else if (duration === 'Quarterly') {
+      const gross = count * baseRate * 3;
+      const discount = gross * ((cycles.quarterlyDiscount || 10) / 100);
+      totalPrice = Math.round(gross - discount);
+    } else {
+      totalPrice = count * baseRate;
+    }
+
     const planId = `PLAN-CUSTOM-${Date.now()}`;
     const subjectListStr = selectedSubjectNames.join(', ');
 
     const newCustomPlan = {
       id: planId,
       _id: planId,
-      name: `Custom Bundle (${selectedSubjectNames.length} ${selectedSubjectNames.length === 1 ? 'Subject' : 'Subjects'})`,
+      name: `Custom Bundle (${count} ${count === 1 ? 'Subject' : 'Subjects'})`,
       targetClass: `Class ${selectedClass}`,
       targetSubject: subjectListStr,
       price: totalPrice,
@@ -236,13 +257,10 @@ export const SyllabusProvider = ({ children }) => {
     const updatedPlans = [newCustomPlan, ...plans.filter(p => !p.isCustom)];
     localStorage.setItem('admin_subscription_plans', JSON.stringify(updatedPlans));
 
-    // Prompt payment via Razorpay for the custom plan
     initiateRazorpayPayment(newCustomPlan);
-  }, [selectedClass, subjectPricing, plans, initiateRazorpayPayment]);
+  }, [selectedClass, plans, initiateRazorpayPayment]);
 
-  // Filter subjects based on selected subscription plan AND payment status
   const filteredSubjects = useMemo(() => {
-    // If payment failed or canceled, show 0 unlocked subjects
     if (userSubscriptionStatus === 'FAILED') {
       return [];
     }
@@ -280,6 +298,7 @@ export const SyllabusProvider = ({ children }) => {
       selectedPlanId,
       currentPlan,
       subjectPricing,
+      cycleSettings,
       userSubscriptionStatus,
       paymentMessage,
       updatePricingByAdmin,
