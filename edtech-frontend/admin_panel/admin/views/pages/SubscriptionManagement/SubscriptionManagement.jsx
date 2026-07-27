@@ -60,8 +60,39 @@ const initialSubscriptions = [
 
 const SubscriptionManagement = () => {
   const [activeTab, setActiveTab] = useState('subscriptions'); // 'subscriptions' or 'plans'
-  const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
-  const [plans, setPlans] = useState(initialPlans);
+  const [subscriptions, setSubscriptions] = useState(() => {
+    const saved = localStorage.getItem('admin_subscriptions_list');
+    return saved ? JSON.parse(saved) : initialSubscriptions;
+  });
+
+  const [plans, setPlans] = useState(() => {
+    const saved = localStorage.getItem('admin_subscription_plans');
+    return saved ? JSON.parse(saved) : initialPlans;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('admin_subscription_plans', JSON.stringify(plans));
+  }, [plans]);
+
+  useEffect(() => {
+    localStorage.setItem('admin_subscriptions_list', JSON.stringify(subscriptions));
+  }, [subscriptions]);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      const saved = localStorage.getItem('admin_subscriptions_list');
+      if (saved) {
+        setSubscriptions(JSON.parse(saved));
+      }
+    };
+    window.addEventListener('admin_subscription_updated', handleUpdate);
+    return () => window.removeEventListener('admin_subscription_updated', handleUpdate);
+  }, []);
+
+  const [subjectPricing, setSubjectPricing] = useState(() => {
+    const saved = localStorage.getItem('admin_subject_pricing');
+    return saved ? JSON.parse(saved) : { perSubjectMonthly: 499, perSubjectQuarterly: 1299, perSubjectYearly: 3999 };
+  });
   
   // Search & Filter (Subscriptions)
   const [searchTerm, setSearchTerm] = useState('');
@@ -635,6 +666,76 @@ const SubscriptionManagement = () => {
       ) : (
         /* Plans Tab view */
         <div>
+          {/* Admin Subject-Wise Pricing Config Card */}
+          <div className={styles.card} style={{ marginBottom: '24px', padding: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <DollarSign size={18} color="#1B3A8C" />
+                  Subject-Wise Custom Subscription Pricing (Admin Config)
+                </h3>
+                <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: '4px 0 0 0' }}>
+                  Set per-subject rates used by students and parents to build custom subject subscriptions on the student dashboard.
+                </p>
+              </div>
+              <button 
+                type="button"
+                className={styles.primaryButton}
+                style={{ padding: '8px 16px', fontSize: '13px' }}
+                onClick={() => {
+                  localStorage.setItem('admin_subject_pricing', JSON.stringify(subjectPricing));
+                  toast.success('Subject-wise pricing rates saved successfully.', 'Pricing Saved');
+                }}
+              >
+                Save Subject Rates
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Monthly Rate (per subject)</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontWeight: '700', color: 'var(--color-text-primary)' }}>₹</span>
+                  <input 
+                    type="number" 
+                    className={styles.input} 
+                    value={subjectPricing.perSubjectMonthly || 499}
+                    onChange={(e) => setSubjectPricing(prev => ({ ...prev, perSubjectMonthly: Number(e.target.value) }))}
+                    placeholder="499"
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Quarterly Rate (per subject)</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontWeight: '700', color: 'var(--color-text-primary)' }}>₹</span>
+                  <input 
+                    type="number" 
+                    className={styles.input} 
+                    value={subjectPricing.perSubjectQuarterly || 1299}
+                    onChange={(e) => setSubjectPricing(prev => ({ ...prev, perSubjectQuarterly: Number(e.target.value) }))}
+                    placeholder="1299"
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Yearly Rate (per subject)</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontWeight: '700', color: 'var(--color-text-primary)' }}>₹</span>
+                  <input 
+                    type="number" 
+                    className={styles.input} 
+                    value={subjectPricing.perSubjectYearly || 3999}
+                    onChange={(e) => setSubjectPricing(prev => ({ ...prev, perSubjectYearly: Number(e.target.value) }))}
+                    placeholder="3999"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className={styles.plansHeaderBar}>
             <div className={styles.searchContainer}>
               <Search size={18} className={styles.searchIcon} />

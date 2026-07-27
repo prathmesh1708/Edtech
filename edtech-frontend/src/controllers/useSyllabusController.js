@@ -9,13 +9,24 @@ const useSyllabusController = () => {
     selectedClass,
     setSelectedClass,
     subjects,
+    allSubjects,
+    plans,
+    selectedPlanId,
+    currentPlan,
+    subjectPricing,
+    userSubscriptionStatus,
+    paymentMessage,
+    updatePricingByAdmin,
+    selectPlan,
+    createCustomPlan,
+    initiateRazorpayPayment,
     loading: stateLoading,
-    refreshSubjects
+    refreshSubjects,
+    refreshPlans
   } = useSyllabusState();
 
   const [currentSubject, setCurrentSubject] = useState(null);
   const [chapters, setChapters] = useState([]);
-  const [activeChapter, setActiveChapter] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const selectBoard = useCallback((board) => {
@@ -30,8 +41,7 @@ const useSyllabusController = () => {
     if (!subjectId) return;
     setLoading(true);
     try {
-      // First check if subject details are already present in context subjects array
-      const localSubj = subjects.find(s => s.id === subjectId || s.name.toLowerCase() === subjectId.toLowerCase());
+      const localSubj = (allSubjects || subjects).find(s => s.id === subjectId || s.name.toLowerCase() === subjectId.toLowerCase());
       if (localSubj && localSubj.chapters && localSubj.chapters.length > 0) {
         setCurrentSubject(localSubj);
         setChapters(localSubj.chapters.map((ch, i) => ({
@@ -45,7 +55,6 @@ const useSyllabusController = () => {
         return;
       }
 
-      // If not, fetch from backend via API
       const res = await syllabusService.getSyllabusById(subjectId);
       if (res.data) {
         const item = res.data;
@@ -73,21 +82,29 @@ const useSyllabusController = () => {
     } finally {
       setLoading(false);
     }
-  }, [subjects]);
+  }, [subjects, allSubjects]);
 
   return {
     selectedBoard,
     selectedClass,
     subjects,
-    currentSubject,
-    chapters,
-    activeChapter,
-    setActiveChapter,
+    allSubjects,
+    plans,
+    selectedPlanId,
+    currentPlan,
+    subjectPricing,
+    userSubscriptionStatus,
+    paymentMessage,
+    updatePricingByAdmin,
+    selectPlan,
+    createCustomPlan,
+    initiateRazorpayPayment,
     loading: loading || stateLoading,
     selectBoard,
     selectClass,
     fetchChapters,
-    refreshSubjects
+    refreshSubjects,
+    refreshPlans
   };
 };
 

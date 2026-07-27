@@ -9,6 +9,7 @@ import analyticsRoutes from './routes/analyticsRoutes.js';
 import syllabusManagementRoutes from './routes/syllabusManagementRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import bannerRoutes from './routes/bannerRoutes.js';
+import subscriptionPlanRoutes from './routes/subscriptionPlanRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 // Load environment variables
@@ -62,6 +63,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/syllabus-management', syllabusManagementRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/banners', bannerRoutes);
+app.use('/api/subscription-plans', subscriptionPlanRoutes);
 
 // Error Handling middleware
 app.use(notFound);

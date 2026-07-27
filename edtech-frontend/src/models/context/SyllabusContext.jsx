@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import syllabusService from '../services/syllabusService';
+import subscriptionService from '../services/subscriptionService';
+import { openRazorpayCheckout } from '../../utils/razorpayService';
 import { useAuth } from './AuthContext';
-import { SUBJECTS } from '../../config/constants';
 
 const SyllabusContext = createContext(null);
 
@@ -9,6 +10,19 @@ export const useSyllabusState = () => {
   const context = useContext(SyllabusContext);
   if (!context) throw new Error('useSyllabusState must be used within a SyllabusProvider');
   return context;
+};
+
+const DEFAULT_PLANS = [
+  { id: 'PLAN001', name: 'Basic All-Access Pass', targetClass: 'All Classes', targetSubject: 'All Subjects', price: 999, duration: 'Monthly', features: 'Access to Core Syllabus, 10 Mock Tests, Basic Doubt Solving', status: 'Active', subscribers: 2 },
+  { id: 'PLAN002', name: 'Class 10 Math Mastery', targetClass: 'Class 10', targetSubject: 'Mathematics', price: 1499, duration: 'Quarterly', features: 'Access to Class 10 Math Syllabus, Unlimited Mock Tests, 24/7 AI Tutor', status: 'Active', subscribers: 2 },
+  { id: 'PLAN003', name: 'Class 12 Physics Pro', targetClass: 'Class 12', targetSubject: 'Physics', price: 2999, duration: 'Yearly', features: 'Personal Live Mentorship, Dedicated Physics Teacher, Custom Study Kits', status: 'Active', subscribers: 1 },
+  { id: 'PLAN004', name: 'Class 9 Science Special', targetClass: 'Class 9', targetSubject: 'Science', price: 1199, duration: 'Quarterly', features: 'Physics, Chemistry & Biology Modules, Interactive Quizzes, Doubt Support', status: 'Active', subscribers: 3 }
+];
+
+const DEFAULT_PRICING = {
+  perSubjectMonthly: 499,
+  perSubjectQuarterly: 1299,
+  perSubjectYearly: 3999
 };
 
 export const SyllabusProvider = ({ children }) => {
@@ -21,10 +35,26 @@ export const SyllabusProvider = ({ children }) => {
     return user?.classId ? String(user.classId) : '10';
   });
   const [subjects, setSubjects] = useState([]);
+  const [plans, setPlans] = useState(DEFAULT_PLANS);
+  const [selectedPlanId, setSelectedPlanId] = useState(() => {
+    return localStorage.getItem('selected_subscription_plan_id') || 'PLAN001';
+  });
+
+  // User Payment and Subscription State
+  const [userSubscriptionStatus, setUserSubscriptionStatus] = useState(() => {
+    return localStorage.getItem('user_payment_status') || 'ACTIVE'; // default ACTIVE for smooth preview
+  });
+  const [paymentMessage, setPaymentMessage] = useState('');
+
+  // Subject Pricing rates (managed by Admin)
+  const [subjectPricing, setSubjectPricing] = useState(() => {
+    const saved = localStorage.getItem('admin_subject_pricing');
+    return saved ? JSON.parse(saved) : DEFAULT_PRICING;
+  });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Synchronize selected class and board whenever logged in user profile updates
   useEffect(() => {
     if (user?.classId) {
       setSelectedClass(String(user.classId));
@@ -54,7 +84,6 @@ export const SyllabusProvider = ({ children }) => {
         }));
         setSubjects(formattedSubjects);
       } else {
-        // If no subjects found in backend for this specific board/class combination, fallback to empty or default constants
         setSubjects([]);
       }
     } catch (err) {
@@ -66,9 +95,178 @@ export const SyllabusProvider = ({ children }) => {
     }
   }, [selectedBoard, selectedClass]);
 
+  const fetchPlans = useCallback(async () => {
+    try {
+      const localAdminPlans = localStorage.getItem('admin_subscription_plans');
+      if (localAdminPlans) {
+        setPlans(JSON.parse(localAdminPlans));
+        return;
+      }
+      const res = await subscriptionService.getPlans();
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+        setPlans(res.data);
+      }
+    } catch (err) {
+      console.warn('Could not fetch subscription plans:', err);
+    }
+  }, []);
+
+  const fetchSubjectPricing = useCallback(async () => {
+    try {
+      const saved = localStorage.getItem('admin_subject_pricing');
+      if (saved) {
+        setSubjectPricing(JSON.parse(saved));
+        return;
+      }
+      const res = await subscriptionService.getSubjectPricing();
+      if (res.data) {
+        setSubjectPricing(res.data);
+      }
+    } catch (err) {
+      console.warn('Could not fetch subject pricing:', err);
+    }
+  }, []);
+
   useEffect(() => {
     fetchSubjects();
-  }, [fetchSubjects]);
+    fetchPlans();
+    fetchSubjectPricing();
+  }, [fetchSubjects, fetchPlans, fetchSubjectPricing]);
+
+  const updatePricingByAdmin = useCallback((newPricing) => {
+    setSubjectPricing(newPricing);
+    localStorage.setItem('admin_subject_pricing', JSON.stringify(newPricing));
+    try {
+      subscriptionService.updateSubjectPricing(newPricing);
+    } catch (e) {
+      console.warn('Could not sync pricing to backend:', e.message);
+    }
+  }, []);
+
+  const selectPlan = useCallback((planId) => {
+    setSelectedPlanId(planId);
+    localStorage.setItem('selected_subscription_plan_id', planId);
+  }, []);
+
+  // Helper to append a new transaction entry into Admin subscriptions list
+  const logAdminTransaction = useCallback((plan, status) => {
+    const today = new Date().toISOString().split('T')[0];
+    const expiryDateObj = new Date();
+    expiryDateObj.setDate(expiryDateObj.getDate() + 30);
+    const expiry = expiryDateObj.toISOString().split('T')[0];
+
+    const newSubRecord = {
+      id: `SUB${Math.floor(1000 + Math.random() * 9000)}`,
+      studentName: user?.name || 'Mohit Admin (Student)',
+      planName: plan.name || 'Custom Subject Plan',
+      targetClass: plan.targetClass || `Class ${selectedClass}`,
+      targetSubject: plan.targetSubject || 'All Subjects',
+      purchaseDate: today,
+      expiryDate: status === 'Active' ? expiry : today,
+      price: plan.price || 499,
+      status: status
+    };
+
+    const savedSubs = localStorage.getItem('admin_subscriptions_list');
+    const existingList = savedSubs ? JSON.parse(savedSubs) : [];
+    const updatedList = [newSubRecord, ...existingList];
+    localStorage.setItem('admin_subscriptions_list', JSON.stringify(updatedList));
+
+    // Dispatch event so Admin view refreshes if open
+    window.dispatchEvent(new Event('admin_subscription_updated'));
+  }, [user?.name, selectedClass]);
+
+  // Initiate Razorpay Checkout Payment Flow
+  const initiateRazorpayPayment = useCallback((plan, onCompleted) => {
+    openRazorpayCheckout({
+      planName: plan.name,
+      amount: plan.price || 499,
+      studentName: user?.name || 'Mohit Student',
+      studentEmail: user?.email || 'mohit@gmail.com',
+      onSuccess: (res) => {
+        const planId = plan._id || plan.id;
+        setSelectedPlanId(planId);
+        localStorage.setItem('selected_subscription_plan_id', planId);
+        setUserSubscriptionStatus('ACTIVE');
+        localStorage.setItem('user_payment_status', 'ACTIVE');
+        setPaymentMessage(`Payment Successful! ₹${res.amount} paid via Razorpay (ID: ${res.paymentId}). Your subscription is active and subjects are unlocked.`);
+        logAdminTransaction(plan, 'Active');
+        if (onCompleted) onCompleted(true);
+      },
+      onFailure: (err) => {
+        setUserSubscriptionStatus('FAILED');
+        localStorage.setItem('user_payment_status', 'FAILED');
+        setPaymentMessage(`Payment Failed / Canceled via Razorpay (${err.reason || 'Transaction Declined'}). No subjects unlocked.`);
+        logAdminTransaction(plan, 'Canceled');
+        if (onCompleted) onCompleted(false);
+      }
+    });
+  }, [user?.name, user?.email, logAdminTransaction]);
+
+  // Create & activate custom subject-wise subscription plan
+  const createCustomPlan = useCallback((selectedSubjectNames, duration = 'Monthly') => {
+    if (!selectedSubjectNames || selectedSubjectNames.length === 0) return;
+
+    const rate = duration === 'Yearly'
+      ? (subjectPricing.perSubjectYearly || 3999)
+      : duration === 'Quarterly'
+      ? (subjectPricing.perSubjectQuarterly || 1299)
+      : (subjectPricing.perSubjectMonthly || 499);
+
+    const totalPrice = selectedSubjectNames.length * rate;
+    const planId = `PLAN-CUSTOM-${Date.now()}`;
+    const subjectListStr = selectedSubjectNames.join(', ');
+
+    const newCustomPlan = {
+      id: planId,
+      _id: planId,
+      name: `Custom Bundle (${selectedSubjectNames.length} ${selectedSubjectNames.length === 1 ? 'Subject' : 'Subjects'})`,
+      targetClass: `Class ${selectedClass}`,
+      targetSubject: subjectListStr,
+      price: totalPrice,
+      duration: duration,
+      features: `Custom access to ${subjectListStr}, Complete Notes, Practice Papers`,
+      status: 'Active',
+      subscribers: 1,
+      isCustom: true,
+      selectedSubjectList: selectedSubjectNames
+    };
+
+    setPlans(prev => [newCustomPlan, ...prev.filter(p => !p.isCustom)]);
+    const updatedPlans = [newCustomPlan, ...plans.filter(p => !p.isCustom)];
+    localStorage.setItem('admin_subscription_plans', JSON.stringify(updatedPlans));
+
+    // Prompt payment via Razorpay for the custom plan
+    initiateRazorpayPayment(newCustomPlan);
+  }, [selectedClass, subjectPricing, plans, initiateRazorpayPayment]);
+
+  // Filter subjects based on selected subscription plan AND payment status
+  const filteredSubjects = useMemo(() => {
+    // If payment failed or canceled, show 0 unlocked subjects
+    if (userSubscriptionStatus === 'FAILED') {
+      return [];
+    }
+
+    const activePlan = plans.find(p => (p._id || p.id) === selectedPlanId) || plans[0];
+    if (!activePlan) return subjects;
+
+    const targetSubj = activePlan.targetSubject || 'All Subjects';
+
+    if (targetSubj === 'All Subjects' || targetSubj.toLowerCase().includes('all')) {
+      return subjects;
+    }
+
+    const allowedList = targetSubj.split(',').map(s => s.trim().toLowerCase());
+
+    return subjects.filter(s => {
+      const sName = s.name.toLowerCase();
+      return allowedList.some(target => sName.includes(target) || target.includes(sName));
+    });
+  }, [subjects, plans, selectedPlanId, userSubscriptionStatus]);
+
+  const currentPlan = useMemo(() => {
+    return plans.find(p => (p._id || p.id) === selectedPlanId) || plans[0];
+  }, [plans, selectedPlanId]);
 
   return (
     <SyllabusContext.Provider value={{
@@ -76,10 +274,22 @@ export const SyllabusProvider = ({ children }) => {
       setSelectedBoard,
       selectedClass,
       setSelectedClass,
-      subjects,
+      subjects: filteredSubjects,
+      allSubjects: subjects,
+      plans,
+      selectedPlanId,
+      currentPlan,
+      subjectPricing,
+      userSubscriptionStatus,
+      paymentMessage,
+      updatePricingByAdmin,
+      selectPlan,
+      createCustomPlan,
+      initiateRazorpayPayment,
       loading,
       error,
-      refreshSubjects: fetchSubjects
+      refreshSubjects: fetchSubjects,
+      refreshPlans: fetchPlans
     }}>
       {children}
     </SyllabusContext.Provider>

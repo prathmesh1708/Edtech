@@ -176,7 +176,7 @@ const StudentDashboard = () => {
         </div>
         
         {activeBanners && activeBanners.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: activeBanners.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--space-4)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: activeBanners.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(260px, 1fr))', gap: 'var(--space-4)' }}>
             {activeBanners.map(banner => (
               <div 
                 key={banner._id || banner.id} 
@@ -185,7 +185,7 @@ const StudentDashboard = () => {
                   borderRadius: 'var(--radius-xl)', 
                   overflow: 'hidden', 
                   position: 'relative', 
-                  minHeight: '220px',
+                  minHeight: '180px',
                   boxShadow: 'var(--shadow-md)',
                   border: '1px solid var(--color-border-light)',
                   cursor: banner.link ? 'pointer' : 'default'
@@ -195,19 +195,19 @@ const StudentDashboard = () => {
                 <img 
                   src={banner.imageUrl} 
                   alt={banner.title} 
-                  style={{ width: '100%', height: '220px', objectFit: 'cover' }} 
+                  style={{ width: '100%', height: '100%', minHeight: '180px', maxHeight: '240px', objectFit: 'cover' }} 
                 />
                 <div style={{ 
                   position: 'absolute', 
                   bottom: 0, 
                   left: 0, 
                   right: 0, 
-                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.3), transparent)', 
-                  padding: '20px 24px',
-                  color: '#fff'
+                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.2), transparent)', 
+                  padding: '16px 20px',
+                  color: '#ffffff'
                 }}>
-                  <h4 style={{ fontSize: 'var(--text-lg)', fontWeight: '700', margin: '0 0 4px 0' }}>{banner.title}</h4>
-                  <span style={{ fontSize: 'var(--text-xs)', opacity: 0.9 }}>Target Audience: {banner.targeting || 'All Students'}</span>
+                  <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', margin: '0 0 4px 0', color: '#ffffff' }}>{banner.title}</h4>
+                  <span style={{ fontSize: 'var(--text-xs)', color: 'rgba(255, 255, 255, 0.9)' }}>Target Audience: {banner.targeting || 'All Students'}</span>
                 </div>
               </div>
             ))}

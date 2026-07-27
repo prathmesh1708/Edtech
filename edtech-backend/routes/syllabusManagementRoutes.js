@@ -6,7 +6,7 @@ import {
   getGlobalSyllabuses, createGlobalSyllabus, updateGlobalSyllabus, deleteGlobalSyllabus,
   getBoards, createBoard, updateBoard, deleteBoard,
   getSubjects, createSubject, updateSubject, deleteSubject,
-  getChapters, createChapter, updateChapter, deleteChapter,
+  getChapters, getChapterById, createChapter, updateChapter, deleteChapter,
   getContentApprovals, updateApprovalStatus,
   getEducationalMaterials, createEducationalMaterial, updateEducationalMaterial, deleteEducationalMaterial
 } from '../controllers/syllabusManagementController.js';

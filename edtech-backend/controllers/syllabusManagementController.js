@@ -333,6 +333,8 @@ export const getChapters = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
 export const getChapterById = async (req, res, next) => {
   try {
     const { id } = req.params;
