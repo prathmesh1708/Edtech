@@ -86,7 +86,7 @@ export const getDashboardData = async (req, res) => {
       };
     });
 
-    const overallSyllabusProgress = subjects.length > 0 ? Math.round(totalProgressSum / subjects.length) : 64;
+    const overallSyllabusProgress = subjects.length > 0 ? Math.round(totalProgressSum / subjects.length) : 0;
 
     const todoFilter = userId ? { user: userId } : {};
     const todos = await Todo.find(todoFilter).sort({ createdAt: -1 }).maxTimeMS(3000);
@@ -94,13 +94,20 @@ export const getDashboardData = async (req, res) => {
     const activityFilter = userId ? { user: userId } : {};
     const activities = await Activity.find(activityFilter).sort({ createdAt: -1 }).limit(6).maxTimeMS(3000);
 
+    // Calculate dynamic student metrics
+    const userStudyHours = req.user?.studyHours !== undefined ? req.user.studyHours : 0.0;
+    const userStreak = req.user?.streak || 1;
+    
+    // Class rank: If user has completed chapters/quizzes show rank, otherwise '#--' (Unranked)
+    const userClassRank = (overallSyllabusProgress > 0 || userStudyHours > 0) ? '#1' : '#--';
+
     res.json({
       stats: {
         overallSyllabusProgress,
-        aiQueriesCount: 42,
-        studyHours: 18.5,
-        classRank: '#3',
-        streak: 5
+        aiQueriesCount: req.user?.aiQueriesCount || 0,
+        studyHours: userStudyHours,
+        classRank: userClassRank,
+        streak: userStreak
       },
       subjects,
       todos: todos.map(t => ({ id: t._id, text: t.text, completed: t.completed })),
@@ -110,16 +117,13 @@ export const getDashboardData = async (req, res) => {
     console.warn('MongoDB query timed out in getDashboardData, returning fallback response:', error.message);
     res.json({
       stats: {
-        overallSyllabusProgress: 50,
-        aiQueriesCount: 42,
-        studyHours: 18.5,
-        classRank: '#3',
-        streak: 5
+        overallSyllabusProgress: 0,
+        aiQueriesCount: 0,
+        studyHours: 0.0,
+        classRank: '#--',
+        streak: 1
       },
-      subjects: [
-        { id: 'sub-1', name: 'Mathematics', code: 'MATH-10', color: '#4F6EF7', chapters: '4 Chapters', chapterCount: 4, progress: 75 },
-        { id: 'sub-2', name: 'Science', code: 'SCI-10', color: '#22C55E', chapters: '3 Chapters', chapterCount: 3, progress: 50 }
-      ],
+      subjects: [],
       todos: DEFAULT_TODOS,
       activities: DEFAULT_ACTIVITIES
     });

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Plus, 
   Trash2, 
-  Calendar, 
   FileText, 
   BookOpen, 
   Video, 
@@ -13,328 +12,478 @@ import {
   ChevronDown, 
   ChevronUp, 
   Sparkles,
-  ArrowRight,
-  Bookmark,
   FileDown,
   Info,
   Clock,
   Filter,
-  Check,
-  Layers
+  Check
 } from 'lucide-react';
+import { useAuth } from '../../../../models/context/AuthContext';
 import useContentController from '../../../../controllers/useContentController';
 import syllabusManagementService from '../../../../models/services/syllabusManagementService';
 import Button from '../../../components/common/Button/Button';
 import Input from '../../../components/common/Input/Input';
 import Card from '../../../components/common/Card/Card';
 import Badge from '../../../components/common/Badge/Badge';
+import { downloadPDF } from '../../../../utils/pdfGenerator';
 
-// Comprehensive Multi-Subject Mock Dataset for Notes & Study Hub
-const MOCK_DATA = {
-  math: {
-    id: 'math',
-    name: 'Mathematics',
-    color: '#3B82F6',
-    chapters: [
-      {
-        id: 'm-ch-1',
-        subjectName: 'Mathematics',
-        subjectColor: '#3B82F6',
-        title: 'Chapter 1: Real Numbers',
-        description: 'Explore the fundamental properties of integers, divisors, algorithms, and irrationality.',
-        digitalMaterial: 'Real numbers form the foundation of algebra. In this chapter, we focus on Euclid\'s Division Algorithm, prime factorization representations, and proofs of irrationality.',
-        topics: [
-          { title: "Euclid's Division Lemma", content: "Given positive integers a and b, there exist unique integers q and r satisfying a = bq + r, where 0 <= r < b. This lemma is heavily used to calculate the Highest Common Factor (HCF) of large numbers." },
-          { title: "The Fundamental Theorem of Arithmetic", content: "Every composite number can be expressed (factorized) as a product of prime numbers, and this factorization is unique, apart from the order in which the prime factors occur. Useful for understanding LCM and HCF concepts." },
-          { title: "Revisiting Irrational Numbers", content: "Proving numbers like √2, √3, and √5 are irrational by contradiction. A number is irrational if it cannot be expressed in the form p/q, where p and q are integers and q != 0." }
-        ]
-      },
-      {
-        id: 'm-ch-2',
-        subjectName: 'Mathematics',
-        subjectColor: '#3B82F6',
-        title: 'Chapter 2: Polynomials',
-        description: 'Study expressions containing variables, degree of polynomials, coefficients, and graphical representations.',
-        digitalMaterial: 'Polynomial expressions are essential for mathematical modeling. Here, we analyze quadratic expressions, relationship of zeroes, and coefficient division theorems.',
-        topics: [
-          { title: "Geometrical Meaning of Zeroes", content: "The zeroes of a polynomial p(x) are the x-coordinates of the points where the graph of y = p(x) intersects the x-axis. A polynomial of degree n can have at most n zeroes." },
-          { title: "Relation between Zeroes and Coefficients", content: "For a quadratic polynomial ax² + bx + c, if α and β are the zeroes, then: α + β = -b/a (sum of zeroes), and αβ = c/a (product of zeroes)." },
-          { title: "Division Algorithm for Polynomials", content: "If p(x) and g(x) are any two polynomials with g(x) != 0, then we can find polynomials q(x) and r(x) such that: p(x) = g(x) × q(x) + r(x), where r(x) = 0 or degree of r(x) < degree of g(x)." }
-        ]
-      }
-    ],
-    videos: [
-      {
-        id: 'm-vid-1',
-        subjectName: 'Mathematics',
-        title: 'Visualizing Quadratic Equations & Zeroes Graphically',
-        duration: '12:45',
-        level: 'Intermediate',
-        thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=400',
-        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-        views: '2.5k views',
-        author: 'Prof. Rajesh Sharma'
-      },
-      {
-        id: 'm-vid-2',
-        subjectName: 'Mathematics',
-        title: 'Euclid\'s Division Algorithm Step-by-Step Proof',
-        duration: '8:20',
-        level: 'Basic',
-        thumbnail: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&q=80&w=400',
-        videoUrl: 'https://www.w3schools.com/html/movie.mp4',
-        views: '1.8k views',
-        author: 'Dr. Anita Desai'
-      }
-    ],
-    downloads: [
-      {
-        id: 'm-dl-1',
-        subjectName: 'Mathematics',
-        title: 'NCERT Class 10 Mathematics Exemplar Solutions',
-        description: 'Complete solved exemplars and practice questions with detailed proofs for CBSE Board prep.',
-        fileSize: '4.2 MB',
-        fileType: 'PDF Document',
-        downloadsCount: 1420
-      },
-      {
-        id: 'm-dl-2',
-        subjectName: 'Mathematics',
-        title: 'Formula Cheat Sheet & Quick Revision Notes',
-        description: 'One-page summary sheet containing all theorems, identities, and equations for quick revision.',
-        fileSize: '750 KB',
-        fileType: 'PDF Document',
-        downloadsCount: 3840
-      }
-    ]
-  },
-  science: {
-    id: 'science',
-    name: 'Science',
-    color: '#8B5CF6',
-    chapters: [
-      {
-        id: 's-ch-1',
-        subjectName: 'Science',
-        subjectColor: '#8B5CF6',
-        title: 'Chapter 1: Chemical Reactions and Equations',
-        description: 'Understand how substance compositions undergo change, write chemical equations, and classify chemical reactions.',
-        digitalMaterial: 'Chemical processes are described using chemical equations. In this chapter, we master the law of conservation of mass, balancing equation coefficients, and reaction conditions.',
-        topics: [
-          { title: "Writing & Balancing Chemical Equations", content: "A chemical equation shows reactants, products, and physical states. To satisfy the law of conservation of mass, we must balance equations by making the number of atoms of each element equal on both sides." },
-          { title: "Types of Chemical Reactions", content: "1. Combination: Two reactants form one product.\n2. Decomposition: One reactant breaks down into multiple products.\n3. Displacement: A reactive element displaces a less reactive one.\n4. Double Displacement: Exchange of ions between compounds." }
-        ]
-      },
-      {
-        id: 's-ch-2',
-        subjectName: 'Science',
-        subjectColor: '#8B5CF6',
-        title: 'Chapter 2: Acids, Bases and Salts',
-        description: 'Analyze chemical properties, indicators, pH scale strength, and practical significance of household salts.',
-        digitalMaterial: 'Acids and bases neutralise each other. We evaluate hydrogen ion concentration (pH scale) and study standard salts like sodium hydroxide and bleaching powder.',
-        topics: [
-          { title: "Chemical Properties of Acids & Bases", content: "Acids turn blue litmus red, conduct electricity in solution, and react with metals to release Hydrogen gas." },
-          { title: "The pH Scale and Importance", content: "A scale for measuring Hydrogen ion concentration (0 to 14). pH < 7 is acidic, pH > 7 is basic, and pH = 7 is neutral." }
-        ]
-      }
-    ],
-    videos: [
-      {
-        id: 's-vid-1',
-        subjectName: 'Science',
-        title: 'Decomposition and Displacement Reactions Demo',
-        duration: '9:15',
-        level: 'Basic',
-        thumbnail: 'https://images.unsplash.com/photo-1532187643603-ba119ca4109e?auto=format&fit=crop&q=80&w=400',
-        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-        views: '3.1k views',
-        author: 'Prof. Ramesh Sharma'
-      }
-    ],
-    downloads: [
-      {
-        id: 's-dl-1',
-        subjectName: 'Science',
-        title: 'Chemical Equations Practice Worksheets with Keys',
-        description: 'Contains 50+ balanced/unbalanced chemical equation practice questions with step-by-step solutions.',
-        fileSize: '1.2 MB',
-        fileType: 'PDF Document',
-        downloadsCount: 2950
-      }
-    ]
-  },
-  english: {
-    id: 'english',
-    name: 'English',
-    color: '#EC4899',
-    chapters: [
-      {
-        id: 'e-ch-1',
-        subjectName: 'English',
-        subjectColor: '#EC4899',
-        title: 'Chapter 1: A Letter to God & Dust of Snow',
-        description: 'Master literary elements, theme analysis, character sketches of Lencho, and poetic devices.',
-        digitalMaterial: 'Explore Lencho\'s unshakeable faith in God and how nature\'s small moments can lift human spirits.',
-        topics: [
-          { title: "Theme & Character Sketch of Lencho", content: "Lencho represents innocent and unwavering faith. The story highlights the irony of human nature when Lencho suspects the post office employees who actually helped him." },
-          { title: "Poetic Devices in Dust of Snow", content: "Robert Frost uses symbolism (crow, hemlock tree) to illustrate how negative symbols can bring positive mental transformations." }
-        ]
-      }
-    ],
-    videos: [
-      {
-        id: 'e-vid-1',
-        subjectName: 'English',
-        title: 'Mastering Formal Letter Writing & Analytical Paragraphs',
-        duration: '11:10',
-        level: 'Basic',
-        thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=400',
-        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-        views: '4.2k views',
-        author: 'Ma\'am Sunita Verma'
-      }
-    ],
-    downloads: [
-      {
-        id: 'e-dl-1',
-        subjectName: 'English',
-        title: 'Class 10 English Literature Important Question Bank',
-        description: 'Top selected short and long answer questions with marking scheme solutions.',
-        fileSize: '2.1 MB',
-        fileType: 'PDF Document',
-        downloadsCount: 1890
-      }
-    ]
-  },
-  social: {
-    id: 'social',
-    name: 'Social Studies',
-    color: '#F59E0B',
-    chapters: [
-      {
-        id: 'sst-ch-1',
-        subjectName: 'Social Studies',
-        subjectColor: '#F59E0B',
-        title: 'Chapter 1: The Rise of Nationalism in Europe',
-        description: 'Understand the French Revolution, Liberal Nationalism, Revolutionaries, and Unification of Italy & Germany.',
-        digitalMaterial: 'Detailed timeline of European nation-state formations, Frederic Sorrieu vision, Napoleonic Code 1804, and Treaty of Vienna 1815.',
-        topics: [
-          { title: "The French Revolution and the Idea of the Nation", content: "The French Revolution introduced la patrie (the fatherland) and le citoyen (the citizen), replacing the royal standard with the tricolour flag." },
-          { title: "Unification of Italy & Germany", content: "Count Cavour and Giuseppe Garibaldi spearheaded Italian unification. Otto von Bismarck led German unification under Prussian leadership." }
-        ]
-      }
-    ],
-    videos: [
-      {
-        id: 'sst-vid-1',
-        subjectName: 'Social Studies',
-        title: 'Interactive Map Practice & Geography Location Tricks',
-        duration: '15:30',
-        level: 'Intermediate',
-        thumbnail: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=400',
-        videoUrl: 'https://www.w3schools.com/html/movie.mp4',
-        views: '5.0k views',
-        author: 'Prof. Vikram Singh'
-      }
-    ],
-    downloads: [
-      {
-        id: 'sst-dl-1',
-        subjectName: 'Social Studies',
-        title: 'CBSE Class 10 Map Work & Historical Events Booklet',
-        description: 'High-resolution maps covering major ports, dams, airports, and freedom movement locations.',
-        fileSize: '5.6 MB',
-        fileType: 'PDF Document',
-        downloadsCount: 4120
-      }
-    ]
-  },
-  computer: {
-    id: 'computer',
-    name: 'Computer Science',
-    color: '#10B981',
-    chapters: [
-      {
-        id: 'cs-ch-1',
-        subjectName: 'Computer Science',
-        subjectColor: '#10B981',
-        title: 'Chapter 1: Python Programming Fundamentals',
-        description: 'Data types, control structures, loops, functions, lists, dictionaries, and debugging.',
-        digitalMaterial: 'Hands-on guide to writing clean Python programs, implementing conditional logic, and handling data collections.',
-        topics: [
-          { title: "Python Loops & Conditionals", content: "Understand if-elif-else branching, while loops, for loops with range(), and list comprehension syntax." },
-          { title: "User-Defined Functions & Modules", content: "Define functions using def, pass parameters, return values, and import built-in math and random modules." }
-        ]
-      }
-    ],
-    videos: [
-      {
-        id: 'cs-vid-1',
-        subjectName: 'Computer Science',
-        title: 'Building a Full Python Project from Scratch',
-        duration: '18:20',
-        level: 'Advanced',
-        thumbnail: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=400',
-        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-        views: '6.1k views',
-        author: 'Er. Alok Mehta'
-      }
-    ],
-    downloads: [
-      {
-        id: 'cs-dl-1',
-        subjectName: 'Computer Science',
-        title: 'Class 10 IT & Computer Science Lab Practical Codebook',
-        description: 'Executable Python codes, SQL query cheatsheet, and HTML/CSS web projects.',
-        fileSize: '3.8 MB',
-        fileType: 'PDF Document',
-        downloadsCount: 2780
-      }
-    ]
-  },
-  hindi: {
-    id: 'hindi',
-    name: 'Hindi',
-    color: '#EF4444',
-    chapters: [
-      {
-        id: 'h-ch-1',
-        subjectName: 'Hindi',
-        subjectColor: '#EF4444',
-        title: 'अध्याय 1: पदबंध और समास विचार',
-        description: 'हिंदी व्याकरण: पदबंध के भेद (संज्ञा, सर्वनाम, विशेषण, क्रिया) एवं समास विग्रह।',
-        digitalMaterial: 'हिंदी भाषा के व्याकरण नियम, मुहावरे, अपठित गद्यांश एवं पत्र लेखन का विस्तृत विवरण।',
-        topics: [
-          { title: "पदबंध की परिभाषा एवं प्रकार", content: "जब दो या दो से अधिक पद मिलकर एक शब्द का कार्य करते हैं, तो उस बंधे हुए पद समूह को पदबंध कहते हैं।" },
-          { title: "समास एवं समास विग्रह", content: "तत्पुरुष, द्विगु, द्वंद्व, बहुव्रीहि, कर्मधारय और अव्ययीभाव समास की सरल व्याख्या।" }
-        ]
-      }
-    ],
-    videos: [
-      {
-        id: 'h-vid-1',
-        subjectName: 'Hindi',
-        title: 'हिंदी व्याकरण: समास और पदबंध आसान उदाहरणों के साथ',
-        duration: '10:15',
-        level: 'Basic',
-        thumbnail: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&q=80&w=400',
-        videoUrl: 'https://www.w3schools.com/html/movie.mp4',
-        views: '1.9k views',
-        author: 'डॉ. मीनाक्षी शर्मा'
-      }
-    ],
-    downloads: [
-      {
-        id: 'h-dl-1',
-        subjectName: 'Hindi',
-        title: 'हिंदी स्पर्श एवं संचयन महत्वपूर्ण प्रश्न उत्तर',
-        description: 'सीबीएसई बोर्ड परीक्षा हेतु पाठ्यपुस्तक के सभी अध्यायों के हल प्रश्न।',
-        fileSize: '2.8 MB',
-        fileType: 'PDF Document',
-        downloadsCount: 1640
-      }
-    ]
-  }
+// Helper function to extract numeric class digit (e.g. "Class 7th", "7th", "7" -> "7")
+const normalizeClass = (val) => {
+  if (!val) return '';
+  const digits = String(val).replace(/\D/g, '');
+  return digits || String(val).trim().toLowerCase();
+};
+
+// Helper to normalize subject names to clean title format (e.g. "math" -> "Mathematics", "sanshkirit" -> "Sanskrit")
+const getNormalizedSubjectName = (name) => {
+  if (!name) return '';
+  const clean = String(name).trim().toLowerCase();
+  if (clean === 'math' || clean === 'maths' || clean === 'mathematics') return 'Mathematics';
+  if (clean === 'sci' || clean === 'science') return 'Science';
+  if (clean === 'phy' || clean === 'physics') return 'Physics';
+  if (clean === 'chem' || clean === 'chemistry') return 'Chemistry';
+  if (clean === 'bio' || clean === 'biology') return 'Biology';
+  if (clean === 'eng' || clean === 'english' || clean === 'english literature') return 'English';
+  if (clean === 'hin' || clean === 'hindi') return 'Hindi';
+  if (clean === 'san' || clean === 'sanskrit' || clean === 'sanshkirit') return 'Sanskrit';
+  if (clean === 'sst' || clean === 'social' || clean === 'social studies' || clean === 'social science') return 'Social Studies';
+  if (clean === 'cs' || clean === 'computer' || clean === 'computer science' || clean === 'it') return 'Computer Science';
+  return name.charAt(0).toUpperCase() + name.slice(1);
+};
+
+// Helper function to resolve canonical subject keys
+const getCanonicalSubjectKey = (name) => {
+  if (!name) return 'other';
+  const clean = String(name).toLowerCase().replace(/[^a-z]/g, '');
+  if (clean === 'math' || clean === 'maths' || clean === 'mathematics') return 'math';
+  if (clean === 'physics') return 'physics';
+  if (clean === 'chemistry') return 'chemistry';
+  if (clean === 'biology') return 'biology';
+  if (clean.includes('sci')) return 'science';
+  if (clean.includes('eng')) return 'english';
+  if (clean.includes('soc') || clean.includes('hist') || clean.includes('geog') || clean.includes('civ')) return 'social';
+  if (clean.includes('comp') || clean.includes('it') || clean.includes('code') || clean.includes('tech')) return 'computer';
+  if (clean.includes('hin')) return 'hindi';
+  if (clean.includes('san') || clean.includes('sanskrit') || clean.includes('sanshkirit')) return 'sanskrit';
+  return clean || 'other';
+};
+
+// Class-adaptive Mock Data generator with rich downloadable PDFs across all subjects
+const getMockDataForClass = (classNum, boardStr) => {
+  const displayClass = `Class ${classNum}`;
+  const fullBoardTag = `${boardStr} ${displayClass}`;
+
+  return {
+    math: {
+      id: 'math',
+      name: 'Mathematics',
+      color: '#3B82F6',
+      chapters: [
+        {
+          id: `m-ch-1-${classNum}`,
+          subjectName: 'Mathematics',
+          subjectColor: '#3B82F6',
+          title: `Chapter 1: Real Numbers & Integers (${displayClass})`,
+          description: `Explore fundamental mathematical properties, number systems, and operations for ${fullBoardTag}.`,
+          digitalMaterial: `Comprehensive ${displayClass} Mathematics study notes covering core theorems, solved examples, and textbook exercise solutions.`,
+          topics: [
+            { title: `${displayClass} Core Number Concepts`, content: `Essential properties, definitions, and identities for ${fullBoardTag} Mathematics curriculum.` },
+            { title: "Solved Practice Problems", content: `Step-by-step solved exemplars tailored specifically for ${displayClass} students.` }
+          ]
+        },
+        {
+          id: `m-ch-2-${classNum}`,
+          subjectName: 'Mathematics',
+          subjectColor: '#3B82F6',
+          title: `Chapter 2: Algebraic Expressions & Equations (${displayClass})`,
+          description: `Master variable operations, polynomial expressions, and linear equations for ${displayClass}.`,
+          digitalMaterial: `Interactive formulas and algebraic identities designed for ${fullBoardTag}.`,
+          topics: [
+            { title: "Linear Equations & Variables", content: `Understanding variable balances, substitution, and graphical solutions in ${displayClass}.` }
+          ]
+        }
+      ],
+      videos: [
+        {
+          id: `m-vid-1-${classNum}`,
+          subjectName: 'Mathematics',
+          title: `${displayClass} Mathematics Chapter 1 Complete Solution Walkthrough`,
+          duration: '12:45',
+          level: fullBoardTag,
+          thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=400',
+          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+          views: `${fullBoardTag} • 2.5k views`,
+          author: 'Prof. Rajesh Sharma'
+        }
+      ],
+      downloads: [
+        {
+          id: `m-dl-1-${classNum}`,
+          subjectName: 'Mathematics',
+          title: `${fullBoardTag} Mathematics Exemplar Solutions & Formula Sheet`,
+          description: `Complete solved chapter notes and practice question bank for ${displayClass} Mathematics.`,
+          fileSize: '3.4 MB',
+          fileType: 'PDF Document',
+          downloadsCount: 1420
+        },
+        {
+          id: `m-dl-2-${classNum}`,
+          subjectName: 'Mathematics',
+          title: `${fullBoardTag} Integers & Rational Numbers Practice Worksheets`,
+          description: `50+ topic-wise practice problems with step-by-step verified answer keys.`,
+          fileSize: '2.1 MB',
+          fileType: 'PDF Worksheet',
+          downloadsCount: 980
+        }
+      ]
+    },
+    science: {
+      id: 'science',
+      name: 'Science',
+      color: '#8B5CF6',
+      chapters: [
+        {
+          id: `s-ch-1-${classNum}`,
+          subjectName: 'Science',
+          subjectColor: '#8B5CF6',
+          title: `Chapter 1: Chemical Processes & Living Organisms (${displayClass})`,
+          description: `Comprehensive study of scientific principles, physical phenomena, and natural systems for ${fullBoardTag}.`,
+          digitalMaterial: `Detailed ${displayClass} Science summary covering key experiments, definitions, and diagrammatic explanations.`,
+          topics: [
+            { title: `${displayClass} Science Fundamentals`, content: `Core principles and observation techniques in ${fullBoardTag} Science.` },
+            { title: "Experiments & Observation Notes", content: `Practical lab activities and activity questions for ${displayClass}.` }
+          ]
+        }
+      ],
+      videos: [
+        {
+          id: `s-vid-1-${classNum}`,
+          subjectName: 'Science',
+          title: `${displayClass} Science Experiment Demos & Concept Explanations`,
+          duration: '14:20',
+          level: fullBoardTag,
+          thumbnail: 'https://images.unsplash.com/photo-1532187643603-ba119ca4109e?auto=format&fit=crop&q=80&w=400',
+          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+          views: `${fullBoardTag} • 3.1k views`,
+          author: 'Dr. Anita Desai'
+        }
+      ],
+      downloads: [
+        {
+          id: `s-dl-1-${classNum}`,
+          subjectName: 'Science',
+          title: `${fullBoardTag} Science Worksheets & Lab Activity Guide`,
+          description: `Practice question worksheets and lab manual notes for ${displayClass} Science.`,
+          fileSize: '2.8 MB',
+          fileType: 'PDF Document',
+          downloadsCount: 2950
+        },
+        {
+          id: `s-dl-2-${classNum}`,
+          subjectName: 'Science',
+          title: `${fullBoardTag} Physical & Chemical Changes Experiment Summary`,
+          description: `Illustrated lab observations, reaction equations, and revision notes.`,
+          fileSize: '3.1 MB',
+          fileType: 'PDF Lab Guide',
+          downloadsCount: 1650
+        }
+      ]
+    },
+    physics: {
+      id: 'physics',
+      name: 'Physics',
+      color: '#6366F1',
+      chapters: [
+        {
+          id: `phy-ch-1-${classNum}`,
+          subjectName: 'Physics',
+          subjectColor: '#6366F1',
+          title: `Chapter 1: Heat, Motion & Electric Current (${displayClass})`,
+          description: `Fundamental laws of motion, temperature measurement, and electrical circuits for ${fullBoardTag}.`,
+          digitalMaterial: `Detailed physics formulas, circuit diagrams, and numerical problems.`,
+          topics: [
+            { title: "Heat & Temperature Units", content: "Conduction, convection, radiation, and clinical thermometer readings." }
+          ]
+        }
+      ],
+      videos: [],
+      downloads: [
+        {
+          id: `phy-dl-1-${classNum}`,
+          subjectName: 'Physics',
+          title: `${fullBoardTag} Physics Formulas & Solved Numerical Bank`,
+          description: `Formula cheatsheet and step-by-step solved physics numericals.`,
+          fileSize: '2.9 MB',
+          fileType: 'PDF Guide',
+          downloadsCount: 1820
+        }
+      ]
+    },
+    chemistry: {
+      id: 'chemistry',
+      name: 'Chemistry',
+      color: '#06B6D4',
+      chapters: [
+        {
+          id: `chem-ch-1-${classNum}`,
+          subjectName: 'Chemistry',
+          subjectColor: '#06B6D4',
+          title: `Chapter 1: Acids, Bases & Salts (${displayClass})`,
+          description: `Understanding pH indicators, neutralization reactions, and chemical salts for ${fullBoardTag}.`,
+          digitalMaterial: `Chemical equations, reaction tables, and lab indicators summary.`,
+          topics: [
+            { title: "Indicators & Neutralization", content: "Litmus, turmeric, and phenolphthalein test observations." }
+          ]
+        }
+      ],
+      videos: [],
+      downloads: [
+        {
+          id: `chem-dl-1-${classNum}`,
+          subjectName: 'Chemistry',
+          title: `${fullBoardTag} Chemistry Reaction Tables & Solved Exercises`,
+          description: `Complete list of chemical reactions and balancing practice sheets.`,
+          fileSize: '2.6 MB',
+          fileType: 'PDF Resource',
+          downloadsCount: 1430
+        }
+      ]
+    },
+    english: {
+      id: 'english',
+      name: 'English',
+      color: '#EC4899',
+      chapters: [
+        {
+          id: `e-ch-1-${classNum}`,
+          subjectName: 'English',
+          subjectColor: '#EC4899',
+          title: `Chapter 1: Literature Prose & Grammar Skills (${displayClass})`,
+          description: `Master reading comprehension, grammar rules, and prose summaries for ${fullBoardTag}.`,
+          digitalMaterial: `Literature summaries, grammar writing rules, and sample letter formats for ${displayClass}.`,
+          topics: [
+            { title: "Prose & Poetry Summary", content: "Key theme analysis, character traits, and vocabulary lists." }
+          ]
+        }
+      ],
+      videos: [
+        {
+          id: `e-vid-1-${classNum}`,
+          subjectName: 'English',
+          title: `${displayClass} English Literature & Writing Skills Masterclass`,
+          duration: '11:10',
+          level: fullBoardTag,
+          thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=400',
+          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+          views: `${fullBoardTag} • 4.2k views`,
+          author: 'Ma\'am Sunita Verma'
+        }
+      ],
+      downloads: [
+        {
+          id: `e-dl-1-${classNum}`,
+          subjectName: 'English',
+          title: `${fullBoardTag} English Literature & Grammar Practice Booklet`,
+          description: `Important short/long questions and model answers for ${displayClass} English.`,
+          fileSize: '2.1 MB',
+          fileType: 'PDF Document',
+          downloadsCount: 1890
+        },
+        {
+          id: `e-dl-2-${classNum}`,
+          subjectName: 'English',
+          title: `${fullBoardTag} Reading Comprehension & Writing Templates`,
+          description: `Unseen passage exercises, formal letter writing formats, and grammar worksheets.`,
+          fileSize: '1.7 MB',
+          fileType: 'PDF Booklet',
+          downloadsCount: 1120
+        }
+      ]
+    },
+    social: {
+      id: 'social',
+      name: 'Social Studies',
+      color: '#F59E0B',
+      chapters: [
+        {
+          id: `sst-ch-1-${classNum}`,
+          subjectName: 'Social Studies',
+          subjectColor: '#F59E0B',
+          title: `Chapter 1: History & Environment Studies (${displayClass})`,
+          description: `Explore historical timelines, geographical resources, and civics for ${fullBoardTag}.`,
+          digitalMaterial: `Timeline charts, map pointers, and chapter summary sheets for ${displayClass} Social Science.`,
+          topics: [
+            { title: "Historical Developments & Civics", content: `Important events, constitutional concepts, and geography notes for ${displayClass}.` }
+          ]
+        }
+      ],
+      videos: [
+        {
+          id: `sst-vid-1-${classNum}`,
+          subjectName: 'Social Studies',
+          title: `${displayClass} Social Science Interactive Map & History Walkthrough`,
+          duration: '15:30',
+          level: fullBoardTag,
+          thumbnail: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=400',
+          videoUrl: 'https://www.w3schools.com/html/movie.mp4',
+          views: `${fullBoardTag} • 5.0k views`,
+          author: 'Prof. Vikram Singh'
+        }
+      ],
+      downloads: [
+        {
+          id: `sst-dl-1-${classNum}`,
+          subjectName: 'Social Studies',
+          title: `${fullBoardTag} Social Studies Map Work & Question Bank`,
+          description: `High-resolution maps and solved chapter questions for ${displayClass} Social Studies.`,
+          fileSize: '4.5 MB',
+          fileType: 'PDF Document',
+          downloadsCount: 4120
+        },
+        {
+          id: `sst-dl-2-${classNum}`,
+          subjectName: 'Social Studies',
+          title: `${fullBoardTag} History Timelines & Geography Mind Maps`,
+          description: `Visual revision flowcharts and solved exam questions for History & Civics.`,
+          fileSize: '3.2 MB',
+          fileType: 'PDF Mindmap',
+          downloadsCount: 2240
+        }
+      ]
+    },
+    computer: {
+      id: 'computer',
+      name: 'Computer Science',
+      color: '#10B981',
+      chapters: [
+        {
+          id: `cs-ch-1-${classNum}`,
+          subjectName: 'Computer Science',
+          subjectColor: '#10B981',
+          title: `Chapter 1: IT Fundamentals & Coding Logic (${displayClass})`,
+          description: `Computer fundamentals, cyber safety, and introductory coding concepts for ${displayClass}.`,
+          digitalMaterial: `Hands-on practical guide and IT textbook notes for ${displayClass}.`,
+          topics: [
+            { title: "IT Concepts & Practical Tasks", content: `System software, internet security, and practical code snippets for ${displayClass}.` }
+          ]
+        }
+      ],
+      videos: [
+        {
+          id: `cs-vid-1-${classNum}`,
+          subjectName: 'Computer Science',
+          title: `${displayClass} Computer Science Practical Tutorial`,
+          duration: '18:20',
+          level: fullBoardTag,
+          thumbnail: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=400',
+          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+          views: `${fullBoardTag} • 3.8k views`,
+          author: 'Er. Alok Mehta'
+        }
+      ],
+      downloads: [
+        {
+          id: `cs-dl-1-${classNum}`,
+          subjectName: 'Computer Science',
+          title: `${fullBoardTag} IT & Computer Lab Workbook`,
+          description: `Practical assignments and step-by-step IT exercises for ${displayClass}.`,
+          fileSize: '3.2 MB',
+          fileType: 'PDF Document',
+          downloadsCount: 2780
+        },
+        {
+          id: `cs-dl-2-${classNum}`,
+          subjectName: 'Computer Science',
+          title: `${fullBoardTag} Cyber Safety Rules & HTML Coding Cheat Sheet`,
+          description: `Essential internet security guidelines and practical web development basics.`,
+          fileSize: '2.4 MB',
+          fileType: 'PDF Cheatsheet',
+          downloadsCount: 1950
+        }
+      ]
+    },
+    hindi: {
+      id: 'hindi',
+      name: 'Hindi',
+      color: '#EF4444',
+      chapters: [
+        {
+          id: `h-ch-1-${classNum}`,
+          subjectName: 'Hindi',
+          subjectColor: '#EF4444',
+          title: `अध्याय 1: हिंदी साहित्य एवं व्याकरण अभ्यास (${displayClass})`,
+          description: `हिंदी पाठ्यपुस्तक व्याख्या, व्याकरण नियम एवं निबंध लेखन (${fullBoardTag}).`,
+          digitalMaterial: `हिंदी पाठ्यपुस्तक के अध्यायों का सारांश एवं अभ्यास प्रश्नउत्तर।`,
+          topics: [
+            { title: "व्याकरण एवं उत्तर व्याख्या", content: "मुख्य व्याकरण नियम, कठिन शब्दार्थ एवं पाठ सारांश।" }
+          ]
+        }
+      ],
+      videos: [
+        {
+          id: `h-vid-1-${classNum}`,
+          subjectName: 'Hindi',
+          title: `${displayClass} हिंदी पाठ व्याख्या एवं व्याकरण उदाहरण`,
+          duration: '10:15',
+          level: fullBoardTag,
+          thumbnail: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&q=80&w=400',
+          videoUrl: 'https://www.w3schools.com/html/movie.mp4',
+          views: `${fullBoardTag} • 2.1k views`,
+          author: 'डॉ. मीनाक्षी शर्मा'
+        }
+      ],
+      downloads: [
+        {
+          id: `h-dl-1-${classNum}`,
+          subjectName: 'Hindi',
+          title: `${fullBoardTag} हिंदी अभ्यास प्रश्न पत्र`,
+          description: `परीक्षा उपयोगी महत्वपूर्ण प्रश्न उत्तर एवं निबंध संग्रह।`,
+          fileSize: '2.5 MB',
+          fileType: 'PDF Document',
+          downloadsCount: 1640
+        },
+        {
+          id: `h-dl-2-${classNum}`,
+          subjectName: 'Hindi',
+          title: `${fullBoardTag} हिंदी व्याकरण एवं अपठित गद्यांश संग्रह`,
+          description: `व्याकरण नियम, पत्र लेखन एवं आदर्श उत्तर कुंजी।`,
+          fileSize: '1.8 MB',
+          fileType: 'PDF Practice Sheet',
+          downloadsCount: 1210
+        }
+      ]
+    },
+    sanskrit: {
+      id: 'sanskrit',
+      name: 'Sanskrit',
+      color: '#A855F7',
+      chapters: [
+        {
+          id: `san-ch-1-${classNum}`,
+          subjectName: 'Sanskrit',
+          subjectColor: '#A855F7',
+          title: `अध्याय 1: संस्कृत सुभाषितानि एवं व्याकरणम् (${displayClass})`,
+          description: `संस्कृत श्लोक अर्थ, व्याकरण रूप एवं अनुवाद अभ्यास (${fullBoardTag}).`,
+          digitalMaterial: `संस्कृत श्लोकों का सरल हिंदी अनुवाद एवं शब्दरूप अभ्यास।`,
+          topics: [
+            { title: "सुभाषितानि एवं शब्दरूपाणि", content: "श्लोक अर्थ, संधि एवं धातु रूप अभ्यास।" }
+          ]
+        }
+      ],
+      videos: [],
+      downloads: [
+        {
+          id: `san-dl-1-${classNum}`,
+          subjectName: 'Sanskrit',
+          title: `${fullBoardTag} संस्कृत व्याकरण एवं धातु रूप अभ्यास पुस्तक`,
+          description: `शब्दरूप, धातुरूप एवं श्लोक अनुवाद अभ्यास प्रश्न संग्रह।`,
+          fileSize: '2.2 MB',
+          fileType: 'PDF Document',
+          downloadsCount: 940
+        }
+      ]
+    }
+  };
 };
 
 const s = {
@@ -428,13 +577,20 @@ const s = {
     boxShadow: 'var(--shadow-sm)'
   },
   topicRow: {
-    padding: 'var(--space-4)',
+    padding: 'var(--space-4) var(--space-5)',
     background: 'var(--color-bg)',
     borderRadius: 'var(--radius-lg)',
     borderLeft: '4px solid var(--color-accent)',
+    borderTop: '1px solid var(--color-border-light)',
+    borderRight: '1px solid var(--color-border-light)',
+    borderBottom: '1px solid var(--color-border-light)',
     display: 'flex',
-    flexDirection: 'column',
-    gap: '4px'
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 'var(--space-3)',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    boxShadow: 'var(--shadow-xs)'
   },
   videoCard: {
     background: 'var(--color-surface)',
@@ -455,6 +611,7 @@ const s = {
     flexDirection: 'column',
     justifyContent: 'space-between',
     gap: 'var(--space-4)',
+    cursor: 'pointer',
     transition: 'all 0.25s',
     boxShadow: 'var(--shadow-sm)'
   },
@@ -501,20 +658,26 @@ const s = {
 };
 
 const Notes = () => {
-  // Existing notes logic hook
+  const { user } = useAuth();
   const { notes, addNote, deleteNote } = useContentController();
+
+  // Extract student profile class & board
+  const studentClassRaw = user?.classId || user?.grade || '7';
+  const studentClassNum = normalizeClass(studentClassRaw) || '7';
+  const studentBoardStr = user?.board || 'CBSE';
   
   // Custom interface states
-  const [selectedSubjects, setSelectedSubjects] = useState(['math', 'science']); // Multi-subject selection keys
-  const [adminSubjects, setAdminSubjects] = useState([]);                       // Subjects from Admin Panel API
+  const [selectedSubjects, setSelectedSubjects] = useState(['math', 'science']);
+  const [adminSubjects, setAdminSubjects] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const [primaryTab, setPrimaryTab] = useState('materials');  // 'materials' or 'personal'
-  const [subTab, setSubTab] = useState('chapters');            // 'chapters', 'videos', or 'downloads'
+  const [primaryTab, setPrimaryTab] = useState('materials');
+  const [subTab, setSubTab] = useState('chapters');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedChapters, setExpandedChapters] = useState({});
   const [playingVideo, setPlayingVideo] = useState(null);
+  const [activeTopicModal, setActiveTopicModal] = useState(null);
   
   // Download progress states
   const [downloadingFile, setDownloadingFile] = useState(null);
@@ -525,7 +688,6 @@ const Notes = () => {
   const [content, setContent] = useState('');
 
   const [liveMaterials, setLiveMaterials] = useState([]);
-  const [loadingMaterials, setLoadingMaterials] = useState(false);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -542,67 +704,75 @@ const Notes = () => {
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
-        setLoadingMaterials(true);
-        // Fetch Subjects from Admin Panel
         const subjRes = await syllabusManagementService.getSubjects();
         if (subjRes.data && subjRes.data.length > 0) {
           setAdminSubjects(subjRes.data);
         }
 
-        // Fetch Educational Materials from Admin Panel
         const matRes = await syllabusManagementService.getEducationalMaterials();
         if (matRes.data) {
           setLiveMaterials(matRes.data);
         }
       } catch (err) {
         console.warn('Using fallback subject and material mock datasets:', err);
-      } finally {
-        setLoadingMaterials(false);
       }
     };
     fetchAdminData();
   }, []);
 
-  // Combine Admin Subjects with Default Mock Subjects
+  // Class-adapted mock data
+  const classMockData = useMemo(() => {
+    return getMockDataForClass(studentClassNum, studentBoardStr);
+  }, [studentClassNum, studentBoardStr]);
+
+  // Combine Admin Subjects with Default Mock Subjects without any duplicate names
   const availableSubjectsList = useMemo(() => {
+    const list = [];
+    const seenNames = new Set();
+
+    const addSubject = (rawName, customColor) => {
+      if (!rawName) return;
+      const formattedName = getNormalizedSubjectName(rawName);
+      const nameKey = formattedName.toLowerCase();
+      if (seenNames.has(nameKey)) return;
+      seenNames.add(nameKey);
+
+      const idKey = getCanonicalSubjectKey(formattedName);
+      list.push({
+        id: idKey,
+        name: formattedName,
+        color: customColor || classMockData[idKey]?.color || '#6366F1'
+      });
+    };
+
+    if (adminSubjects && adminSubjects.length > 0) {
+      adminSubjects.forEach(sItem => {
+        const rawName = sItem.subjectName || sItem.name;
+        if (rawName) addSubject(rawName);
+      });
+    }
+
     const defaultList = [
-      { id: 'math', name: 'Mathematics', color: '#3B82F6' },
-      { id: 'science', name: 'Science', color: '#8B5CF6' },
-      { id: 'english', name: 'English', color: '#EC4899' },
-      { id: 'social', name: 'Social Studies', color: '#F59E0B' },
-      { id: 'computer', name: 'Computer Science', color: '#10B981' },
-      { id: 'hindi', name: 'Hindi', color: '#EF4444' }
+      { name: 'Mathematics', color: '#3B82F6' },
+      { name: 'Science', color: '#8B5CF6' },
+      { name: 'English', color: '#EC4899' },
+      { name: 'Social Studies', color: '#F59E0B' },
+      { name: 'Computer Science', color: '#10B981' },
+      { name: 'Hindi', color: '#EF4444' }
     ];
 
-    if (!adminSubjects || adminSubjects.length === 0) return defaultList;
-
-    // Map Admin subjects to list
-    const adminMapped = adminSubjects.map(sItem => {
-      const sName = sItem.subjectName || sItem.name || 'Subject';
-      const sKey = sName.toLowerCase().replace(/[^a-z0-9]/g, '');
-      return {
-        id: MOCK_DATA[sKey] ? sKey : sName.toLowerCase(),
-        name: sName,
-        color: MOCK_DATA[sKey]?.color || '#6366F1'
-      };
-    });
-
-    // Merge uniquely
-    const existingKeys = new Set(adminMapped.map(s => s.id));
     defaultList.forEach(d => {
-      if (!existingKeys.has(d.id)) {
-        adminMapped.push(d);
-      }
+      addSubject(d.name, d.color);
     });
 
-    return adminMapped;
-  }, [adminSubjects]);
+    return list;
+  }, [adminSubjects, classMockData]);
 
   // Handle multi-subject toggle
   const toggleSubjectSelect = (subjId) => {
     setSelectedSubjects(prev => {
       if (prev.includes(subjId)) {
-        if (prev.length === 1) return prev; // Keep at least 1 subject selected
+        if (prev.length === 1) return prev;
         return prev.filter(id => id !== subjId);
       } else {
         return [...prev, subjId];
@@ -620,15 +790,15 @@ const Notes = () => {
     }
   };
 
-  // Aggregate chapters, videos, downloads across all selected subjects
+  // Aggregate chapters, videos, downloads strictly matching student's class and board
   const aggregatedData = useMemo(() => {
     let chapters = [];
     let videos = [];
     let downloads = [];
 
-    // Collect mock items for selected keys
+    // 1. Collect mock items for selected subject keys
     selectedSubjects.forEach(key => {
-      const dataObj = MOCK_DATA[key];
+      const dataObj = classMockData[key] || classMockData['science'] || classMockData['math'];
       if (dataObj) {
         if (dataObj.chapters) chapters.push(...dataObj.chapters);
         if (dataObj.videos) videos.push(...dataObj.videos);
@@ -636,43 +806,72 @@ const Notes = () => {
       }
     });
 
-    // Merge live Admin-published materials if available
+    // 2. Filter & merge live Admin-published materials matching student's class & board
     if (liveMaterials && liveMaterials.length > 0) {
-      const liveChapters = liveMaterials
-        .filter(m => !m.isDeleted && (m.materialType === 'PDF Notes' || m.materialType === 'Documents'))
+      const relevantLiveItems = liveMaterials.filter(m => {
+        if (m.isDeleted) return false;
+
+        // Strict Class Filter: match student class or 'all'
+        if (m.classId && String(m.classId).toLowerCase() !== 'all') {
+          const matClassNorm = normalizeClass(m.classId);
+          if (matClassNorm && matClassNorm !== studentClassNum) {
+            return false;
+          }
+        }
+
+        // Strict Board Filter: match student board or 'all'
+        if (m.board && String(m.board).toLowerCase() !== 'all') {
+          if (String(m.board).toLowerCase() !== studentBoardStr.toLowerCase()) {
+            return false;
+          }
+        }
+
+        // Subject filter
+        if (m.subject) {
+          const mKey = getCanonicalSubjectKey(m.subject);
+          if (!selectedSubjects.includes(mKey) && !selectedSubjects.includes(m.subject.toLowerCase())) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+
+      const liveChapters = relevantLiveItems
+        .filter(m => m.materialType === 'PDF Notes' || m.materialType === 'Documents' || m.materialType === 'PPT' || m.materialType === 'Assignments')
         .map(m => ({
           id: m._id || m.id,
           subjectName: m.subject || 'Admin Asset',
           subjectColor: '#2563EB',
           title: m.materialTitle,
-          description: `${m.chapter || 'Chapter Material'} • ${m.board} ${m.classId}`,
+          description: `${m.chapter || 'Chapter Material'} • ${m.board || studentBoardStr} Class ${m.classId || studentClassNum}`,
           digitalMaterial: m.description || 'Verified study document provided by platform admin.',
           topics: [
-            { title: m.materialTitle, content: `Format: ${m.materialType}\nFile Size: ${m.fileSize}\nLanguage: ${m.language}` }
+            { title: m.materialTitle, content: `Format: ${m.materialType}\nFile Size: ${m.fileSize || '2.5 MB'}\nLanguage: ${m.language || 'English'}` }
           ]
         }));
 
-      const liveVideos = liveMaterials
-        .filter(m => !m.isDeleted && m.materialType === 'Videos')
+      const liveVideos = relevantLiveItems
+        .filter(m => m.materialType === 'Videos' || m.materialType === 'External Links')
         .map(m => ({
           id: m._id || m.id,
           subjectName: m.subject || 'Admin Asset',
           title: m.materialTitle,
           duration: '10:00',
-          level: 'Standard',
+          level: `${m.board || studentBoardStr} Class ${m.classId || studentClassNum}`,
           thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=400',
           videoUrl: m.fileUrl || 'https://www.w3schools.com/html/mov_bbb.mp4',
-          views: 'Live Admin Upload',
+          views: `${m.board || studentBoardStr} Class ${m.classId || studentClassNum}`,
           author: 'Platform Instructor'
         }));
 
-      const liveDownloads = liveMaterials
-        .filter(m => !m.isDeleted && (m.materialType === 'Worksheets' || m.materialType === 'Sample Papers' || m.materialType === 'PPT'))
+      const liveDownloads = relevantLiveItems
+        .filter(m => m.materialType === 'Worksheets' || m.materialType === 'Sample Papers' || m.materialType === 'PPT')
         .map(m => ({
           id: m._id || m.id,
           subjectName: m.subject || 'Admin Asset',
           title: m.materialTitle,
-          description: m.description || `Official ${m.materialType} resource`,
+          description: m.description || `Official ${m.materialType} resource for ${m.subject}`,
           fileSize: m.fileSize || '2.5 MB',
           fileType: m.materialType,
           downloadsCount: 220
@@ -684,7 +883,7 @@ const Notes = () => {
     }
 
     return { chapters, videos, downloads };
-  }, [selectedSubjects, liveMaterials]);
+  }, [selectedSubjects, classMockData, liveMaterials, studentClassNum, studentBoardStr]);
 
   // Filters items depending on search query
   const filteredChapters = aggregatedData.chapters.filter(ch => 
@@ -723,10 +922,11 @@ const Notes = () => {
     }));
   };
 
-  // Download PDF / file asset
+  // Download PDF / file asset with real valid PDF 1.4 binary browser download
   const startMockDownload = (file) => {
-    if (file?.fileUrl) {
+    if (file?.fileUrl && file.fileUrl.startsWith('http')) {
       window.open(file.fileUrl, '_blank');
+      return;
     }
     if (downloadingFile) return;
     setDownloadingFile(file.id);
@@ -737,17 +937,38 @@ const Notes = () => {
         if (prev >= 100) {
           clearInterval(interval);
           setTimeout(() => {
+            const fileName = file.title || 'Study_Resource';
+            downloadPDF(
+              fileName,
+              file.title || 'Study Material',
+              file.subjectName || 'Curated Syllabus',
+              `${studentBoardStr} Class ${studentClassNum}`,
+              file.description || 'Verified educational resource provided for CBSE & State Board curriculum.',
+              file.topics || []
+            );
+
             setDownloadingFile(null);
             setDownloadProgress(0);
-          }, 800);
+          }, 300);
           return 100;
         }
-        return prev + 10;
+        return prev + 25;
       });
-    }, 150);
+    }, 100);
   };
 
-
+  // Helper for YouTube embed links
+  const getEmbedUrl = (url) => {
+    if (!url) return '';
+    if (url.includes('youtube.com/watch?v=')) {
+      return url.replace('watch?v=', 'embed/').split('&')[0];
+    }
+    if (url.includes('youtu.be/')) {
+      const id = url.split('youtu.be/')[1]?.split('?')[0];
+      return `https://www.youtube.com/embed/${id}`;
+    }
+    return url;
+  };
 
   return (
     <div style={s.container}>
@@ -755,11 +976,16 @@ const Notes = () => {
       <div style={s.headerBanner}>
         <div style={s.glowEffect} />
         <div style={{ zIndex: 2 }}>
-          <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: '900', color: 'var(--color-primary-dark)', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-heading)' }}>
-            <Sparkles size={24} color="var(--color-accent)" /> Notes & Study Hub
-          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+            <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: '900', color: 'var(--color-primary-dark)', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-heading)', margin: 0 }}>
+              <Sparkles size={24} color="var(--color-accent)" /> Notes & Study Hub
+            </h2>
+            <Badge variant="primary" style={{ background: 'rgba(99, 102, 241, 0.12)', color: 'var(--color-primary-dark)', border: '1px solid rgba(99, 102, 241, 0.3)', width: 'fit-content' }}>
+              📚 Curated for {studentBoardStr} Class {studentClassNum}
+            </Badge>
+          </div>
           <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)', marginTop: '4px' }}>
-            Access curated syllabus notes, topic highlights, digital study materials, video walkthroughs, and downloads.
+            Access curated syllabus notes, topic highlights, digital study materials, video walkthroughs, and downloads for {studentBoardStr} Class {studentClassNum}.
           </p>
         </div>
 
@@ -863,7 +1089,7 @@ const Notes = () => {
                           background: isChecked ? subj.color : 'transparent',
                           display: 'flex',
                           alignItems: 'center',
-                          justifyContent: 'center',
+                          justify: 'center',
                           color: '#fff',
                           transition: 'all 0.15s'
                         }}>
@@ -922,7 +1148,7 @@ const Notes = () => {
         >
           <BookOpen size={18} />
           <span>Study Materials</span>
-          <Badge variant="primary">Curated</Badge>
+          <Badge variant="primary">Class {studentClassNum}</Badge>
         </button>
         <button 
           style={s.tabButton(primaryTab === 'personal')} 
@@ -979,7 +1205,7 @@ const Notes = () => {
               {filteredChapters.length === 0 ? (
                 <Card style={{ textAlign: 'center', padding: 'var(--space-8)' }}>
                   <BookOpen size={40} color="var(--color-text-tertiary)" style={{ marginBottom: 'var(--space-2)' }} />
-                  <h4>No chapter notes found</h4>
+                  <h4>No chapter notes found for Class {studentClassNum}</h4>
                   <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)' }}>Try adjusting your search query or selecting additional subjects in the dropdown filter.</p>
                 </Card>
               ) : (
@@ -995,7 +1221,11 @@ const Notes = () => {
                             </Badge>
                             <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-tertiary)', fontWeight: '600' }}>{ch.topics.length} Topic Highlights</span>
                           </div>
-                          <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '800', color: 'var(--color-primary-dark)', fontFamily: 'var(--font-heading)' }}>
+                          <h3 
+                            onClick={() => setActiveTopicModal({ chapter: ch, topic: ch.topics[0] })}
+                            style={{ fontSize: 'var(--text-lg)', fontWeight: '800', color: 'var(--color-primary-dark)', fontFamily: 'var(--font-heading)', cursor: 'pointer' }}
+                            className="subject-card-hover"
+                          >
                             {ch.title}
                           </h3>
                           <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)', marginTop: '4px' }}>
@@ -1024,9 +1254,20 @@ const Notes = () => {
 
                           <span style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', marginTop: 'var(--space-2)' }}>Key Topic Explanations:</span>
                           {ch.topics.map((t, idx) => (
-                            <div key={idx} style={s.topicRow}>
-                              <span style={{ fontWeight: '700', fontSize: 'var(--text-sm)', color: 'var(--color-primary-dark)' }}>{t.title}</span>
-                              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5', whitespace: 'pre-line' }}>{t.content}</p>
+                            <div 
+                              key={idx} 
+                              style={s.topicRow}
+                              onClick={() => setActiveTopicModal({ chapter: ch, topic: t })}
+                              className="subject-card-hover"
+                            >
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                                <span style={{ fontWeight: '700', fontSize: 'var(--text-sm)', color: 'var(--color-primary-dark)' }}>{t.title}</span>
+                                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5', whitespace: 'pre-line' }}>{t.content}</p>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--color-accent)', fontWeight: '700', fontSize: 'var(--text-xs)', flexShrink: 0, paddingLeft: '12px' }}>
+                                <span>Read Full Topic</span>
+                                <Sparkles size={14} />
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -1044,7 +1285,7 @@ const Notes = () => {
               {filteredVideos.length === 0 ? (
                 <Card style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 'var(--space-8)' }}>
                   <Video size={40} color="var(--color-text-tertiary)" style={{ marginBottom: 'var(--space-2)' }} />
-                  <h4>No video tutorials found</h4>
+                  <h4>No video tutorials found for Class {studentClassNum}</h4>
                   <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)' }}>Try adjusting your search query or subject filters.</p>
                 </Card>
               ) : (
@@ -1090,14 +1331,19 @@ const Notes = () => {
               {filteredDownloads.length === 0 ? (
                 <Card style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 'var(--space-8)' }}>
                   <Download size={40} color="var(--color-text-tertiary)" style={{ marginBottom: 'var(--space-2)' }} />
-                  <h4>No downloadable PDFs found</h4>
+                  <h4>No downloadable PDFs found for Class {studentClassNum}</h4>
                   <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)' }}>Try searching for a different topic or adding subjects.</p>
                 </Card>
               ) : (
                 filteredDownloads.map(dl => {
                   const isDownloading = downloadingFile === dl.id;
                   return (
-                    <div key={dl.id} style={s.downloadCard}>
+                    <div 
+                      key={dl.id} 
+                      style={s.downloadCard}
+                      onClick={() => startMockDownload(dl)}
+                      className="subject-card-hover"
+                    >
                       <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
                           <Badge variant="primary">{dl.subjectName || dl.fileType}</Badge>
@@ -1123,7 +1369,10 @@ const Notes = () => {
                           size="sm"
                           fullWidth
                           loading={isDownloading}
-                          onClick={() => startMockDownload(dl)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startMockDownload(dl);
+                          }}
                           iconLeft={<FileDown size={16} />}
                         >
                           {isDownloading ? `Downloading (${downloadProgress}%)...` : `Download Resource PDF`}
@@ -1149,7 +1398,7 @@ const Notes = () => {
             <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
               <Input
                 label="Note Title"
-                placeholder="e.g. Chemical Formulas Cheat Sheet"
+                placeholder="e.g. Science Revision Formulas"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
@@ -1220,6 +1469,84 @@ const Notes = () => {
         </div>
       )}
 
+      {/* Interactive Topic Notes Reader Modal */}
+      {activeTopicModal && (
+        <div style={s.modalOverlay} onClick={() => setActiveTopicModal(null)}>
+          <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: 'var(--space-5) var(--space-6)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-border-light)', background: 'var(--color-bg-alt)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Badge variant="primary">{activeTopicModal.chapter?.subjectName || 'Syllabus Notes'}</Badge>
+                <span style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-text-tertiary)' }}>
+                  {studentBoardStr} Class {studentClassNum}
+                </span>
+              </div>
+              <button 
+                onClick={() => setActiveTopicModal(null)} 
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-secondary)', padding: '4px' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ padding: 'var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-5)', maxHeight: '80vh', overflowY: 'auto' }}>
+              <div>
+                <span style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-accent)', textTransform: 'uppercase' }}>
+                  {activeTopicModal.chapter?.title}
+                </span>
+                <h3 style={{ fontSize: 'var(--text-xl)', fontWeight: '900', color: 'var(--color-primary-dark)', marginTop: '4px', fontFamily: 'var(--font-heading)' }}>
+                  {activeTopicModal.topic?.title || activeTopicModal.chapter?.title}
+                </h3>
+              </div>
+
+              <div style={{ padding: 'var(--space-4)', background: 'var(--color-surface-hover)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border-light)' }}>
+                <h4 style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-primary-dark)', textTransform: 'uppercase', marginBottom: '6px' }}>
+                  📖 Chapter Overview & Syllabus Context
+                </h4>
+                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', lineHeight: '1.6' }}>
+                  {activeTopicModal.chapter?.digitalMaterial || activeTopicModal.chapter?.description}
+                </p>
+              </div>
+
+              <div style={{ padding: 'var(--space-5)', background: 'rgba(99, 102, 241, 0.05)', borderRadius: 'var(--radius-xl)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+                <h4 style={{ fontSize: 'var(--text-sm)', fontWeight: '800', color: 'var(--color-primary-dark)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Sparkles size={16} color="var(--color-accent)" /> Detailed Concept & Solution Breakdown
+                </h4>
+                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)', lineHeight: '1.7', whiteSpace: 'pre-line' }}>
+                  {activeTopicModal.topic?.content}
+                </p>
+              </div>
+
+              <div style={{ padding: 'var(--space-4)', background: 'var(--color-bg)', borderRadius: 'var(--radius-xl)', borderLeft: '4px solid var(--color-success)' }}>
+                <h4 style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-text-primary)', textTransform: 'uppercase', marginBottom: '4px' }}>
+                  💡 Exam Strategy & Formula Reminder
+                </h4>
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>
+                  Revise definitions, solve textbook exercises, and memorize key theorems for your {studentBoardStr} Class {studentClassNum} examinations.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3)', paddingTop: 'var(--space-4)', borderTop: '1px solid var(--color-border-light)' }}>
+                <Button 
+                  variant="secondary" 
+                  size="sm"
+                  iconLeft={<Download size={16} />}
+                  onClick={() => startMockDownload({ title: `${activeTopicModal.topic?.title || 'Topic'}_Notes`, fileSize: '1.8 MB', fileType: 'PDF Document', subjectName: activeTopicModal.chapter?.subjectName })}
+                >
+                  Download Topic PDF
+                </Button>
+                <Button 
+                  variant="primary" 
+                  size="sm"
+                  onClick={() => setActiveTopicModal(null)}
+                >
+                  Done Reading
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Video Modal Player */}
       {playingVideo && (
         <div style={s.modalOverlay} onClick={() => setPlayingVideo(null)}>
@@ -1255,8 +1582,8 @@ const Notes = () => {
             <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <Badge variant="primary">{playingVideo.level}</Badge>
-                  <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>Duration: {playingVideo.duration} • {playingVideo.views}</span>
+                  <Badge variant="primary">{playingVideo.level || `${studentBoardStr} Class ${studentClassNum}`}</Badge>
+                  <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>Duration: {playingVideo.duration || '10:00'} • {playingVideo.views || 'Standard'}</span>
                 </div>
                 {playingVideo.videoUrl && (
                   <Button variant="outline" size="xs" onClick={() => window.open(playingVideo.videoUrl, '_blank')}>
@@ -1266,7 +1593,7 @@ const Notes = () => {
               </div>
               <h3 style={{ fontSize: 'var(--text-base)', fontWeight: '800', color: 'var(--color-text-primary)' }}>{playingVideo.title}</h3>
               <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>
-                This educational video explains fundamental concepts and provides step-by-step visual calculations led by <b>{playingVideo.author}</b>. Pause the video anytime to copy notes to your personal scratchpad.
+                This educational video explains fundamental concepts for {studentBoardStr} Class {studentClassNum} led by <b>{playingVideo.author || 'Instructor'}</b>.
               </p>
             </div>
           </div>

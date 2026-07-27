@@ -15,7 +15,7 @@ export const getBanners = async (req, res) => {
 // @route   GET /api/banners/active
 export const getActiveBanners = async (req, res) => {
   try {
-    const activeBanners = await Banner.find({ status: 'Active', active: true }).sort({ createdAt: -1 });
+    const activeBanners = await Banner.find({ $or: [{ status: 'Active' }, { active: true }] }).sort({ createdAt: -1 });
     res.json(activeBanners);
   } catch (error) {
     res.status(500).json({ message: error.message || 'Failed to fetch active banners' });

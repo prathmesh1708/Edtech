@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
-  Zap, Award, Clock, ArrowRight, BookOpen, Bot, FileText, 
-  ChevronRight, CheckCircle2, Circle, Trophy, BarChart2, Plus, Calendar, CheckSquare, Trash2, RefreshCw
+  Zap, Clock, ArrowRight, BookOpen, 
+  ChevronRight, CheckCircle2, Circle, Trophy, Plus, Trash2 
 } from 'lucide-react';
 import { ROUTES, generateRoute } from '../../../../../src/config/routes';
 import { useAuth } from '../../../../../src/models/context/AuthContext';
@@ -19,14 +19,14 @@ const StudentDashboard = () => {
 
   const currentUser = user || { name: 'Aarav Sharma', classId: '10', board: 'CBSE' };
 
-  // Dynamic state
+  // Dynamic state initialized for logged in student
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     overallSyllabusProgress: 0,
     aiQueriesCount: 0,
-    studyHours: 0,
-    classRank: '#-',
-    streak: 5
+    studyHours: 0.0,
+    classRank: '#--',
+    streak: 1
   });
   const [subjects, setSubjects] = useState([]);
   const [todos, setTodos] = useState([]);
@@ -34,6 +34,17 @@ const StudentDashboard = () => {
   const [newTodo, setNewTodo] = useState('');
   const [activeBanners, setActiveBanners] = useState([]);
   const [streakClicked, setStreakClicked] = useState(false);
+
+  // Load & track real active study time from localStorage per student user ID
+  useEffect(() => {
+    const studentKey = `sw_study_hours_${currentUser._id || currentUser.id || currentUser.name || 'default'}`;
+    const savedHours = parseFloat(localStorage.getItem(studentKey)) || 0.0;
+    
+    setStats(prev => ({
+      ...prev,
+      studyHours: prev.studyHours > 0 ? prev.studyHours : savedHours
+    }));
+  }, [currentUser]);
 
   // Fetch live active banners managed by Admin
   useEffect(() => {
@@ -157,17 +168,19 @@ const StudentDashboard = () => {
         </div>
       </div>
 
-      {/* Live Admin Banners Carousel / Banner Cards */}
-      {activeBanners && activeBanners.length > 0 && (
-        <div style={{ margin: 'var(--space-6) 0', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Badge variant="primary">ANNOUNCEMENT</Badge>
-            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-tertiary)', fontWeight: '600' }}>Platform Updates</span>
-          </div>
+      {/* Live Admin Banners Section (Positioned between Good Afternoon & Stats Grid) */}
+      <div style={{ margin: 'var(--space-6) 0', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Badge variant="primary">ANNOUNCEMENT</Badge>
+          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-tertiary)', fontWeight: '600' }}>Platform Updates</span>
+        </div>
+        
+        {activeBanners && activeBanners.length > 0 ? (
           <div style={{ display: 'grid', gridTemplateColumns: activeBanners.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-4)' }}>
             {activeBanners.map(banner => (
               <div 
                 key={banner._id || banner.id} 
+                className="subject-card-hover"
                 style={{ 
                   borderRadius: 'var(--radius-xl)', 
                   overflow: 'hidden', 
@@ -194,13 +207,40 @@ const StudentDashboard = () => {
                   color: '#fff'
                 }}>
                   <h4 style={{ fontSize: 'var(--text-sm)', fontWeight: '700', margin: 0 }}>{banner.title}</h4>
-                  <span style={{ fontSize: '10px', opacity: 0.8 }}>Target Audience: {banner.targeting}</span>
+                  <span style={{ fontSize: '10px', opacity: 0.8 }}>Target Audience: {banner.targeting || 'All Students'}</span>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div 
+            className="subject-card-hover"
+            style={{ 
+              borderRadius: 'var(--radius-xl)', 
+              background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)', 
+              padding: 'var(--space-6)',
+              color: '#ffffff',
+              boxShadow: 'var(--shadow-md)',
+              display: 'flex',
+              justify: 'space-between',
+              alignItems: 'center',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+          >
+            <div>
+              <Badge variant="primary" style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: 'none', marginBottom: '8px' }}>ADMIN BULLETIN</Badge>
+              <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '700', marginBottom: '4px' }}>Welcome to Study Wisely 2026 Academic Session! 🚀</h3>
+              <p style={{ fontSize: 'var(--text-xs)', opacity: 0.9 }}>Check out your updated CBSE Class {currentUser.classId || '7'} syllabus materials and smart notes created for term preparation.</p>
+            </div>
+            <Link to={ROUTES.MY_SYLLABUS}>
+              <Button variant="secondary" size="sm" style={{ background: '#fff', color: '#1D4ED8', fontWeight: '700', whiteSpace: 'nowrap' }}>
+                Explore Materials
+              </Button>
+            </Link>
+          </div>
+        )}
+      </div>
 
       {/* Grid of Key Progress statistics */}
       <div className={`${styles.statsGrid} responsive-grid-3`}>

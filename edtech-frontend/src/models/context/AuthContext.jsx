@@ -9,24 +9,37 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('sw_token') || null);
-  const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState(() => localStorage.getItem('sw_token') || null);
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem('sw_user');
+    if (storedUser) {
+      try {
+        return JSON.parse(storedUser);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Check if token exists and validate
-    if (token) {
+    // Validate session if needed
+    if (token && !user) {
       const storedUser = localStorage.getItem('sw_user');
       if (storedUser) {
         try {
           setUser(JSON.parse(storedUser));
         } catch (e) {
-          logout();
+          localStorage.removeItem('sw_token');
+          localStorage.removeItem('sw_user');
+          setUser(null);
+          setToken(null);
         }
       }
     }
     setLoading(false);
-  }, []);
+  }, [token, user]);
 
   const login = (userData, authToken) => {
     setUser(userData);

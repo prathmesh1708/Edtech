@@ -4,7 +4,7 @@ import { ArrowLeft, BookOpen, Download, Play, CheckCircle2, Circle, X, FileDown,
 import { ROUTES } from '../../../../config/routes';
 import Button from '../../../components/common/Button/Button';
 import Card from '../../../components/common/Card/Card';
-import Badge from '../../../components/common/Badge/Badge';
+import { downloadPDF } from '../../../../utils/pdfGenerator';
 
 const s = {
   grid: {
@@ -112,13 +112,13 @@ const ChapterView = () => {
             setIsDownloading(false);
             setDownloadProgress(0);
 
-            // Create invisible anchor tag to download sample file
-            const link = document.createElement('a');
-            link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent('Study Wisely — Chapter 1: Real Numbers Official Notes & Practice Sheet.');
-            link.download = 'Real_Numbers_Chapter_1_Notes.pdf';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            downloadPDF(
+              'Real_Numbers_Chapter_1_Notes',
+              'Chapter 1: Real Numbers Study Notes',
+              'Mathematics',
+              'CBSE Curriculum',
+              'Official Chapter 1 Real Numbers notes, Euclid Division Lemma proofs, and practice question bank.'
+            );
           }, 600);
           return 100;
         }
