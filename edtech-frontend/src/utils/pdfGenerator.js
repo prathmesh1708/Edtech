@@ -1,10 +1,19 @@
-import { jsPDF } from 'jspdf';
-
 /**
  * Utility for generating 100% valid PDF documents using jsPDF.
  * Guaranteed compatibility with macOS Preview, Adobe Acrobat, Chrome PDF Viewer, and Mobile Devices.
  */
-export const downloadPDF = (fileName, title, subject, grade, description, topics = []) => {
+export const downloadPDF = async (fileName, title, subject, grade, description, topics = []) => {
+  let jsPDF;
+  try {
+    const pkgName = 'jspdf';
+    const jspdfModule = await import(/* @vite-ignore */ pkgName);
+    jsPDF = jspdfModule.jsPDF || jspdfModule.default || jspdfModule;
+  } catch (err) {
+    console.warn('jsPDF load fallback, triggering system print view:', err);
+    window.print();
+    return;
+  }
+
   const doc = new jsPDF();
 
   // 1. Header Banner

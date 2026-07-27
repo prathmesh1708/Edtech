@@ -22,6 +22,9 @@ const SubjectManagement = () => {
     subjectCode: '',
     board: 'CBSE',
     classId: 'Class 10',
+    price: '',
+    quarterlyDiscount: '10',
+    yearlyDiscount: '20',
     description: '',
     color: '#1A73E8',
     status: 'Active'
@@ -50,6 +53,9 @@ const SubjectManagement = () => {
       subjectCode: '',
       board: 'CBSE',
       classId: 'Class 10',
+      price: '',
+      quarterlyDiscount: '10',
+      yearlyDiscount: '20',
       description: '',
       color: '#1A73E8',
       status: 'Active'
@@ -64,6 +70,9 @@ const SubjectManagement = () => {
       subjectCode: item.subjectCode || '',
       board: item.board || 'CBSE',
       classId: item.classId || 'Class 10',
+      price: item.price !== undefined && item.price !== null ? item.price : '',
+      quarterlyDiscount: item.quarterlyDiscount !== undefined && item.quarterlyDiscount !== null ? item.quarterlyDiscount : '10',
+      yearlyDiscount: item.yearlyDiscount !== undefined && item.yearlyDiscount !== null ? item.yearlyDiscount : '20',
       description: item.description || '',
       color: item.color || '#1A73E8',
       status: item.status || 'Active'
@@ -231,7 +240,9 @@ const SubjectManagement = () => {
                 <th>Subject Code</th>
                 <th>Board</th>
                 <th>Class</th>
-                <th>Description</th>
+                <th>Monthly Price</th>
+                <th>Quarterly Rate</th>
+                <th>Yearly Rate</th>
                 <th>Status</th>
                 <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
@@ -239,41 +250,65 @@ const SubjectManagement = () => {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: 'center', padding: '30px' }}>Loading subject directory...</td>
+                  <td colSpan="9" style={{ textAlign: 'center', padding: '30px' }}>Loading subject directory...</td>
                 </tr>
               ) : filteredItems.length > 0 ? (
-                filteredItems.map(item => (
-                  <tr key={item._id}>
-                    <td className={styles.cellName}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: item.color || '#1A73E8' }} />
-                        <span>{item.subjectName}</span>
-                      </div>
-                    </td>
-                    <td><span className={styles.versionTag}>{item.subjectCode}</span></td>
-                    <td>{item.board}</td>
-                    <td>{item.classId}</td>
-                    <td>{item.description || 'N/A'}</td>
-                    <td>
-                      <span className={`${styles.statusBadge} ${styles[(item.status || 'active').toLowerCase()]}`}>
-                        {item.status}
-                      </span>
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <div className={styles.actionButtons} style={{ justifyContent: 'flex-end' }}>
-                        <button className={styles.iconButton} onClick={() => handleOpenEdit(item)} title="Edit Subject">
-                          <Edit2 size={14} />
-                        </button>
-                        <button className={`${styles.iconButton} ${styles.danger}`} onClick={() => { setCurrentItem(item); setIsDeleteModalOpen(true); }} title="Delete Subject">
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                filteredItems.map(item => {
+                  const mPrice = item.price || 0;
+                  const qDisc = item.quarterlyDiscount !== undefined ? item.quarterlyDiscount : 10;
+                  const yDisc = item.yearlyDiscount !== undefined ? item.yearlyDiscount : 20;
+                  const qPrice = Math.round(mPrice * 3 * (1 - qDisc / 100));
+                  const yPrice = Math.round(mPrice * 12 * (1 - yDisc / 100));
+
+                  return (
+                    <tr key={item._id}>
+                      <td className={styles.cellName}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: item.color || '#1A73E8' }} />
+                          <span>{item.subjectName}</span>
+                        </div>
+                      </td>
+                      <td><span className={styles.versionTag}>{item.subjectCode}</span></td>
+                      <td>{item.board}</td>
+                      <td>{item.classId}</td>
+                      <td><strong style={{ color: mPrice ? 'var(--color-primary, #1A73E8)' : '#64748B' }}>{mPrice ? `₹${mPrice}` : 'Free'}</strong></td>
+                      <td>
+                        {mPrice ? (
+                          <div>
+                            <span style={{ fontWeight: '600', color: '#0F172A' }}>₹{qPrice.toLocaleString('en-IN')}</span>
+                            <span style={{ fontSize: '11px', color: '#16A34A', marginLeft: '6px', fontWeight: '700' }}>({qDisc}% off)</span>
+                          </div>
+                        ) : 'Free'}
+                      </td>
+                      <td>
+                        {mPrice ? (
+                          <div>
+                            <span style={{ fontWeight: '600', color: '#0F172A' }}>₹{yPrice.toLocaleString('en-IN')}</span>
+                            <span style={{ fontSize: '11px', color: '#16A34A', marginLeft: '6px', fontWeight: '700' }}>({yDisc}% off)</span>
+                          </div>
+                        ) : 'Free'}
+                      </td>
+                      <td>
+                        <span className={`${styles.statusBadge} ${styles[(item.status || 'active').toLowerCase()]}`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        <div className={styles.actionButtons} style={{ justifyContent: 'flex-end' }}>
+                          <button className={styles.iconButton} onClick={() => handleOpenEdit(item)} title="Edit Subject">
+                            <Edit2 size={14} />
+                          </button>
+                          <button className={`${styles.iconButton} ${styles.danger}`} onClick={() => { setCurrentItem(item); setIsDeleteModalOpen(true); }} title="Delete Subject">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: 'center', padding: '30px', color: 'var(--color-text-tertiary)' }}>
+                  <td colSpan="9" style={{ textAlign: 'center', padding: '30px', color: 'var(--color-text-tertiary)' }}>
                     No subjects found.
                   </td>
                 </tr>
@@ -349,6 +384,18 @@ const SubjectManagement = () => {
 
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Subject Price (₹ / Month)</label>
+                    <input 
+                      type="number"
+                      min="0"
+                      className={styles.formInput}
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      placeholder="e.g. 499 (0 for Free)"
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Badge Accent Color</label>
                     <input 
                       type="color"
@@ -358,7 +405,37 @@ const SubjectManagement = () => {
                       onChange={(e) => setFormData({ ...formData, color: e.target.value })}
                     />
                   </div>
+                </div>
 
+                <div className={styles.formGrid}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Quarterly Discount (%)</label>
+                    <input 
+                      type="number"
+                      min="0"
+                      max="100"
+                      className={styles.formInput}
+                      value={formData.quarterlyDiscount}
+                      onChange={(e) => setFormData({ ...formData, quarterlyDiscount: e.target.value })}
+                      placeholder="e.g. 10 (10% off for 3 Months)"
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Yearly Discount (%)</label>
+                    <input 
+                      type="number"
+                      min="0"
+                      max="100"
+                      className={styles.formInput}
+                      value={formData.yearlyDiscount}
+                      onChange={(e) => setFormData({ ...formData, yearlyDiscount: e.target.value })}
+                      placeholder="e.g. 20 (20% off for 1 Year)"
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Status</label>
                     <select 

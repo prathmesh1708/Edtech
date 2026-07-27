@@ -30,6 +30,23 @@ const subjectSchema = new mongoose.Schema(
       type: String,
       default: '#1A73E8'
     },
+    price: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    quarterlyDiscount: {
+      type: Number,
+      default: 10,
+      min: 0,
+      max: 100
+    },
+    yearlyDiscount: {
+      type: Number,
+      default: 20,
+      min: 0,
+      max: 100
+    },
     status: {
       type: String,
       enum: ['Active', 'Inactive'],

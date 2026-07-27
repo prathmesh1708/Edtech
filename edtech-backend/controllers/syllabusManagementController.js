@@ -199,7 +199,7 @@ export const getSubjects = async (req, res, next) => {
 
 export const createSubject = async (req, res, next) => {
   try {
-    const { subjectName, subjectCode, board, classId, description, color, status } = req.body;
+    const { subjectName, subjectCode, board, classId, description, color, status, price, quarterlyDiscount, yearlyDiscount } = req.body;
     if (!subjectName || !subjectCode) {
       res.status(400);
       throw new Error('Subject Name and Code are required');
@@ -211,6 +211,9 @@ export const createSubject = async (req, res, next) => {
       classId: classId || 'Class 10',
       description: description || '',
       color: color || '#1A73E8',
+      price: price !== undefined && price !== '' ? Number(price) : 0,
+      quarterlyDiscount: quarterlyDiscount !== undefined && quarterlyDiscount !== '' ? Number(quarterlyDiscount) : 10,
+      yearlyDiscount: yearlyDiscount !== undefined && yearlyDiscount !== '' ? Number(yearlyDiscount) : 20,
       status: status || 'Active'
     });
 
@@ -252,13 +255,16 @@ export const updateSubject = async (req, res, next) => {
       res.status(404);
       throw new Error('Subject not found');
     }
-    const { subjectName, subjectCode, board, classId, description, color, status } = req.body;
+    const { subjectName, subjectCode, board, classId, description, color, status, price, quarterlyDiscount, yearlyDiscount } = req.body;
     if (subjectName) item.subjectName = subjectName;
     if (subjectCode) item.subjectCode = subjectCode;
     if (board) item.board = board;
     if (classId) item.classId = classId;
     if (description !== undefined) item.description = description;
     if (color) item.color = color;
+    if (price !== undefined && price !== '') item.price = Number(price);
+    if (quarterlyDiscount !== undefined && quarterlyDiscount !== '') item.quarterlyDiscount = Number(quarterlyDiscount);
+    if (yearlyDiscount !== undefined && yearlyDiscount !== '') item.yearlyDiscount = Number(yearlyDiscount);
     if (status) item.status = status;
 
     const updated = await item.save();

@@ -51,7 +51,6 @@ const Sidebar = () => {
     { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
     { name: 'Educational Insights', path: '/admin/educational-insights', icon: GraduationCap },
     { name: 'Students', path: '/admin/students', icon: Users },
-    { name: 'Teachers', path: '/admin/teachers', icon: GraduationCap },
     { name: 'Subscriptions', path: '/admin/subscriptions', icon: CreditCard },
     
     // Collapsible Parent Menu: Syllabus & Content
