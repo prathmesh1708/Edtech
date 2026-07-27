@@ -13,23 +13,49 @@ import {
   Clock, 
   Activity,
   Layers,
-  Check
+  Check,
+  BookOpen,
+  GraduationCap
 } from 'lucide-react';
 import { useToast } from '../../../../../src/views/components/common/Toast/Toast';
 import styles from './SubscriptionManagement.module.css';
 
+const CLASS_OPTIONS = [
+  'All Classes',
+  'Class 6',
+  'Class 7',
+  'Class 8',
+  'Class 9',
+  'Class 10',
+  'Class 11',
+  'Class 12'
+];
+
+const SUBJECT_OPTIONS = [
+  'All Subjects',
+  'Mathematics',
+  'Science',
+  'Physics',
+  'Chemistry',
+  'Biology',
+  'English',
+  'Social Science',
+  'Computer Science'
+];
+
 const initialPlans = [
-  { id: 'PLAN001', name: 'Basic Pass', price: 999, duration: 'Monthly', features: 'Access to Core Syllabus, 10 Mock Tests, Basic Doubt Solving', status: 'Active', subscribers: 2 },
-  { id: 'PLAN002', name: 'Pro Learn', price: 2499, duration: 'Quarterly', features: 'Access to All Syllabus, Unlimited Mock Tests, 24/7 AI Tutor, Parent Reports', status: 'Active', subscribers: 2 },
-  { id: 'PLAN003', name: 'Premium Elite', price: 4999, duration: 'Yearly', features: 'Personal Live Mentorship, Dedicated Subject Teachers, Custom Study Kits (Hardcopy), Priority support', status: 'Active', subscribers: 1 }
+  { id: 'PLAN001', name: 'Basic All-Access Pass', targetClass: 'All Classes', targetSubject: 'All Subjects', price: 999, duration: 'Monthly', features: 'Access to Core Syllabus, 10 Mock Tests, Basic Doubt Solving', status: 'Active', subscribers: 2 },
+  { id: 'PLAN002', name: 'Class 10 Math Mastery', targetClass: 'Class 10', targetSubject: 'Mathematics', price: 1499, duration: 'Quarterly', features: 'Access to Class 10 Math Syllabus, Unlimited Mock Tests, 24/7 AI Tutor', status: 'Active', subscribers: 2 },
+  { id: 'PLAN003', name: 'Class 12 Physics Pro', targetClass: 'Class 12', targetSubject: 'Physics', price: 2999, duration: 'Yearly', features: 'Personal Live Mentorship, Dedicated Physics Teacher, Custom Study Kits', status: 'Active', subscribers: 1 },
+  { id: 'PLAN004', name: 'Class 9 Science Special', targetClass: 'Class 9', targetSubject: 'Science', price: 1199, duration: 'Quarterly', features: 'Physics, Chemistry & Biology Modules, Interactive Quizzes, Doubt Support', status: 'Active', subscribers: 3 }
 ];
 
 const initialSubscriptions = [
-  { id: 'SUB001', studentName: 'Rahul Sharma', planName: 'Premium Elite', duration: 'Yearly', price: 4999, purchaseDate: '2026-06-10', expiryDate: '2027-06-10', status: 'Active' },
-  { id: 'SUB002', studentName: 'Priya Patel', planName: 'Pro Learn', duration: 'Quarterly', price: 2499, purchaseDate: '2026-06-12', expiryDate: '2026-09-12', status: 'Active' },
-  { id: 'SUB003', studentName: 'Amit Kumar', planName: 'Basic Pass', duration: 'Monthly', price: 999, purchaseDate: '2026-05-15', expiryDate: '2026-06-15', status: 'Expired' },
-  { id: 'SUB004', studentName: 'Sneha Gupta', planName: 'Pro Learn', duration: 'Quarterly', price: 2499, purchaseDate: '2026-06-18', expiryDate: '2026-09-18', status: 'Active' },
-  { id: 'SUB005', studentName: 'Rohan Singh', planName: 'Basic Pass', duration: 'Monthly', price: 999, purchaseDate: '2026-07-01', expiryDate: '2026-08-01', status: 'Pending' }
+  { id: 'SUB001', studentName: 'Rahul Sharma', planName: 'Class 12 Physics Pro', targetClass: 'Class 12', targetSubject: 'Physics', duration: 'Yearly', price: 2999, purchaseDate: '2026-06-10', expiryDate: '2027-06-10', status: 'Active' },
+  { id: 'SUB002', studentName: 'Priya Patel', planName: 'Class 10 Math Mastery', targetClass: 'Class 10', targetSubject: 'Mathematics', duration: 'Quarterly', price: 1499, purchaseDate: '2026-06-12', expiryDate: '2026-09-12', status: 'Active' },
+  { id: 'SUB003', studentName: 'Amit Kumar', planName: 'Basic All-Access Pass', targetClass: 'All Classes', targetSubject: 'All Subjects', duration: 'Monthly', price: 999, purchaseDate: '2026-05-15', expiryDate: '2026-06-15', status: 'Expired' },
+  { id: 'SUB004', studentName: 'Sneha Gupta', planName: 'Class 10 Math Mastery', targetClass: 'Class 10', targetSubject: 'Mathematics', duration: 'Quarterly', price: 1499, purchaseDate: '2026-06-18', expiryDate: '2026-09-18', status: 'Active' },
+  { id: 'SUB005', studentName: 'Rohan Singh', planName: 'Class 9 Science Special', targetClass: 'Class 9', targetSubject: 'Science', duration: 'Quarterly', price: 1199, purchaseDate: '2026-07-01', expiryDate: '2026-10-01', status: 'Pending' }
 ];
 
 const SubscriptionManagement = () => {
@@ -37,10 +63,17 @@ const SubscriptionManagement = () => {
   const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
   const [plans, setPlans] = useState(initialPlans);
   
-  // Search & Filter
+  // Search & Filter (Subscriptions)
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPlanFilter, setSelectedPlanFilter] = useState('All');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState('All');
+  const [selectedClassFilter, setSelectedClassFilter] = useState('All');
+  const [selectedSubjectFilter, setSelectedSubjectFilter] = useState('All');
+
+  // Search & Filter (Plans tab)
+  const [planSearchTerm, setPlanSearchTerm] = useState('');
+  const [planClassFilter, setPlanClassFilter] = useState('All');
+  const [planSubjectFilter, setPlanSubjectFilter] = useState('All');
 
   // Modals state (Subscriptions)
   const [isAddSubModalOpen, setIsAddSubModalOpen] = useState(false);
@@ -57,7 +90,7 @@ const SubscriptionManagement = () => {
   // Sub Form State
   const [subFormData, setSubFormData] = useState({
     studentName: '',
-    planName: 'Basic Pass',
+    planName: 'Basic All-Access Pass',
     purchaseDate: new Date().toISOString().split('T')[0],
     expiryDate: '',
     status: 'Active'
@@ -66,6 +99,8 @@ const SubscriptionManagement = () => {
   // Plan Form State
   const [planFormData, setPlanFormData] = useState({
     name: '',
+    targetClass: 'All Classes',
+    targetSubject: 'All Subjects',
     price: '',
     duration: 'Monthly',
     features: '',
@@ -78,7 +113,7 @@ const SubscriptionManagement = () => {
   const resetSubForm = () => {
     setSubFormData({
       studentName: '',
-      planName: plans[0]?.name || 'Basic Pass',
+      planName: plans[0]?.name || 'Basic All-Access Pass',
       purchaseDate: new Date().toISOString().split('T')[0],
       expiryDate: '',
       status: 'Active'
@@ -89,6 +124,8 @@ const SubscriptionManagement = () => {
   const resetPlanForm = () => {
     setPlanFormData({
       name: '',
+      targetClass: 'All Classes',
+      targetSubject: 'All Subjects',
       price: '',
       duration: 'Monthly',
       features: '',
@@ -143,10 +180,14 @@ const SubscriptionManagement = () => {
     const selectedPlan = plans.find(p => p.name === subFormData.planName);
     const pricePaid = selectedPlan ? selectedPlan.price : 999;
     const duration = selectedPlan ? selectedPlan.duration : 'Monthly';
+    const targetClass = selectedPlan ? (selectedPlan.targetClass || 'All Classes') : 'All Classes';
+    const targetSubject = selectedPlan ? (selectedPlan.targetSubject || 'All Subjects') : 'All Subjects';
 
     const newSub = {
       id: formattedId,
       ...subFormData,
+      targetClass,
+      targetSubject,
       price: pricePaid,
       duration: duration
     };
@@ -187,6 +228,8 @@ const SubscriptionManagement = () => {
     const selectedPlan = plans.find(p => p.name === subFormData.planName);
     const pricePaid = selectedPlan ? selectedPlan.price : 999;
     const duration = selectedPlan ? selectedPlan.duration : 'Monthly';
+    const targetClass = selectedPlan ? (selectedPlan.targetClass || 'All Classes') : 'All Classes';
+    const targetSubject = selectedPlan ? (selectedPlan.targetSubject || 'All Subjects') : 'All Subjects';
 
     // Adjust subscriber counts if plan changed
     if (currentSub.planName !== subFormData.planName) {
@@ -200,7 +243,14 @@ const SubscriptionManagement = () => {
     }
 
     setSubscriptions(prev => 
-      prev.map(s => s.id === currentSub.id ? { ...s, ...subFormData, price: pricePaid, duration: duration } : s)
+      prev.map(s => s.id === currentSub.id ? { 
+        ...s, 
+        ...subFormData, 
+        targetClass, 
+        targetSubject, 
+        price: pricePaid, 
+        duration: duration 
+      } : s)
     );
     setIsEditSubModalOpen(false);
     resetSubForm();
@@ -239,6 +289,8 @@ const SubscriptionManagement = () => {
     const newPlan = {
       id: formattedId,
       name: planFormData.name,
+      targetClass: planFormData.targetClass || 'All Classes',
+      targetSubject: planFormData.targetSubject || 'All Subjects',
       price: parseFloat(planFormData.price),
       duration: planFormData.duration,
       features: planFormData.features,
@@ -249,13 +301,15 @@ const SubscriptionManagement = () => {
     setPlans(prev => [...prev, newPlan]);
     setIsAddPlanModalOpen(false);
     resetPlanForm();
-    toast.success(`Plan "${newPlan.name}" has been created.`, 'Plan Created');
+    toast.success(`Plan "${newPlan.name}" for ${newPlan.targetClass} (${newPlan.targetSubject}) created.`, 'Plan Created');
   };
 
   const handleEditPlanClick = (plan) => {
     setCurrentPlan(plan);
     setPlanFormData({
       name: plan.name,
+      targetClass: plan.targetClass || 'All Classes',
+      targetSubject: plan.targetSubject || 'All Subjects',
       price: plan.price,
       duration: plan.duration,
       features: plan.features,
@@ -272,7 +326,11 @@ const SubscriptionManagement = () => {
     }
 
     setPlans(prev => 
-      prev.map(p => p.id === currentPlan.id ? { ...p, ...planFormData, price: parseFloat(planFormData.price) } : p)
+      prev.map(p => p.id === currentPlan.id ? { 
+        ...p, 
+        ...planFormData, 
+        price: parseFloat(planFormData.price) 
+      } : p)
     );
     setIsEditPlanModalOpen(false);
     resetPlanForm();
@@ -302,7 +360,7 @@ const SubscriptionManagement = () => {
     });
   };
 
-  // Filter Logic
+  // Filter Logic (Subscriptions)
   const filteredSubscriptions = subscriptions.filter(sub => {
     const matchesSearch = 
       sub.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -311,8 +369,22 @@ const SubscriptionManagement = () => {
 
     const matchesPlan = selectedPlanFilter === 'All' || sub.planName === selectedPlanFilter;
     const matchesStatus = selectedStatusFilter === 'All' || sub.status === selectedStatusFilter;
+    const matchesClass = selectedClassFilter === 'All' || selectedClassFilter === 'All Classes' || sub.targetClass === selectedClassFilter;
+    const matchesSubject = selectedSubjectFilter === 'All' || selectedSubjectFilter === 'All Subjects' || sub.targetSubject === selectedSubjectFilter;
 
-    return matchesSearch && matchesPlan && matchesStatus;
+    return matchesSearch && matchesPlan && matchesStatus && matchesClass && matchesSubject;
+  });
+
+  // Filter Logic (Plans)
+  const filteredPlans = plans.filter(plan => {
+    const matchesSearch = 
+      plan.name.toLowerCase().includes(planSearchTerm.toLowerCase()) ||
+      plan.features.toLowerCase().includes(planSearchTerm.toLowerCase());
+
+    const matchesClass = planClassFilter === 'All' || planClassFilter === 'All Classes' || plan.targetClass === planClassFilter || plan.targetClass === 'All Classes';
+    const matchesSubject = planSubjectFilter === 'All' || planSubjectFilter === 'All Subjects' || plan.targetSubject === planSubjectFilter || plan.targetSubject === 'All Subjects';
+
+    return matchesSearch && matchesClass && matchesSubject;
   });
 
   // Calculate statistics
@@ -430,6 +502,26 @@ const SubscriptionManagement = () => {
             <div className={styles.controlsContainer}>
               <select 
                 className={styles.filterSelect}
+                value={selectedClassFilter}
+                onChange={(e) => setSelectedClassFilter(e.target.value)}
+              >
+                {CLASS_OPTIONS.map(c => (
+                  <option key={c} value={c}>{c === 'All Classes' ? 'All Classes' : c}</option>
+                ))}
+              </select>
+
+              <select 
+                className={styles.filterSelect}
+                value={selectedSubjectFilter}
+                onChange={(e) => setSelectedSubjectFilter(e.target.value)}
+              >
+                {SUBJECT_OPTIONS.map(s => (
+                  <option key={s} value={s}>{s === 'All Subjects' ? 'All Subjects' : s}</option>
+                ))}
+              </select>
+
+              <select 
+                className={styles.filterSelect}
                 value={selectedPlanFilter}
                 onChange={(e) => setSelectedPlanFilter(e.target.value)}
               >
@@ -477,6 +569,14 @@ const SubscriptionManagement = () => {
                         <div className={styles.planDetailsCell}>
                           <span className={styles.planNameText}>{sub.planName}</span>
                           <span className={styles.planBillingText}>₹{sub.price} / {sub.duration}</span>
+                          <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
+                            <span className={styles.scopeTagClass} style={{ fontSize: '10px', padding: '1px 6px' }}>
+                              <BookOpen size={10} /> {sub.targetClass || 'All Classes'}
+                            </span>
+                            <span className={styles.scopeTagSubject} style={{ fontSize: '10px', padding: '1px 6px' }}>
+                              <GraduationCap size={10} /> {sub.targetSubject || 'All Subjects'}
+                            </span>
+                          </div>
                         </div>
                       </td>
                       <td>{formatDate(sub.purchaseDate)}</td>
@@ -534,56 +634,108 @@ const SubscriptionManagement = () => {
         </div>
       ) : (
         /* Plans Tab view */
-        <div className={styles.plansContainer}>
-          {plans.map((plan) => (
-            <div key={plan.id} className={`${styles.planCard} ${plan.status !== 'Active' ? styles.planInactive : ''}`}>
-              <div className={styles.planCardHeader}>
-                <div className={styles.planBadge}>{plan.duration}</div>
-                <div className={styles.planActions}>
-                  <button className={styles.planActionBtn} onClick={() => handleEditPlanClick(plan)} title="Edit Plan">
-                    <Edit2 size={14} />
-                  </button>
-                  <button className={`${styles.planActionBtn} ${styles.planActionDanger}`} onClick={() => handleDeletePlanClick(plan)} title="Delete Plan">
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              </div>
-              
-              <h3 className={styles.planName}>{plan.name}</h3>
-              
-              <div className={styles.planPricing}>
-                <span className={styles.planCurrency}>₹</span>
-                <span className={styles.planAmount}>{plan.price.toLocaleString('en-IN')}</span>
-                <span className={styles.planSlash}>/</span>
-                <span className={styles.planDurationText}>{plan.duration.toLowerCase()}</span>
-              </div>
-              
-              <div className={styles.planStats}>
-                <span className={styles.planStatLabel}>Active Members:</span>
-                <span className={styles.planStatValue}>{plan.subscribers}</span>
-              </div>
-
-              <hr className={styles.planDivider} />
-              
-              <div className={styles.featuresList}>
-                <p className={styles.featuresHeading}>Included Features:</p>
-                <ul>
-                  {plan.features.split(',').map((feat, idx) => (
-                    <li key={idx} className={styles.featureItem}>
-                      <Check size={14} className={styles.featureIcon} />
-                      <span>{feat.trim()}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className={styles.planCardFooter}>
-                <span className={`${styles.statusLabelBadge} ${plan.status === 'Active' ? styles.statusActive : styles.statusExpired}`}>
-                  {plan.status}
-                </span>
-              </div>
+        <div>
+          <div className={styles.plansHeaderBar}>
+            <div className={styles.searchContainer}>
+              <Search size={18} className={styles.searchIcon} />
+              <input 
+                type="text" 
+                placeholder="Search plans by name or feature..." 
+                className={styles.searchInput}
+                value={planSearchTerm}
+                onChange={(e) => setPlanSearchTerm(e.target.value)}
+              />
             </div>
-          ))}
+
+            <div className={styles.controlsContainer}>
+              <select 
+                className={styles.filterSelect}
+                value={planClassFilter}
+                onChange={(e) => setPlanClassFilter(e.target.value)}
+              >
+                {CLASS_OPTIONS.map(c => (
+                  <option key={c} value={c}>{c === 'All Classes' ? 'Class (All)' : c}</option>
+                ))}
+              </select>
+
+              <select 
+                className={styles.filterSelect}
+                value={planSubjectFilter}
+                onChange={(e) => setPlanSubjectFilter(e.target.value)}
+              >
+                {SUBJECT_OPTIONS.map(s => (
+                  <option key={s} value={s}>{s === 'All Subjects' ? 'Subject (All)' : s}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className={styles.plansContainer}>
+            {filteredPlans.length > 0 ? (
+              filteredPlans.map((plan) => (
+                <div key={plan.id} className={`${styles.planCard} ${plan.status !== 'Active' ? styles.planInactive : ''}`}>
+                  <div className={styles.planCardHeader}>
+                    <div className={styles.planBadge}>{plan.duration}</div>
+                    <div className={styles.planActions}>
+                      <button className={styles.planActionBtn} onClick={() => handleEditPlanClick(plan)} title="Edit Plan">
+                        <Edit2 size={14} />
+                      </button>
+                      <button className={`${styles.planActionBtn} ${styles.planActionDanger}`} onClick={() => handleDeletePlanClick(plan)} title="Delete Plan">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <h3 className={styles.planName}>{plan.name}</h3>
+
+                  <div className={styles.planScopeBadges}>
+                    <span className={styles.scopeTagClass}>
+                      <BookOpen size={13} /> {plan.targetClass || 'All Classes'}
+                    </span>
+                    <span className={styles.scopeTagSubject}>
+                      <GraduationCap size={13} /> {plan.targetSubject || 'All Subjects'}
+                    </span>
+                  </div>
+                  
+                  <div className={styles.planPricing}>
+                    <span className={styles.planCurrency}>₹</span>
+                    <span className={styles.planAmount}>{plan.price.toLocaleString('en-IN')}</span>
+                    <span className={styles.planSlash}>/</span>
+                    <span className={styles.planDurationText}>{plan.duration.toLowerCase()}</span>
+                  </div>
+                  
+                  <div className={styles.planStats}>
+                    <span className={styles.planStatLabel}>Active Members:</span>
+                    <span className={styles.planStatValue}>{plan.subscribers}</span>
+                  </div>
+
+                  <hr className={styles.planDivider} />
+                  
+                  <div className={styles.featuresList}>
+                    <p className={styles.featuresHeading}>Included Features:</p>
+                    <ul>
+                      {plan.features.split(',').map((feat, idx) => (
+                        <li key={idx} className={styles.featureItem}>
+                          <Check size={14} className={styles.featureIcon} />
+                          <span>{feat.trim()}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className={styles.planCardFooter}>
+                    <span className={`${styles.statusLabelBadge} ${plan.status === 'Active' ? styles.statusActive : styles.statusExpired}`}>
+                      {plan.status}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: 'var(--color-text-tertiary)' }}>
+                No subscription plans found for the selected class/subject filter.
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -836,6 +988,36 @@ const SubscriptionManagement = () => {
 
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Target Class *</label>
+                    <select 
+                      name="targetClass"
+                      className={styles.formSelect}
+                      value={planFormData.targetClass}
+                      onChange={handlePlanInputChange}
+                    >
+                      {CLASS_OPTIONS.map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Target Subject *</label>
+                    <select 
+                      name="targetSubject"
+                      className={styles.formSelect}
+                      value={planFormData.targetSubject}
+                      onChange={handlePlanInputChange}
+                    >
+                      {SUBJECT_OPTIONS.map(s => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className={styles.formGrid}>
+                  <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Price (₹ INR) *</label>
                     <input 
                       type="number" 
@@ -926,6 +1108,36 @@ const SubscriptionManagement = () => {
                     value={planFormData.name}
                     onChange={handlePlanInputChange}
                   />
+                </div>
+
+                <div className={styles.formGrid}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Target Class *</label>
+                    <select 
+                      name="targetClass"
+                      className={styles.formSelect}
+                      value={planFormData.targetClass}
+                      onChange={handlePlanInputChange}
+                    >
+                      {CLASS_OPTIONS.map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Target Subject *</label>
+                    <select 
+                      name="targetSubject"
+                      className={styles.formSelect}
+                      value={planFormData.targetSubject}
+                      onChange={handlePlanInputChange}
+                    >
+                      {SUBJECT_OPTIONS.map(s => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div className={styles.formGrid}>
