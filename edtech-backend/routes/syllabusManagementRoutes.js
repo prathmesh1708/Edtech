@@ -50,6 +50,7 @@ router.delete('/subjects/:id', optionalAuth, deleteSubject);
 
 // Chapter Routes
 router.get('/chapters', optionalAuth, getChapters);
+router.get('/chapters/:id', optionalAuth, getChapterById);
 router.post('/chapters', optionalAuth, createChapter);
 router.put('/chapters/:id', optionalAuth, updateChapter);
 router.delete('/chapters/:id', optionalAuth, deleteChapter);

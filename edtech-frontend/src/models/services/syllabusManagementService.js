@@ -21,6 +21,7 @@ export const syllabusManagementService = {
 
   // 4. Chapter Management
   getChapters: () => api.get('/syllabus-management/chapters'),
+  getChapterById: (id) => api.get(`/syllabus-management/chapters/${id}`),
   createChapter: (data) => api.post('/syllabus-management/chapters', data),
   updateChapter: (id, data) => api.put(`/syllabus-management/chapters/${id}`, data),
   deleteChapter: (id) => api.delete(`/syllabus-management/chapters/${id}`),

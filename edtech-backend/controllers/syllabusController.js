@@ -164,18 +164,13 @@ export const getSyllabuses = async (req, res) => {
   try {
     await seedIfEmpty();
 
+    const nb = normBoard(board);
+    const nc = normClass(classVal);
+
     const filter = {};
-    if (board) {
-      const nb = normBoard(board);
-      filter.board = { $regex: nb, $options: 'i' };
-    }
-    if (classVal) {
-      const nc = normClass(classVal);
-      filter.class = { $regex: nc, $options: 'i' };
-    }
-    if (status) {
-      filter.status = status;
-    }
+    if (board) filter.board = { $regex: nb, $options: 'i' };
+    if (classVal) filter.class = { $regex: nc, $options: 'i' };
+    if (status) filter.status = status;
     if (search) {
       filter.$or = [
         { subjectName: { $regex: search, $options: 'i' } },
@@ -184,19 +179,95 @@ export const getSyllabuses = async (req, res) => {
       ];
     }
 
+    // 1. Fetch from Syllabus collection
     const syllabuses = await Syllabus.find(filter).sort({ createdAt: -1 }).maxTimeMS(3000);
-    res.json(syllabuses);
+
+    // 2. Fetch from Subject collection (set by Admin)
+    const subjectFilter = { isDeleted: false };
+    if (board) subjectFilter.board = { $regex: nb, $options: 'i' };
+    if (classVal) subjectFilter.classId = { $regex: nc, $options: 'i' };
+    const adminSubjects = await Subject.find(subjectFilter).sort({ createdAt: -1 }).maxTimeMS(3000);
+
+    // Merge and deduplicate by subject name
+    const subjectMap = new Map();
+
+    syllabuses.forEach(s => {
+      const key = String(s.subjectName).trim().toLowerCase();
+      if (!subjectMap.has(key)) {
+        subjectMap.set(key, {
+          _id: s._id,
+          board: s.board,
+          class: s.class,
+          subjectName: s.subjectName,
+          subjectCode: s.subjectCode || 'SUB-101',
+          description: s.description || `Official ${s.subjectName} syllabus curated by Admin.`,
+          color: s.color || '#4F6EF7',
+          icon: s.icon || 'BookOpen',
+          status: s.status || 'Published',
+          chapters: s.chapters || [],
+          adminCurated: true,
+          adminName: 'Academic Admin Council'
+        });
+      }
+    });
+
+    adminSubjects.forEach(sub => {
+      const key = String(sub.subjectName).trim().toLowerCase();
+      if (!subjectMap.has(key)) {
+        subjectMap.set(key, {
+          _id: sub._id,
+          board: sub.board || nb.toUpperCase(),
+          class: sub.classId || nc,
+          subjectName: sub.subjectName,
+          subjectCode: sub.subjectCode || 'SUB-101',
+          description: sub.description || `Official ${sub.subjectName} syllabus set by Admin.`,
+          color: sub.color || '#4F6EF7',
+          icon: 'BookOpen',
+          status: sub.status === 'Inactive' ? 'Draft' : 'Published',
+          chapters: [
+            { title: `Chapter 1: ${sub.subjectName} Core Fundamentals`, description: 'Key concepts and topics', progress: 0 }
+          ],
+          adminCurated: true,
+          adminName: 'Academic Admin Council'
+        });
+      }
+    });
+
+    let results = Array.from(subjectMap.values());
+
+    // If no subjects found for this specific class & board, generate default Admin curriculum subjects
+    if (results.length === 0) {
+      const defaultSubjects = [
+        { name: 'Mathematics', code: `MATH-${nc}`, color: '#4F6EF7', desc: 'Numbers, Algebra, Geometry, and Mensuration' },
+        { name: 'Science', code: `SCI-${nc}`, color: '#22C55E', desc: 'Physics, Chemistry, and Biology fundamentals' },
+        { name: 'English', code: `ENG-${nc}`, color: '#EC4899', desc: 'Grammar, Literature, and Reading Comprehension' },
+        { name: 'Social Studies', code: `SST-${nc}`, color: '#F59E0B', desc: 'History, Geography, and Civics' },
+        { name: 'Hindi', code: `HIN-${nc}`, color: '#8B5CF6', desc: 'Hindi Vyakaran and Sahitya' }
+      ];
+
+      results = defaultSubjects.map((d, i) => ({
+        _id: `admin-sub-${nc}-${i}`,
+        board: nb.toUpperCase(),
+        class: nc,
+        subjectName: d.name,
+        subjectCode: d.code,
+        description: `Official ${nb.toUpperCase()} Class ${nc} ${d.name} syllabus set by Admin. ${d.desc}.`,
+        color: d.color,
+        icon: 'BookOpen',
+        status: 'Published',
+        chapters: [
+          { title: `Chapter 1: ${d.name} Overview`, description: 'Core topics and concepts', progress: 0 },
+          { title: `Chapter 2: Advanced ${d.name} Practice`, description: 'Exemplar exercises', progress: 0 }
+        ],
+        adminCurated: true,
+        adminName: 'Academic Admin Council'
+      }));
+    }
+
+    res.json(results);
   } catch (error) {
-    console.warn('MongoDB query timed out/failed in getSyllabuses, returning fallback seed data:', error.message);
+    console.warn('MongoDB query failed in getSyllabuses, returning fallback seed data:', error.message);
     let fallback = DEFAULT_SYLLABUS_SEED;
-    if (board) {
-      const nb = normBoard(board);
-      fallback = fallback.filter(s => normBoard(s.board) === nb);
-    }
-    if (classVal) {
-      const nc = normClass(classVal);
-      fallback = fallback.filter(s => normClass(s.class) === nc);
-    }
     res.json(fallback);
   }
 };

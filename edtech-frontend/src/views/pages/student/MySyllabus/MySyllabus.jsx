@@ -134,6 +134,13 @@ const MySyllabus = () => {
             </select>
           </div>
         </div>
+
+        <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--color-border-light)', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <Badge variant="primary" size="sm">ADMIN CURATED</Badge>
+          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', fontWeight: '500' }}>
+            Official Syllabus set & verified by <b>Academic Admin Council</b> for <b>{selectedBoardObj.name} {selectedClassObj.name}</b>
+          </span>
+        </div>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>

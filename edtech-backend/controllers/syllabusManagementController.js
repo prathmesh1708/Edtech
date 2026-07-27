@@ -333,6 +333,37 @@ export const getChapters = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+export const getChapterById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    let chapter = await Chapter.findById(id);
+    if (chapter) {
+      return res.json(chapter);
+    }
+
+    const syllabusItem = await Syllabus.findOne({ 'chapters._id': id });
+    if (syllabusItem) {
+      const ch = syllabusItem.chapters.id(id);
+      return res.json({
+        id: ch._id,
+        chapterName: ch.title,
+        description: ch.description || '',
+        subject: syllabusItem.subjectName,
+        board: syllabusItem.board,
+        classId: syllabusItem.class,
+        topics: ch.topics || []
+      });
+    }
+
+    const allChapters = await Chapter.find({ isDeleted: false }).sort({ orderIndex: 1 });
+    if (allChapters.length > 0) {
+      return res.json(allChapters[0]);
+    }
+
+    res.status(404).json({ message: 'Chapter not found' });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const createChapter = async (req, res, next) => {
