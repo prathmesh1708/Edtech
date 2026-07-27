@@ -12,6 +12,16 @@ const subscriptionSchema = new mongoose.Schema(
       required: [true, 'Please specify the plan name'],
       trim: true,
     },
+    targetClass: {
+      type: String,
+      default: 'All Classes',
+      trim: true,
+    },
+    targetSubject: {
+      type: String,
+      default: 'All Subjects',
+      trim: true,
+    },
     status: {
       type: String,
       required: [true, 'Please specify active status'],

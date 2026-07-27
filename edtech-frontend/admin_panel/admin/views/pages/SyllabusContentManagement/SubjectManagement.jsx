@@ -112,16 +112,28 @@ const SubjectManagement = () => {
   };
 
   const filteredItems = subjects.filter(s => {
-    const matchesSearch = s.subjectName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          s.subjectCode.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (s.subjectName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          (s.subjectCode || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesBoard = selectedBoard === 'All' || 
                          s.board === selectedBoard || 
-                         s.board.toLowerCase().includes(selectedBoard.toLowerCase()) ||
-                         selectedBoard.toLowerCase().includes(s.board.toLowerCase());
-    const matchesClass = selectedClass === 'All' || 
-                         s.classId === selectedClass || 
-                         s.classId.includes(selectedClass.replace('Class ', '')) ||
-                         selectedClass.includes(s.classId.replace('Class ', ''));
+                         (s.board && s.board.toLowerCase().includes(selectedBoard.toLowerCase())) ||
+                         (s.board && selectedBoard.toLowerCase().includes(s.board.toLowerCase()));
+    
+    let matchesClass = selectedClass === 'All';
+    if (!matchesClass && s.classId) {
+      const sClassStr = String(s.classId).trim();
+      const selClassStr = String(selectedClass).trim();
+      if (sClassStr.toLowerCase() === selClassStr.toLowerCase()) {
+        matchesClass = true;
+      } else {
+        const sDigits = sClassStr.replace(/\D/g, '');
+        const selDigits = selClassStr.replace(/\D/g, '');
+        if (sDigits && selDigits) {
+          matchesClass = (sDigits === selDigits);
+        }
+      }
+    }
+
     return matchesSearch && matchesBoard && matchesClass;
   });
 
