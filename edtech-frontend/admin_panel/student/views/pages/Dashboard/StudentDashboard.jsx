@@ -176,7 +176,7 @@ const StudentDashboard = () => {
         </div>
         
         {activeBanners && activeBanners.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: activeBanners.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-4)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: activeBanners.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(260px, 1fr))', gap: 'var(--space-4)' }}>
             {activeBanners.map(banner => (
               <div 
                 key={banner._id || banner.id} 
@@ -185,8 +185,8 @@ const StudentDashboard = () => {
                   borderRadius: 'var(--radius-xl)', 
                   overflow: 'hidden', 
                   position: 'relative', 
-                  minHeight: '140px',
-                  boxShadow: 'var(--shadow-sm)',
+                  minHeight: '180px',
+                  boxShadow: 'var(--shadow-md)',
                   border: '1px solid var(--color-border-light)',
                   cursor: banner.link ? 'pointer' : 'default'
                 }}
@@ -195,49 +195,34 @@ const StudentDashboard = () => {
                 <img 
                   src={banner.imageUrl} 
                   alt={banner.title} 
-                  style={{ width: '100%', height: '140px', objectFit: 'cover' }} 
+                  style={{ width: '100%', height: '100%', minHeight: '180px', maxHeight: '240px', objectFit: 'cover' }} 
                 />
                 <div style={{ 
                   position: 'absolute', 
                   bottom: 0, 
                   left: 0, 
                   right: 0, 
-                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.85), transparent)', 
-                  padding: '12px 16px',
-                  color: '#fff'
+                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.2), transparent)', 
+                  padding: '16px 20px',
+                  color: '#ffffff'
                 }}>
-                  <h4 style={{ fontSize: 'var(--text-sm)', fontWeight: '700', margin: 0 }}>{banner.title}</h4>
-                  <span style={{ fontSize: '10px', opacity: 0.8 }}>Target Audience: {banner.targeting || 'All Students'}</span>
+                  <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', margin: '0 0 4px 0', color: '#ffffff' }}>{banner.title}</h4>
+                  <span style={{ fontSize: 'var(--text-xs)', color: 'rgba(255, 255, 255, 0.9)' }}>Target Audience: {banner.targeting || 'All Students'}</span>
                 </div>
               </div>
             ))}
           </div>
         ) : (
           <div 
-            className="subject-card-hover"
-            style={{ 
-              borderRadius: 'var(--radius-xl)', 
-              background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)', 
-              padding: 'var(--space-6)',
-              color: '#ffffff',
-              boxShadow: 'var(--shadow-md)',
-              display: 'flex',
-              justify: 'space-between',
-              alignItems: 'center',
-              position: 'relative',
-              overflow: 'hidden'
-            }}
+            className={`${styles.bulletinBanner} subject-card-hover`}
+            style={{ cursor: 'pointer' }}
+            onClick={() => navigate(ROUTES.MY_SYLLABUS)}
           >
-            <div>
-              <Badge variant="primary" style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: 'none', marginBottom: '8px' }}>ADMIN BULLETIN</Badge>
-              <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '700', marginBottom: '4px' }}>Welcome to Study Wisely 2026 Academic Session! 🚀</h3>
-              <p style={{ fontSize: 'var(--text-xs)', opacity: 0.9 }}>Check out your updated CBSE Class {currentUser.classId || '7'} syllabus materials and smart notes created for term preparation.</p>
+            <div className={styles.bulletinTextGroup}>
+              <Badge variant="primary" style={{ background: 'rgba(255,255,255,0.22)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', marginBottom: '12px', padding: '6px 14px' }}>ADMIN BULLETIN</Badge>
+              <h3 className={styles.bulletinTitle}>Welcome to Study Wisely 2026 Academic Session! 🚀</h3>
+              <p className={styles.bulletinSub}>Check out your updated CBSE Class {currentUser.classId || '7'} syllabus materials, video walkthroughs, and smart notes created for term preparation.</p>
             </div>
-            <Link to={ROUTES.MY_SYLLABUS}>
-              <Button variant="secondary" size="sm" style={{ background: '#fff', color: '#1D4ED8', fontWeight: '700', whiteSpace: 'nowrap' }}>
-                Explore Materials
-              </Button>
-            </Link>
           </div>
         )}
       </div>

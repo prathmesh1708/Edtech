@@ -6,7 +6,7 @@ import {
   getGlobalSyllabuses, createGlobalSyllabus, updateGlobalSyllabus, deleteGlobalSyllabus,
   getBoards, createBoard, updateBoard, deleteBoard,
   getSubjects, createSubject, updateSubject, deleteSubject,
-  getChapters, createChapter, updateChapter, deleteChapter,
+  getChapters, getChapterById, createChapter, updateChapter, deleteChapter,
   getContentApprovals, updateApprovalStatus,
   getEducationalMaterials, createEducationalMaterial, updateEducationalMaterial, deleteEducationalMaterial
 } from '../controllers/syllabusManagementController.js';
@@ -50,6 +50,7 @@ router.delete('/subjects/:id', optionalAuth, deleteSubject);
 
 // Chapter Routes
 router.get('/chapters', optionalAuth, getChapters);
+router.get('/chapters/:id', optionalAuth, getChapterById);
 router.post('/chapters', optionalAuth, createChapter);
 router.put('/chapters/:id', optionalAuth, updateChapter);
 router.delete('/chapters/:id', optionalAuth, deleteChapter);

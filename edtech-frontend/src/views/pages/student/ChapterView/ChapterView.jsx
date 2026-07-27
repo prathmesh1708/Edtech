@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Download, Play, CheckCircle2, Circle, X, FileDown, Info } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useLocation } from 'react-router-dom';
+import { ArrowLeft, CheckCircle2, Circle, X, FileDown, Info, Play } from 'lucide-react';
 import { ROUTES } from '../../../../config/routes';
-import Button from '../../../components/common/Button/Button';
 import Card from '../../../components/common/Card/Card';
+import Badge from '../../../components/common/Badge/Badge';
 import { downloadPDF } from '../../../../utils/pdfGenerator';
+import syllabusManagementService from '../../../../models/services/syllabusManagementService';
 
 const s = {
   grid: {
@@ -21,7 +22,7 @@ const s = {
   topicRow: {
     display: 'flex',
     alignItems: 'center',
-    justify: 'space-between',
+    justifyContent: 'space-between',
     padding: 'var(--space-4)',
     borderBottom: '1px solid var(--color-border-light)',
     cursor: 'pointer'
@@ -37,7 +38,7 @@ const s = {
   resourceBtn: {
     display: 'flex',
     alignItems: 'center',
-    justify: 'space-between',
+    justifyContent: 'space-between',
     width: '100%',
     padding: 'var(--space-3) var(--space-4)',
     borderRadius: 'var(--radius-lg)',
@@ -76,27 +77,59 @@ const s = {
   }
 };
 
-const MOCK_TOPICS = [
-  { id: 't-1', name: 'Introduction to Real Numbers', completed: true },
-  { id: 't-2', name: 'Euclid\'s Division Lemma', completed: true },
-  { id: 't-3', name: 'Fundamental Theorem of Arithmetic', completed: false },
-  { id: 't-4', name: 'Revisiting Irrational Numbers', completed: false },
-  { id: 't-5', name: 'Rational Numbers and Decimals', completed: false },
+const DEFAULT_TOPICS = [
+  { id: 't-1', name: 'Core Concepts & Fundamentals Overview', completed: true },
+  { id: 't-2', name: 'Step-by-Step Solved Exemplars', completed: true },
+  { id: 't-3', name: 'Important Theorems & Formulas', completed: false },
+  { id: 't-4', name: 'Board Revision Questions & Practice Sheet', completed: false },
 ];
 
 const ChapterView = () => {
   const { chapterId } = useParams();
-  const navigate = useNavigate();
-  const [topics, setTopics] = useState(MOCK_TOPICS);
+  const location = useLocation();
+  const [chapter, setChapter] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [topics, setTopics] = useState(DEFAULT_TOPICS);
 
   // Download & Video states
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
 
+  useEffect(() => {
+    const fetchChapterData = async () => {
+      setLoading(true);
+      try {
+        if (chapterId) {
+          const res = await syllabusManagementService.getChapterById(chapterId);
+          if (res.data) {
+            setChapter(res.data);
+            if (res.data.topics && res.data.topics.length > 0) {
+              setTopics(res.data.topics.map((t, idx) => ({
+                id: t.id || t._id || `t-${idx}`,
+                name: t.name || t.title || `Topic ${idx + 1}`,
+                completed: !!t.completed
+              })));
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Could not fetch chapter by ID, using default chapter view:', err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChapterData();
+  }, [chapterId]);
+
   const toggleTopic = (id) => {
     setTopics(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
   };
+
+  const activeTitle = chapter?.chapterName || location.state?.chapterName || 'Chapter Study & Practice Notes';
+  const activeDesc = chapter?.description || 'Explore core concepts, step-by-step solved examples, and practice sheets.';
+  const activeSubject = chapter?.subject || location.state?.subjectName || 'General Syllabus';
 
   // Trigger simulated file download with progress
   const startDownload = () => {
@@ -113,18 +146,19 @@ const ChapterView = () => {
             setDownloadProgress(0);
 
             downloadPDF(
-              'Real_Numbers_Chapter_1_Notes',
-              'Chapter 1: Real Numbers Study Notes',
-              'Mathematics',
-              'CBSE Curriculum',
-              'Official Chapter 1 Real Numbers notes, Euclid Division Lemma proofs, and practice question bank.'
+              activeTitle.replace(/[^a-zA-Z0-9]/g, '_'),
+              activeTitle,
+              activeSubject,
+              chapter?.classId || 'CBSE Board',
+              activeDesc,
+              topics.map(t => ({ title: t.name, content: 'Detailed formula explanations and verified step-by-step NCERT solutions.' }))
             );
           }, 600);
           return 100;
         }
-        return prev + 20;
+        return prev + 25;
       });
-    }, 150);
+    }, 100);
   };
 
   return (
@@ -134,12 +168,14 @@ const ChapterView = () => {
       </Link>
 
       <div style={s.header}>
-        <Badge variant="primary" style={{ marginBottom: 'var(--space-2)' }}>Chapter 1</Badge>
+        <Badge variant="primary" style={{ marginBottom: 'var(--space-2)' }}>
+          {chapter?.chapterNumber ? `Chapter ${chapter.chapterNumber}` : 'Official Notes'}
+        </Badge>
         <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: '800', fontFamily: 'var(--font-heading)', marginBottom: 'var(--space-2)' }}>
-          Real Numbers
+          {loading ? 'Loading Chapter...' : activeTitle}
         </h2>
         <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)' }}>
-          Explore basic mathematical properties of rational and irrational numbers.
+          {activeDesc}
         </p>
       </div>
 
@@ -211,7 +247,7 @@ const ChapterView = () => {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Play size={16} color="var(--color-warning)" />
-                  <span>Video Lesson</span>
+                  <span>Video Walkthrough</span>
                 </div>
                 <Badge variant="primary" size="sm">12 Mins</Badge>
               </button>
@@ -225,7 +261,7 @@ const ChapterView = () => {
         <div style={s.modalOverlay} onClick={() => setIsPlayingVideo(false)}>
           <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
             <div style={{ padding: 'var(--space-4) var(--space-6)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-border-light)' }}>
-              <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', margin: 0 }}>Chapter 1: Real Numbers — Video Lesson Walkthrough</h4>
+              <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', margin: 0 }}>{activeTitle} — Video Lesson Walkthrough</h4>
               <button onClick={() => setIsPlayingVideo(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-secondary)' }}>
                 <X size={20} />
               </button>
@@ -240,7 +276,7 @@ const ChapterView = () => {
             </div>
             <div style={{ padding: 'var(--space-4) var(--space-6)', background: 'var(--color-bg)' }}>
               <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Info size={14} /> Instructor: <b>Prof. Rajesh Sharma</b> • 2.5k Student Views
+                <Info size={14} /> Instructor: <b>Prof. Rajesh Sharma</b> • Verified Study Material
               </span>
             </div>
           </div>

@@ -202,8 +202,81 @@
 }
 
 /* =============================================
-   Mobile Responsiveness Overrides
+   Admin Bulletin Banner Styles & Responsiveness
    ============================================= */
+
+.bulletinBanner {
+  border-radius: var(--radius-2xl);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
+  padding: 36px 32px;
+  min-height: 200px;
+  color: #ffffff;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  gap: 20px;
+}
+
+.bulletinTextGroup {
+  max-width: 680px;
+}
+
+.bulletinTitle {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  line-height: 1.3;
+  color: #ffffff;
+}
+
+.bulletinSub {
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.6;
+}
+
+.bulletinBtn {
+  background: #ffffff !important;
+  color: #1d4ed8 !important;
+  font-weight: 800 !important;
+  padding: 12px 24px !important;
+  border-radius: var(--radius-lg) !important;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .bulletinBanner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px 20px;
+    min-height: auto;
+    gap: 12px;
+    border-radius: var(--radius-xl);
+  }
+
+  .bulletinTitle {
+    font-size: 18px;
+    margin-bottom: 6px;
+    color: #ffffff;
+  }
+
+  .bulletinSub {
+    font-size: 13.5px;
+    color: rgba(255, 255, 255, 0.92);
+    line-height: 1.5;
+  }
+
+  .bulletinBtn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    padding: 10px 16px !important;
+  }
+}
 
 @media (max-width: 768px) {
   .welcomeCard {
