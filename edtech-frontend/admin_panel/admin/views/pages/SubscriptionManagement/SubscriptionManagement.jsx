@@ -67,6 +67,40 @@ const SubscriptionManagement = () => {
   const [activeTab, setActiveTab] = useState('subscriptions'); // 'subscriptions' or 'plans'
   const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
   const [plans, setPlans] = useState(initialPlans);
+
+  const [subjectPricing, setSubjectPricing] = useState(() => {
+    const saved = localStorage.getItem('admin_subject_pricing');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to load saved subject pricing', e);
+      }
+    }
+    return {
+      perSubjectMonthly: 499,
+      perSubjectQuarterly: 1299,
+      perSubjectYearly: 3999
+    };
+  });
+
+  const [cycleSettings, setCycleSettings] = useState(() => {
+    const saved = localStorage.getItem('admin_billing_cycle_settings');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to load saved cycle settings', e);
+      }
+    }
+    return { quarterlyDiscount: 10, yearlyDiscount: 20 };
+  });
+
+  const handleSaveCycleSettings = (e) => {
+    e.preventDefault();
+    localStorage.setItem('admin_billing_cycle_settings', JSON.stringify(cycleSettings));
+    toast.success('Global Billing Cycle Discounts updated successfully!', 'Settings Saved');
+  };
   
   // Search & Filter (Subscriptions)
   const [searchTerm, setSearchTerm] = useState('');
