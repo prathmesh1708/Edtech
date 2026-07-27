@@ -516,10 +516,17 @@ const SubscriptionManagement = () => {
           <Layers size={16} />
           <span>Subscription Plans</span>
         </button>
+        <button 
+          className={`${styles.tabButton} ${activeTab === 'billing_cycles' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('billing_cycles')}
+        >
+          <Calendar size={16} />
+          <span>Billing Cycle Rules</span>
+        </button>
       </div>
 
       {/* Conditional Rendering based on selected tab */}
-      {activeTab === 'subscriptions' ? (
+      {activeTab === 'subscriptions' && (
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <div className={styles.searchContainer}>
@@ -585,6 +592,7 @@ const SubscriptionManagement = () => {
                   <th>Subscription ID</th>
                   <th>Student Name</th>
                   <th>Plan Details</th>
+                  <th>Billing Cycle</th>
                   <th>Date Purchased</th>
                   <th>Expiry Date</th>
                   <th>Payment Status</th>
@@ -602,7 +610,7 @@ const SubscriptionManagement = () => {
                       <td>
                         <div className={styles.planDetailsCell}>
                           <span className={styles.planNameText}>{sub.planName}</span>
-                          <span className={styles.planBillingText}>₹{sub.price} / {sub.duration}</span>
+                          <span className={styles.planBillingText}>₹{sub.price}</span>
                           <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
                             <span className={styles.scopeTagClass} style={{ fontSize: '10px', padding: '1px 6px' }}>
                               <BookOpen size={10} /> {sub.targetClass || 'All Classes'}
@@ -612,6 +620,11 @@ const SubscriptionManagement = () => {
                             </span>
                           </div>
                         </div>
+                      </td>
+                      <td>
+                        <span className={styles.scopeTagClass} style={{ fontSize: '11px', padding: '3px 8px', fontWeight: '700', textTransform: 'capitalize', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <Calendar size={12} /> {sub.duration || 'Monthly'}
+                        </span>
                       </td>
                       <td>{formatDate(sub.purchaseDate)}</td>
                       <td>{formatDate(sub.expiryDate)}</td>
@@ -645,7 +658,7 @@ const SubscriptionManagement = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-text-tertiary)' }}>
+                    <td colSpan="8" style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-text-tertiary)' }}>
                       No subscriptions found matching the criteria.
                     </td>
                   </tr>
@@ -665,8 +678,10 @@ const SubscriptionManagement = () => {
             </div>
           </div>
         </div>
-      ) : (
-        /* Plans Tab view */
+      )}
+
+      {/* Plans Tab view */}
+      {activeTab === 'plans' && (
         <div>
           {/* Admin Subject-Wise Pricing Config Card */}
           <div className={styles.card} style={{ marginBottom: '24px', padding: '24px' }}>
@@ -686,7 +701,7 @@ const SubscriptionManagement = () => {
                 style={{ padding: '8px 16px', fontSize: '13px' }}
                 onClick={() => {
                   localStorage.setItem('admin_subject_pricing', JSON.stringify(subjectPricing));
-                  toast.success('Subject-wise pricing rates saved successfully.', 'Pricing Saved');
+                  alert('Subject-wise pricing rates saved successfully.');
                 }}
               >
                 Save Subject Rates
@@ -838,6 +853,78 @@ const SubscriptionManagement = () => {
                 No subscription plans found for the selected class/subject filter.
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Billing Cycles & Pricing Rules Tab view */}
+      {activeTab === 'billing_cycles' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+          {/* Card 2: Global Billing Cycle Discount Percentage Rules */}
+          <div className={styles.card} style={{ padding: '28px' }}>
+            <div style={{ marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0F172A', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Calendar size={20} color="#1B3A8C" />
+                Global Billing Cycle Discount Rules (%)
+              </h3>
+              <p style={{ color: '#64748B', fontSize: '13.5px', margin: '4px 0 0 0' }}>
+                Configure platform-default discount percentages applied automatically to custom subject subscription calculations.
+              </p>
+            </div>
+
+            <form onSubmit={handleSaveCycleSettings} style={{ maxWidth: '650px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Monthly Billing Cycle</label>
+                <input 
+                  type="text" 
+                  disabled 
+                  value="Standard Monthly Base Rate (0% Discount)" 
+                  className={styles.formInput}
+                  style={{ background: '#F8FAFC', color: '#64748B', cursor: 'not-allowed' }}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Quarterly Billing Cycle Discount (%)</label>
+                <input 
+                  type="number" 
+                  min="0" 
+                  max="100"
+                  required
+                  className={styles.formInput}
+                  value={cycleSettings.quarterlyDiscount}
+                  onChange={(e) => setCycleSettings({ ...cycleSettings, quarterlyDiscount: Number(e.target.value) })}
+                  placeholder="10"
+                />
+                <span style={{ fontSize: '12px', color: '#64748B', marginTop: '4px', display: 'block' }}>
+                  Applied to 3-month total base price. Example: ₹500/mo × 3 = ₹1,500 - 10% = ₹1,350.
+                </span>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Yearly Billing Cycle Discount (%)</label>
+                <input 
+                  type="number" 
+                  min="0" 
+                  max="100"
+                  required
+                  className={styles.formInput}
+                  value={cycleSettings.yearlyDiscount}
+                  onChange={(e) => setCycleSettings({ ...cycleSettings, yearlyDiscount: Number(e.target.value) })}
+                  placeholder="20"
+                />
+                <span style={{ fontSize: '12px', color: '#64748B', marginTop: '4px', display: 'block' }}>
+                  Applied to 12-month total base price. Example: ₹500/mo × 12 = ₹6,000 - 20% = ₹4,800.
+                </span>
+              </div>
+
+              <div>
+                <button type="submit" className={styles.primaryButton} style={{ marginTop: '8px' }}>
+                  Save Billing Cycle Discounts
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
