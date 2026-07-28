@@ -186,7 +186,17 @@ const MySyllabus = () => {
     createCustomPlan(customSelectedSubjects, customDuration);
   };
 
+  const isSubscribed = userSubscriptionStatus === 'ACTIVE';
+
   const handleSubjectClick = (subjectId) => {
+    if (!isSubscribed) {
+      alert('Subscription plan required to access course content! Please select and purchase a plan below.');
+      const plansSection = document.getElementById('subscription-plans-section');
+      if (plansSection) {
+        plansSection.scrollIntoView({ behavior: 'smooth' });
+      }
+      return;
+    }
     navigate(generateRoute(ROUTES.SUBJECT_DETAIL, { subjectId }));
   };
 
@@ -699,7 +709,19 @@ const MySyllabus = () => {
                   </span>
                 </div>
               </div>
-              <ChevronRight size={18} color="#94A3B8" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {!isSubscribed && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '700' }}>
+                    <Lock size={12} />
+                    <span>Locked</span>
+                  </div>
+                )}
+                {isSubscribed ? (
+                  <ChevronRight size={18} color="#94A3B8" />
+                ) : (
+                  <Lock size={18} color="#DC2626" />
+                )}
+              </div>
             </div>
           ))}
         </div>

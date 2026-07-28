@@ -270,73 +270,9 @@ export const getEducationalInsights = async (req, res, next) => {
       atRiskStudentsCount: Math.min(studentCount, 12),
     };
 
-    // Subject Performance Scores
-    const subjectScores = [
-      { subject: 'Mathematics', avgScore: 82, passRate: 88, classAvg: 79 },
-      { subject: 'Physics', avgScore: 78, passRate: 84, classAvg: 76 },
-      { subject: 'Chemistry', avgScore: 85, passRate: 91, classAvg: 81 },
-      { subject: 'Biology', avgScore: 89, passRate: 95, classAvg: 87 },
-      { subject: 'English Lit.', avgScore: 92, passRate: 97, classAvg: 90 },
-      { subject: 'Social Studies', avgScore: 86, passRate: 92, classAvg: 84 },
-    ];
-
-    // Learning Gaps & Difficult Topics
-    const learningGaps = [
-      { topic: 'Quadratic Equations & Complex Roots', subject: 'Mathematics', accuracy: 64, riskLevel: 'High' },
-      { topic: 'Thermodynamics & Heat Capacity', subject: 'Physics', accuracy: 68, riskLevel: 'High' },
-      { topic: 'Organic Chemistry Reactions', subject: 'Chemistry', accuracy: 71, riskLevel: 'Medium' },
-      { topic: 'Cell Division & Mitosis Phases', subject: 'Biology', accuracy: 76, riskLevel: 'Medium' },
-      { topic: 'Grammar: Direct & Indirect Speech', subject: 'English', accuracy: 79, riskLevel: 'Low' },
-    ];
-
-    // Class-by-Class Academic Ranking & Proficiency
-    const classProficiency = [
-      { grade: 'Class 6', avgScore: 88, passRate: 94 },
-      { grade: 'Class 7', avgScore: 86, passRate: 92 },
-      { grade: 'Class 8', avgScore: 84, passRate: 90 },
-      { grade: 'Class 9', avgScore: 81, passRate: 86 },
-      { grade: 'Class 10', avgScore: 83, passRate: 89 },
-      { grade: 'Class 11', avgScore: 78, passRate: 83 },
-      { grade: 'Class 12', avgScore: 82, passRate: 87 },
-    ];
-
-    // Study Hours vs Exam Score Correlation
-    const studyCorrelation = [
-      { studyHours: '1h - 2h', avgScore: 68 },
-      { studyHours: '2h - 3h', avgScore: 76 },
-      { studyHours: '3h - 4h', avgScore: 84 },
-      { studyHours: '4h - 5h', avgScore: 91 },
-      { studyHours: '5h+', avgScore: 96 },
-    ];
-
-    // At-Risk Students requiring intervention
-    let atRiskList = students.slice(0, 5).map((s, idx) => ({
-      id: s._id,
-      name: s.name,
-      email: s.email,
-      classId: s.classId || '10',
-      board: s.board || 'CBSE',
-      avgScore: `${62 + idx * 4}%`,
-      weakSubject: idx % 2 === 0 ? 'Physics' : 'Mathematics',
-      status: 'Needs Support',
-    }));
-
-    if (atRiskList.length === 0) {
-      atRiskList = [
-        { id: '1', name: 'Aarav Sharma', email: 'aarav@example.com', classId: '10', board: 'CBSE', avgScore: '64%', weakSubject: 'Physics', status: 'Needs Support' },
-        { id: '2', name: 'Priya Verma', email: 'priya@example.com', classId: '9', board: 'ICSE', avgScore: '68%', weakSubject: 'Mathematics', status: 'Needs Support' },
-        { id: '3', name: 'Rohan Gupta', email: 'rohan@example.com', classId: '10', board: 'CBSE', avgScore: '71%', weakSubject: 'Chemistry', status: 'Needs Support' },
-      ];
-    }
-
     res.json({
       success: true,
       kpis,
-      subjectScores,
-      learningGaps,
-      classProficiency,
-      studyCorrelation,
-      atRiskList,
     });
   } catch (error) {
     next(error);

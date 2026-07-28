@@ -2,10 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   Zap, Clock, ArrowRight, BookOpen, 
-  ChevronRight, CheckCircle2, Circle, Trophy, Plus, Trash2 
+  ChevronRight, CheckCircle2, Circle, Trophy, Plus, Trash2, Lock
 } from 'lucide-react';
 import { ROUTES, generateRoute } from '../../../../../src/config/routes';
 import { useAuth } from '../../../../../src/models/context/AuthContext';
+import { useSyllabusState } from '../../../../../src/models/context/SyllabusContext';
 import studentService from '../../../../../src/models/services/studentService';
 import bannerService from '../../../../../src/models/services/bannerService';
 import Card from '../../../../../src/views/components/common/Card/Card';
@@ -15,7 +16,10 @@ import styles from './StudentDashboard.module.css';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
+  const { userSubscriptionStatus } = useSyllabusState();
   const navigate = useNavigate();
+
+  const isSubscribed = userSubscriptionStatus === 'ACTIVE';
 
   const currentUser = user || { name: 'Aarav Sharma', classId: '10', board: 'CBSE' };
 
@@ -134,7 +138,12 @@ const StudentDashboard = () => {
   };
 
   const handleSubjectClick = (subjectId) => {
-    navigate(generateRoute(ROUTES.SUBJECT_DETAIL, { subjectId }));
+    if (!isSubscribed) {
+      alert('Subscription plan required to access course content! Redirecting to Subscription Plans...');
+      navigate(ROUTES.MY_SYLLABUS);
+    } else {
+      navigate(generateRoute(ROUTES.SUBJECT_DETAIL, { subjectId }));
+    }
   };
 
   const completedCount = todos.filter(t => t.completed).length;
@@ -286,15 +295,24 @@ const StudentDashboard = () => {
                 key={subj.id}
                 className={`${styles.subjectCard} subject-card-hover`}
                 onClick={() => handleSubjectClick(subj.id)}
+                style={{ cursor: 'pointer', position: 'relative' }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-                  <div className={styles.subjectIcon} style={{ background: `${subj.color || '#4F6EF7'}14`, color: subj.color || '#4F6EF7' }}>
-                    <BookOpen size={20} />
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+                    <div className={styles.subjectIcon} style={{ background: `${subj.color || '#4F6EF7'}14`, color: subj.color || '#4F6EF7' }}>
+                      <BookOpen size={20} />
+                    </div>
+                    <div>
+                      <h4 style={{ fontWeight: '700', fontSize: 'var(--text-base)', color: 'var(--color-text-primary)' }}>{subj.name}</h4>
+                      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-tertiary)' }}>{subj.chapters}</span>
+                    </div>
                   </div>
-                  <div>
-                    <h4 style={{ fontWeight: '700', fontSize: 'var(--text-base)', color: 'var(--color-text-primary)' }}>{subj.name}</h4>
-                    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-tertiary)' }}>{subj.chapters}</span>
-                  </div>
+                  {!isSubscribed && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '700' }}>
+                      <Lock size={12} />
+                      <span>Locked</span>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -307,9 +325,18 @@ const StudentDashboard = () => {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', color: subj.color || '#4F6EF7', fontSize: 'var(--text-xs)', fontWeight: '700', gap: '4px' }}>
-                  <span>Continue Study</span>
-                  <ChevronRight size={14} />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', color: isSubscribed ? (subj.color || '#4F6EF7') : '#DC2626', fontSize: 'var(--text-xs)', fontWeight: '700', gap: '4px' }}>
+                  {isSubscribed ? (
+                    <>
+                      <span>Continue Study</span>
+                      <ChevronRight size={14} />
+                    </>
+                  ) : (
+                    <>
+                      <Lock size={13} />
+                      <span>Unlock with Subscription</span>
+                    </>
+                  )}
                 </div>
               </div>
             ))}

@@ -50,14 +50,20 @@ const SubjectDetail = () => {
     fetchChapters,
     loading,
     selectedBoard,
-    selectedClass
+    selectedClass,
+    userSubscriptionStatus
   } = useSyllabusController();
 
   useEffect(() => {
+    if (userSubscriptionStatus !== 'ACTIVE') {
+      alert('Subscription plan required to access course content! Redirecting to Subscription Plans...');
+      navigate(ROUTES.MY_SYLLABUS);
+      return;
+    }
     if (subjectId) {
       fetchChapters(subjectId);
     }
-  }, [subjectId, fetchChapters]);
+  }, [subjectId, fetchChapters, userSubscriptionStatus, navigate]);
 
   const safeSubjects = Array.isArray(subjects) ? subjects : [];
   const safeChapters = Array.isArray(chapters) ? chapters : [];
