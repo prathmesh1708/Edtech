@@ -6,7 +6,7 @@ export const syllabusService = {
   
   // Get subjects for a specific board and class
   getSubjects: (boardId, classId) => 
-    api.get('/syllabus', { params: { board: boardId, class: classId, status: 'Published' } }),
+    api.get('/syllabus', { params: { board: boardId, class: classId } }),
   
   // Get a single syllabus item by ID
   getSyllabusById: (id) => api.get(`/syllabus/${id}`),

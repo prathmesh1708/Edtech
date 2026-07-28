@@ -169,8 +169,15 @@ export const getSyllabuses = async (req, res) => {
 
     const filter = {};
     if (board) filter.board = { $regex: nb, $options: 'i' };
-    if (classVal) filter.class = { $regex: nc, $options: 'i' };
-    if (status) filter.status = status;
+    if (classVal) {
+      filter.$or = [
+        { class: { $regex: nc, $options: 'i' } },
+        { classId: { $regex: nc, $options: 'i' } }
+      ];
+    }
+    if (status && status !== 'All') {
+      filter.status = { $regex: new RegExp(`^(${status}|Published|Active)$`, 'i') };
+    }
     if (search) {
       filter.$or = [
         { subjectName: { $regex: search, $options: 'i' } },
@@ -185,7 +192,12 @@ export const getSyllabuses = async (req, res) => {
     // 2. Fetch from Subject collection (set by Admin)
     const subjectFilter = { isDeleted: false };
     if (board) subjectFilter.board = { $regex: nb, $options: 'i' };
-    if (classVal) subjectFilter.classId = { $regex: nc, $options: 'i' };
+    if (classVal) {
+      subjectFilter.$or = [
+        { classId: { $regex: nc, $options: 'i' } },
+        { class: { $regex: nc, $options: 'i' } }
+      ];
+    }
     const adminSubjects = await Subject.find(subjectFilter).sort({ createdAt: -1 }).maxTimeMS(3000);
 
     // Merge and deduplicate by subject name

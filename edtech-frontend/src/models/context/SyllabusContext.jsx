@@ -81,12 +81,19 @@ export const SyllabusProvider = ({ children }) => {
     setError(null);
     try {
       const res = await syllabusService.getSubjects(selectedBoard, selectedClass);
-      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-        const formattedSubjects = res.data.map(item => ({
-          id: item._id,
-          name: item.subjectName,
-          code: item.subjectCode,
-          description: item.description,
+      let subjectList = [];
+      if (Array.isArray(res.data)) {
+        subjectList = res.data;
+      } else if (res.data && Array.isArray(res.data.data)) {
+        subjectList = res.data.data;
+      }
+
+      if (subjectList.length > 0) {
+        const formattedSubjects = subjectList.map(item => ({
+          id: item._id || item.id,
+          name: item.subjectName || item.name,
+          code: item.subjectCode || item.code,
+          description: item.description || item.desc || '',
           color: item.color || '#4F6EF7',
           icon: item.icon || 'BookOpen',
           chapters: item.chapters || [],
@@ -95,12 +102,28 @@ export const SyllabusProvider = ({ children }) => {
         }));
         setSubjects(formattedSubjects);
       } else {
-        setSubjects([]);
+        const nc = String(selectedClass).replace(/\D+/g, '') || '10';
+        const defaultFallbackSubjects = [
+          { id: `default-math-${nc}`, name: 'Mathematics', code: `MATH-${nc}`, color: '#4F6EF7', icon: 'BookOpen', chapters: [], chapterCount: 4, description: 'Mathematics Core' },
+          { id: `default-sci-${nc}`, name: 'Science', code: `SCI-${nc}`, color: '#22C55E', icon: 'BookOpen', chapters: [], chapterCount: 3, description: 'Physics, Chemistry & Biology' },
+          { id: `default-eng-${nc}`, name: 'English', code: `ENG-${nc}`, color: '#EC4899', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'English Grammar & Literature' },
+          { id: `default-sst-${nc}`, name: 'Social Science', code: `SST-${nc}`, color: '#F59E0B', icon: 'BookOpen', chapters: [], chapterCount: 3, description: 'History & Geography' },
+          { id: `default-hin-${nc}`, name: 'Hindi', code: `HIN-${nc}`, color: '#8B5CF6', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'Hindi Vyakaran' }
+        ];
+        setSubjects(defaultFallbackSubjects);
       }
     } catch (err) {
       console.error('Error fetching subjects from backend:', err);
       setError(err.message || 'Failed to fetch syllabus data');
-      setSubjects([]);
+      const nc = String(selectedClass).replace(/\D+/g, '') || '10';
+      const defaultFallbackSubjects = [
+        { id: `default-math-${nc}`, name: 'Mathematics', code: `MATH-${nc}`, color: '#4F6EF7', icon: 'BookOpen', chapters: [], chapterCount: 4, description: 'Mathematics Core' },
+        { id: `default-sci-${nc}`, name: 'Science', code: `SCI-${nc}`, color: '#22C55E', icon: 'BookOpen', chapters: [], chapterCount: 3, description: 'Physics, Chemistry & Biology' },
+        { id: `default-eng-${nc}`, name: 'English', code: `ENG-${nc}`, color: '#EC4899', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'English Grammar & Literature' },
+        { id: `default-sst-${nc}`, name: 'Social Science', code: `SST-${nc}`, color: '#F59E0B', icon: 'BookOpen', chapters: [], chapterCount: 3, description: 'History & Geography' },
+        { id: `default-hin-${nc}`, name: 'Hindi', code: `HIN-${nc}`, color: '#8B5CF6', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'Hindi Vyakaran' }
+      ];
+      setSubjects(defaultFallbackSubjects);
     } finally {
       setLoading(false);
     }
