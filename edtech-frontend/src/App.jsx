@@ -114,6 +114,7 @@ function App() {
                   
                   {/* Syllabus & Content Submodules */}
                   <Route path={ROUTES.ADMIN_SYLLABUS_GLOBAL} element={<GlobalSyllabusManagement />} />
+                  <Route path={ROUTES.ADMIN_SYLLABUS_SUBJECT_CHAPTER} element={<GlobalSyllabusManagement />} />
                   <Route path={ROUTES.ADMIN_SYLLABUS_BOARD} element={<BoardSyllabusManagement />} />
                   <Route path={ROUTES.ADMIN_SYLLABUS_SUBJECTS} element={<SubjectManagement />} />
                   <Route path={ROUTES.ADMIN_SYLLABUS_CHAPTERS} element={<ChapterManagement />} />

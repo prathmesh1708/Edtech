@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { Search, Plus, Edit2, Trash2, X, BookOpen, CheckCircle, Archive, Globe } from 'lucide-react';
 import { useToast } from '../../../../../src/views/components/common/Toast/Toast';
+import { ROUTES } from '../../../../../src/config/routes';
 import syllabusManagementService from '../../../../../src/models/services/syllabusManagementService';
 import styles from './SyllabusContentManagement.module.css';
 
@@ -8,7 +10,20 @@ import SyllabusManagement from '../../../../../src/views/pages/admin/SyllabusMan
 
 const GlobalSyllabusManagement = () => {
   const toast = useToast();
-  const [activeTab, setActiveTab] = useState('global'); // 'global' or 'subjects'
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  const isSubjectTabRoute = location.pathname === ROUTES.ADMIN_SYLLABUS_SUBJECT_CHAPTER || searchParams.get('tab') === 'subjects';
+  const [activeTab, setActiveTab] = useState(isSubjectTabRoute ? 'subjects' : 'global'); // 'global' or 'subjects'
+
+  useEffect(() => {
+    if (location.pathname === ROUTES.ADMIN_SYLLABUS_SUBJECT_CHAPTER || searchParams.get('tab') === 'subjects') {
+      setActiveTab('subjects');
+    } else {
+      setActiveTab('global');
+    }
+  }, [location.pathname, searchParams]);
+
   const [syllabuses, setSyllabuses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');

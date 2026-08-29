@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Users, BookOpen, Clock, Activity, Loader2 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -7,8 +8,14 @@ import {
 import analyticsService from '../../../../../src/models/services/analyticsService';
 import styles from './Dashboard.module.css';
 
-const StatCard = ({ title, value, icon: Icon, trend }) => (
-  <div className={styles.statCard}>
+const StatCard = ({ title, value, icon: Icon, trend, onClick }) => (
+  <div 
+    className={styles.statCard} 
+    onClick={onClick}
+    style={{ cursor: onClick ? 'pointer' : 'default' }}
+    role="button"
+    tabIndex={0}
+  >
     <div className={styles.statHeader}>
       <h3 className={styles.statTitle}>{title}</h3>
       <div className={styles.iconWrapper}>
@@ -26,6 +33,7 @@ const StatCard = ({ title, value, icon: Icon, trend }) => (
 );
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState({
     kpis: {
@@ -96,10 +104,34 @@ const Dashboard = () => {
       </header>
 
       <div className={styles.statsGrid}>
-        <StatCard title="Total Students" value={kpis?.totalActiveLearners || '0'} icon={Users} trend={12.5} />
-        <StatCard title="Active Courses" value={kpis?.totalSyllabuses || '0'} icon={BookOpen} trend={5.2} />
-        <StatCard title="Avg. Study Time" value={kpis?.avgStudyTime || '2h 45m'} icon={Clock} trend={8.6} />
-        <StatCard title="Platform Engagement" value={kpis?.quizCompletionRate || '88.4%'} icon={Activity} trend={8.1} />
+        <StatCard 
+          title="Total Students" 
+          value={kpis?.totalActiveLearners || '0'} 
+          icon={Users} 
+          trend={12.5} 
+          onClick={() => navigate('/admin/students')}
+        />
+        <StatCard 
+          title="Active Courses" 
+          value={kpis?.totalSyllabuses || '0'} 
+          icon={BookOpen} 
+          trend={5.2} 
+          onClick={() => navigate('/admin/syllabus/subjects')}
+        />
+        <StatCard 
+          title="Avg. Study Time" 
+          value={kpis?.avgStudyTime || '2h 45m'} 
+          icon={Clock} 
+          trend={8.6} 
+          onClick={() => navigate('/admin/educational-insights')}
+        />
+        <StatCard 
+          title="Platform Engagement" 
+          value={kpis?.quizCompletionRate || '88.4%'} 
+          icon={Activity} 
+          trend={8.1} 
+          onClick={() => navigate('/admin/analytics')}
+        />
       </div>
 
       <div className={styles.contentGrid}>

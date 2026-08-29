@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Mail, Lock, Phone, User, Eye, EyeOff, ArrowLeft, School, Shield } from 'lucide-react';
+import { Mail, Lock, Phone, User, Eye, EyeOff, ArrowLeft, School, Shield, MapPin } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ROUTES } from '../../../../config/routes';
 import useAuthController from '../../../../controllers/useAuthController';
@@ -22,7 +22,8 @@ const Register = () => {
     password: '',
     confirmPassword: '',
     childName: '',
-    schoolName: ''
+    schoolName: '',
+    address: ''
   });
   const [errors, setErrors] = useState({});
   
@@ -89,6 +90,9 @@ const Register = () => {
     if (!formData.schoolName) {
       newErrors.schoolName = 'School name is required';
     }
+    if (!formData.address) {
+      newErrors.address = 'Residential address is required';
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -106,6 +110,7 @@ const Register = () => {
       password: formData.password,
       role: isParentFlow ? 'parent' : 'student',
       schoolName: formData.schoolName,
+      address: formData.address,
       childName: isParentFlow ? formData.childName : undefined,
       classId: classParam,
       board: 'CBSE'
@@ -179,7 +184,7 @@ const Register = () => {
               required 
             />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+            <div className={styles.formGrid}>
               <Input 
                 label="Email Address" 
                 name="email" 
@@ -204,7 +209,7 @@ const Register = () => {
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+            <div className={styles.formGrid}>
               <div style={{ position: 'relative' }}>
                 <Input 
                   label="Password" 
@@ -265,7 +270,7 @@ const Register = () => {
               />
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+            <div className={styles.formGrid}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
                 <label style={{ fontSize: 'var(--text-xs)', fontWeight: '600', color: 'var(--color-text-secondary)' }}>
                   {isParentFlow ? "Child Class" : "Selected Class"}
@@ -307,6 +312,17 @@ const Register = () => {
                 required 
               />
             </div>
+
+            <Input 
+              label="Residential Address" 
+              name="address" 
+              value={formData.address} 
+              onChange={handleChange} 
+              placeholder="e.g. House No., Street Name, City, Pincode" 
+              iconLeft={<MapPin size={18} />} 
+              error={errors.address}
+              required 
+            />
 
             <Button variant="primary" size="lg" fullWidth loading={loading} type="submit" style={{ marginTop: 'var(--space-2)' }}>
               Register & Continue

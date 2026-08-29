@@ -13,7 +13,7 @@ const generateToken = (id) => {
 // @route   POST /api/auth/register
 // @access  Public
 export const registerUser = async (req, res, next) => {
-  const { name, email, password, role, phone, schoolName, childName, classId, board } = req.body;
+  const { name, email, password, role, phone, schoolName, childName, classId, board, address } = req.body;
 
   try {
     if (!name || !email || !password) {
@@ -61,6 +61,7 @@ export const registerUser = async (req, res, next) => {
         childName,
         classId,
         board: board || 'CBSE',
+        address,
       });
 
       if (user) {
@@ -74,6 +75,7 @@ export const registerUser = async (req, res, next) => {
           childName: user.childName,
           classId: user.classId,
           board: user.board,
+          address: user.address,
           token: generateToken(user._id),
         });
       } else {

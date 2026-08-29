@@ -1,0 +1,12 @@
+User-agent: *
+Disallow: /select-class
+Disallow: /login
+Disallow: /login/admin
+Disallow: /register
+Disallow: /verify-otp
+Disallow: /forgot-password
+Disallow: /profile-setup
+Disallow: /student/
+Disallow: /admin/
+
+Sitemap: https://edtech-frontend-lovat.vercel.app/sitemap.xml

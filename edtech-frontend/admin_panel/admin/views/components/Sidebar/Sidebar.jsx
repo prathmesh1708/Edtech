@@ -60,6 +60,7 @@ const Sidebar = () => {
       isParent: true,
       subItems: [
         { name: 'Global Syllabus Management', path: ROUTES.ADMIN_SYLLABUS_GLOBAL, icon: Globe },
+        { name: 'Subject & Chapter Syllabus', path: ROUTES.ADMIN_SYLLABUS_SUBJECT_CHAPTER, icon: BookOpen },
         { name: 'Board-wise Syllabus Management', path: ROUTES.ADMIN_SYLLABUS_BOARD, icon: Award },
         { name: 'Subject Management', path: ROUTES.ADMIN_SYLLABUS_SUBJECTS, icon: Layers },
         { name: 'Chapter Management', path: ROUTES.ADMIN_SYLLABUS_CHAPTERS, icon: ListOrdered },

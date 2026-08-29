@@ -222,7 +222,7 @@ export const deleteTodo = async (req, res) => {
  */
 export const getStudentsAdmin = async (req, res, next) => {
   try {
-    let students = await User.find({ role: 'student' }).sort({ createdAt: -1 });
+    let students = await User.find({ role: { $ne: 'admin' } }).sort({ createdAt: -1 });
 
     if (students.length === 0) {
       const initialSeeds = [
@@ -309,7 +309,7 @@ export const getStudentsAdmin = async (req, res, next) => {
       ];
 
       await User.insertMany(initialSeeds);
-      students = await User.find({ role: 'student' }).sort({ createdAt: -1 });
+      students = await User.find({ role: { $ne: 'admin' } }).sort({ createdAt: -1 });
     }
 
     res.json(students);

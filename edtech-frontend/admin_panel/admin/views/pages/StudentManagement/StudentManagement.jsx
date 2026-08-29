@@ -175,43 +175,40 @@ const StudentManagement = () => {
       const response = await studentService.getStudentsAdmin();
       const rawList = response.data || [];
 
-      if (rawList.length === 0) {
-        setStudents(DEFAULT_STUDENTS_MOCK);
-      } else {
-        const mapped = rawList.map((user, idx) => ({
-          id: user._id || user.id || `stu_${idx}`,
-          studentId: user.studentId || `STU-2026-${1040 + idx}`,
-          name: user.name || 'Student Name',
-          email: user.email || '',
-          phone: user.phone || '',
-          grade: user.classId || 'Class 10',
-          classId: user.classId || 'Class 10',
-          section: user.section || 'A',
-          rollNumber: user.rollNumber || `${100 + idx}`,
-          batch: user.batch || '2025-2026',
-          board: user.board || 'CBSE',
-          joined: user.createdAt ? user.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
-          status: user.status || 'Active',
-          dob: user.dob || '2008-05-15',
-          gender: user.gender || 'Male',
-          address: user.address || 'Education City',
-          parentName: user.parentName || 'Parent Guardian',
-          parentPhone: user.parentPhone || user.phone || '',
-          photoUrl: user.photoUrl || '',
-          emailVerified: user.emailVerified !== undefined ? user.emailVerified : true,
-          coursesEnrolled: 6,
-          assignmentsSubmitted: 18,
-          quizzesCompleted: 24,
-          averageScore: 91.0,
-          attendancePct: 95.0,
-          studyHours: 130,
-          certificatesEarned: 3
-        }));
-        setStudents(mapped);
-      }
+      const mapped = rawList.map((user, idx) => ({
+        id: user._id || user.id || `stu_${idx}`,
+        studentId: user.studentId || `STU-2026-${1000 + idx}`,
+        name: user.name || 'Student Name',
+        email: user.email || '',
+        phone: user.phone || '',
+        role: user.role || 'student',
+        grade: user.classId || 'Not Set',
+        classId: user.classId || 'Not Set',
+        section: user.section || 'A',
+        rollNumber: user.rollNumber || `${100 + idx}`,
+        batch: user.batch || '2025-2026',
+        board: user.board || 'CBSE',
+        joined: user.createdAt ? user.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
+        status: user.status || 'Active',
+        dob: user.dob || '',
+        gender: user.gender || 'Not Specified',
+        address: user.address || '',
+        parentName: user.parentName || user.childName || 'N/A',
+        parentPhone: user.parentPhone || user.phone || '',
+        photoUrl: user.photoUrl || '',
+        emailVerified: user.emailVerified !== undefined ? user.emailVerified : true,
+        coursesEnrolled: user.coursesEnrolled || 0,
+        assignmentsSubmitted: user.assignmentsSubmitted || 0,
+        quizzesCompleted: user.quizzesCompleted || 0,
+        averageScore: user.averageScore || 0,
+        attendancePct: user.attendancePct || 100,
+        studyHours: user.studyHours || 0,
+        certificatesEarned: user.certificatesEarned || 0
+      }));
+      setStudents(mapped);
     } catch (err) {
-      console.warn('Failed to load backend students, loading mock dataset:', err.message);
-      setStudents(DEFAULT_STUDENTS_MOCK);
+      console.warn('Failed to load backend students:', err.message);
+      toast.showToast('Could not load student list from server', 'error');
     } finally {
       setIsLoading(false);
     }

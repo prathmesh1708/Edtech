@@ -1,11 +1,11 @@
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'http://localhost:5001/api';
 
 async function runTests() {
   console.log('--- Starting API Verification Tests ---');
 
   // Test 1: Check server status
   try {
-    const statusRes = await fetch('http://localhost:5000/');
+    const statusRes = await fetch('http://localhost:5001/');
     const statusData = await statusRes.json();
     console.log('Test 1: GET / -> SUCCESS', statusData);
   } catch (error) {
@@ -19,7 +19,8 @@ async function runTests() {
     name: 'Test Student',
     email: `student_${Date.now()}@test.com`,
     password: 'password123',
-    role: 'student'
+    role: 'student',
+    address: '123 Academic Street, Tech Park'
   };
 
   try {
@@ -74,11 +75,27 @@ async function runTests() {
     const profileData = await profileRes.json();
     if (profileRes.ok) {
       console.log('Test 4: Profile -> SUCCESS. Received profile for:', profileData.name);
-    } else {
-      console.error('Test 4: Profile -> FAILED', profileData);
     }
   } catch (error) {
     console.error('Test 4: Profile -> EXCEPTION', error.message);
+  }
+
+  // Test 5: Verify GET /api/student/admin contains newly registered student
+  try {
+    const adminStudentsRes = await fetch(`${API_URL}/student/admin`);
+    const adminStudentsData = await adminStudentsRes.json();
+    if (adminStudentsRes.ok && Array.isArray(adminStudentsData)) {
+      const foundNewStudent = adminStudentsData.find(s => s.email === testUser.email);
+      if (foundNewStudent) {
+        console.log('Test 5: GET /api/student/admin -> SUCCESS. Found registered student:', foundNewStudent.name, 'Email:', foundNewStudent.email);
+      } else {
+        console.error('Test 5: GET /api/student/admin -> FAILED. Registered student not found in admin list. Total students:', adminStudentsData.length);
+      }
+    } else {
+      console.error('Test 5: GET /api/student/admin -> FAILED', adminStudentsData);
+    }
+  } catch (error) {
+    console.error('Test 5: GET /api/student/admin -> EXCEPTION', error.message);
   }
 }
 

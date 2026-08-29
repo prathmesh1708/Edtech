@@ -63,7 +63,7 @@ const OTPVerification = () => {
           <p className={styles.subtitle}>Enter the 6-digit code sent to your phone</p>
 
           <form onSubmit={handleVerify}>
-            <div style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'center', margin: 'var(--space-8) 0' }}>
+            <div className={styles.otpGroup}>
               {otp.map((digit, i) => (
                 <input
                   key={i}
@@ -74,11 +74,10 @@ const OTPVerification = () => {
                   value={digit}
                   onChange={(e) => handleChange(i, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(i, e)}
+                  className={styles.otpInput}
                   style={{
-                    width: '52px', height: '56px', textAlign: 'center', fontSize: 'var(--text-2xl)',
-                    fontWeight: '700', borderRadius: 'var(--radius-lg)', border: `2px solid ${digit ? 'var(--color-accent)' : 'var(--color-border)'}`,
-                    outline: 'none', transition: 'all 0.2s', background: digit ? 'rgba(79,110,247,0.04)' : 'var(--color-surface)',
-                    fontFamily: 'var(--font-heading)',
+                    borderColor: digit ? 'var(--color-accent)' : 'var(--color-border)',
+                    background: digit ? 'rgba(79,110,247,0.04)' : 'var(--color-surface)',
                   }}
                   onFocus={(e) => (e.target.style.borderColor = 'var(--color-accent)', e.target.style.boxShadow = '0 0 0 3px rgba(79,110,247,0.12)')}
                   onBlur={(e) => (e.target.style.borderColor = digit ? 'var(--color-accent)' : 'var(--color-border)', e.target.style.boxShadow = 'none')}

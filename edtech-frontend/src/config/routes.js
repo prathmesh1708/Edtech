@@ -50,6 +50,7 @@ export const ROUTES = {
   
   // Syllabus & Content Submodules
   ADMIN_SYLLABUS_GLOBAL: '/admin/syllabus/global',
+  ADMIN_SYLLABUS_SUBJECT_CHAPTER: '/admin/syllabus/subject-chapter',
   ADMIN_SYLLABUS_BOARD: '/admin/syllabus/board-wise',
   ADMIN_SYLLABUS_SUBJECTS: '/admin/syllabus/subjects',
   ADMIN_SYLLABUS_CHAPTERS: '/admin/syllabus/chapters',

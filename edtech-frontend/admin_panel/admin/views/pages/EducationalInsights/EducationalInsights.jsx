@@ -301,65 +301,6 @@ const EducationalInsights = () => {
           </div>
         </div>
       </div>
-
-      {/* Row 3: At-Risk Students Intervention Table */}
-      <div className={styles.chartCard}>
-        <div className={styles.cardHeader}>
-          <div>
-            <h2 className={styles.cardTitle}>Students Requiring Academic Support</h2>
-            <p className={styles.cardSubtitle}>Learners scoring below academic target threshold for proactive guidance</p>
-          </div>
-        </div>
-
-        <div className={styles.tableContainer}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Student Name</th>
-                <th>Class / Board</th>
-                <th>Avg Test Score</th>
-                <th>Challenging Subject</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {atRiskList.map((student) => (
-                <tr key={student.id}>
-                  <td>
-                    <div className={styles.studentNameCell}>
-                      <div className={styles.avatar}>{student.name.charAt(0)}</div>
-                      <div>
-                        <div className={styles.studentName}>{student.name}</div>
-                        <div className={styles.studentEmail}>{student.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>Class {student.classId} ({student.board})</td>
-                  <td>
-                    <span className={styles.scoreHighlight}>{student.avgScore}</span>
-                  </td>
-                  <td>
-                    <span className={styles.weakBadge}>{student.weakSubject}</span>
-                  </td>
-                  <td>
-                    <span className={styles.needsSupportBadge}>{student.status}</span>
-                  </td>
-                  <td>
-                    <button 
-                      className={styles.supportBtn}
-                      onClick={() => handleSupportNote(student.name)}
-                    >
-                      <Send size={14} />
-                      <span>Send Support Note</span>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
   );
 };

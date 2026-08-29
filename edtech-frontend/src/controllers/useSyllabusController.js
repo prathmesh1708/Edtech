@@ -104,7 +104,9 @@ const useSyllabusController = () => {
     selectClass,
     fetchChapters,
     refreshSubjects,
-    refreshPlans
+    refreshPlans,
+    currentSubject,
+    chapters
   };
 };
 

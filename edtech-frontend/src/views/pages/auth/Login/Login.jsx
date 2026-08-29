@@ -151,7 +151,7 @@ const Login = () => {
                   required 
                 />
                 
-                <div style={{ position: 'relative' }}>
+                <div className={styles.passwordWrapper}>
                   <Input 
                     label="Password" 
                     name="password" 

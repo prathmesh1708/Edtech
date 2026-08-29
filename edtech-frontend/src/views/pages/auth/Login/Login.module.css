@@ -36,7 +36,82 @@
 .socialBtn:hover { border-color: var(--color-accent); box-shadow: var(--shadow-sm); }
 .footer { text-align: center; margin-top: var(--space-6); font-size: var(--text-sm); color: var(--color-text-secondary); }
 .footer a { color: var(--color-accent); font-weight: 600; }
-.forgot { text-align: right; margin-top: -10px; margin-bottom: var(--space-2); }
-.forgot a { font-size: var(--text-xs); color: var(--color-accent); font-weight: 600; text-decoration: none; }
-.forgot a:hover { text-decoration: underline; }
-@media (max-width: 1024px) { .page { grid-template-columns: 1fr; } .right { display: none; } }
+.passwordWrapper { display: flex; flex-direction: column; }
+.forgot { display: flex; justify-content: flex-end; margin-top: 6px; }
+.forgot a { font-size: var(--text-xs); color: var(--color-accent); font-weight: 600; text-decoration: none; transition: color 0.2s; }
+.forgot a:hover { text-decoration: underline; color: var(--color-accent-dark); }
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.otpGroup {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 380px;
+  margin: var(--space-6) auto;
+  box-sizing: border-box;
+}
+
+.otpInput {
+  width: 100%;
+  aspect-ratio: 1 / 1.1;
+  max-width: 52px;
+  max-height: 56px;
+  min-width: 32px;
+  text-align: center;
+  font-size: clamp(1.1rem, 4vw, 1.5rem);
+  font-weight: 700;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--color-border);
+  outline: none;
+  transition: all 0.2s ease;
+  background: var(--color-surface);
+  font-family: var(--font-heading);
+  box-sizing: border-box;
+  padding: 0;
+}
+
+@media (max-width: 1024px) {
+  .page { grid-template-columns: 1fr; }
+  .right { display: none; }
+}
+
+@media (max-width: 640px) {
+  .left {
+    padding: var(--space-6) var(--space-4);
+  }
+  .formContainer {
+    max-width: 100%;
+  }
+  .title {
+    font-size: var(--text-2xl);
+  }
+}
+
+@media (max-width: 520px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+}
+
+@media (max-width: 480px) {
+  .left {
+    padding: var(--space-4) var(--space-3);
+  }
+  .logo img {
+    height: 48px;
+  }
+  .logoRow {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .otpGroup {
+    gap: 6px;
+  }
+}
