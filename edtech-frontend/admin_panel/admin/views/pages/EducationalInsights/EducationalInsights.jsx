@@ -6,15 +6,8 @@ import {
   AlertTriangle, 
   CheckCircle, 
   Filter, 
-  Send, 
-  TrendingUp, 
-  Clock, 
-  Download,
   Loader2
 } from 'lucide-react';
-import { 
-  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Legend
-} from 'recharts';
 import analyticsService from '../../../../../src/models/services/analyticsService';
 import styles from './EducationalInsights.module.css';
 
@@ -30,42 +23,6 @@ const EducationalInsights = () => {
       assignmentPassRate: '89.8%',
       atRiskStudentsCount: 12,
     },
-    subjectScores: [
-      { subject: 'Mathematics', avgScore: 82, passRate: 88, classAvg: 79 },
-      { subject: 'Physics', avgScore: 78, passRate: 84, classAvg: 76 },
-      { subject: 'Chemistry', avgScore: 85, passRate: 91, classAvg: 81 },
-      { subject: 'Biology', avgScore: 89, passRate: 95, classAvg: 87 },
-      { subject: 'English Lit.', avgScore: 92, passRate: 97, classAvg: 90 },
-      { subject: 'Social Studies', avgScore: 86, passRate: 92, classAvg: 84 },
-    ],
-    learningGaps: [
-      { topic: 'Quadratic Equations & Complex Roots', subject: 'Mathematics', accuracy: 64, riskLevel: 'High' },
-      { topic: 'Thermodynamics & Heat Capacity', subject: 'Physics', accuracy: 68, riskLevel: 'High' },
-      { topic: 'Organic Chemistry Reactions', subject: 'Chemistry', accuracy: 71, riskLevel: 'Medium' },
-      { topic: 'Cell Division & Mitosis Phases', subject: 'Biology', accuracy: 76, riskLevel: 'Medium' },
-      { topic: 'Grammar: Direct & Indirect Speech', subject: 'English', accuracy: 79, riskLevel: 'Low' },
-    ],
-    classProficiency: [
-      { grade: 'Class 6', avgScore: 88, passRate: 94 },
-      { grade: 'Class 7', avgScore: 86, passRate: 92 },
-      { grade: 'Class 8', avgScore: 84, passRate: 90 },
-      { grade: 'Class 9', avgScore: 81, passRate: 86 },
-      { grade: 'Class 10', avgScore: 83, passRate: 89 },
-      { grade: 'Class 11', avgScore: 78, passRate: 83 },
-      { grade: 'Class 12', avgScore: 82, passRate: 87 },
-    ],
-    studyCorrelation: [
-      { studyHours: '1h - 2h', avgScore: 68 },
-      { studyHours: '2h - 3h', avgScore: 76 },
-      { studyHours: '3h - 4h', avgScore: 84 },
-      { studyHours: '4h - 5h', avgScore: 91 },
-      { studyHours: '5h+', avgScore: 96 },
-    ],
-    atRiskList: [
-      { id: '1', name: 'Aarav Sharma', email: 'aarav@example.com', classId: '10', board: 'CBSE', avgScore: '64%', weakSubject: 'Physics', status: 'Needs Support' },
-      { id: '2', name: 'Priya Verma', email: 'priya@example.com', classId: '9', board: 'ICSE', avgScore: '68%', weakSubject: 'Mathematics', status: 'Needs Support' },
-      { id: '3', name: 'Rohan Gupta', email: 'rohan@example.com', classId: '10', board: 'CBSE', avgScore: '71%', weakSubject: 'Chemistry', status: 'Needs Support' },
-    ],
   });
 
   useEffect(() => {
@@ -86,11 +43,7 @@ const EducationalInsights = () => {
     }
   };
 
-  const handleSupportNote = (studentName) => {
-    alert(`Support note sent to ${studentName} successfully!`);
-  };
-
-  const { kpis, subjectScores, learningGaps, classProficiency, studyCorrelation, atRiskList } = insightsData;
+  const { kpis } = insightsData;
 
   return (
     <div className={styles.container}>
@@ -98,7 +51,7 @@ const EducationalInsights = () => {
       <header className={styles.header}>
         <div>
           <h1 className={styles.pageTitle}>Educational Performance Insights</h1>
-          <p className={styles.pageSubtitle}>In-depth analysis of test scores, syllabus mastery, learning gaps, and student academic progress.</p>
+          <p className={styles.pageSubtitle}>In-depth analysis of test scores, syllabus mastery, and student academic progress.</p>
         </div>
 
         <div className={styles.controlsGroup}>
@@ -152,7 +105,7 @@ const EducationalInsights = () => {
               <Award size={20} className={styles.blueIcon} />
             </div>
           </div>
-          <div className={styles.kpiValue}>{kpis.avgTestScore}</div>
+          <div className={styles.kpiValue}>{kpis?.avgTestScore || '84.2%'}</div>
           <div className={styles.kpiSub}>Target threshold: 75.0%</div>
         </div>
 
@@ -163,7 +116,7 @@ const EducationalInsights = () => {
               <BookOpen size={20} className={styles.greenIcon} />
             </div>
           </div>
-          <div className={styles.kpiValue}>{kpis.syllabusMastery}</div>
+          <div className={styles.kpiValue}>{kpis?.syllabusMastery || '91.5%'}</div>
           <div className={styles.kpiSub}>Chapter completion accuracy</div>
         </div>
 
@@ -174,7 +127,7 @@ const EducationalInsights = () => {
               <CheckCircle size={20} className={styles.purpleIcon} />
             </div>
           </div>
-          <div className={styles.kpiValue}>{kpis.assignmentPassRate}</div>
+          <div className={styles.kpiValue}>{kpis?.assignmentPassRate || '89.8%'}</div>
           <div className={styles.kpiSub}>Passed exams on 1st attempt</div>
         </div>
 
@@ -185,10 +138,11 @@ const EducationalInsights = () => {
               <AlertTriangle size={20} className={styles.amberIcon} />
             </div>
           </div>
-          <div className={styles.kpiValue}>{kpis.atRiskStudentsCount} Students</div>
+          <div className={styles.kpiValue}>{kpis?.atRiskStudentsCount || 0} Students</div>
           <div className={styles.kpiSub}>Average score below 72%</div>
         </div>
       </div>
+<<<<<<< HEAD
 
       {/* Main Row 1: Subject Test Scores & Learning Gap Analysis */}
       <div className={styles.chartsGridTwo}>
@@ -301,6 +255,8 @@ const EducationalInsights = () => {
           </div>
         </div>
       </div>
+=======
+>>>>>>> 73e255ab40df3bc835accc986132fd8a82a0e26e
     </div>
   );
 };

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
+import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, Circle, X, FileDown, Info, Play } from 'lucide-react';
 import { ROUTES } from '../../../../config/routes';
 import Card from '../../../components/common/Card/Card';
 import Badge from '../../../components/common/Badge/Badge';
 import { downloadPDF } from '../../../../utils/pdfGenerator';
 import syllabusManagementService from '../../../../models/services/syllabusManagementService';
+import { useSyllabusState } from '../../../../models/context/SyllabusContext';
 
 const s = {
   grid: {
@@ -87,6 +88,8 @@ const DEFAULT_TOPICS = [
 const ChapterView = () => {
   const { chapterId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { userSubscriptionStatus } = useSyllabusState();
   const [chapter, setChapter] = useState(null);
   const [loading, setLoading] = useState(true);
   const [topics, setTopics] = useState(DEFAULT_TOPICS);
@@ -97,6 +100,12 @@ const ChapterView = () => {
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
 
   useEffect(() => {
+    if (userSubscriptionStatus !== 'ACTIVE') {
+      alert('Subscription plan required to access course content! Redirecting to Subscription Plans...');
+      navigate(ROUTES.MY_SYLLABUS);
+      return;
+    }
+
     const fetchChapterData = async () => {
       setLoading(true);
       try {

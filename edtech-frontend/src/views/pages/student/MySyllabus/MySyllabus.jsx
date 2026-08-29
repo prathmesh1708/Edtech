@@ -109,6 +109,7 @@ const MySyllabus = () => {
     selectedPlanId,
     currentPlan,
     subjectPricing,
+    cycleSettings,
     userSubscriptionStatus,
     paymentMessage,
     selectPlan,
@@ -151,25 +152,56 @@ const MySyllabus = () => {
     setCustomSelectedSubjects(prev => prev.filter(s => s !== subjName));
   };
 
-  const activeRate = customDuration === 'Yearly'
-    ? (subjectPricing?.perSubjectYearly || 3999)
-    : customDuration === 'Quarterly'
-    ? (subjectPricing?.perSubjectQuarterly || 1299)
-    : (subjectPricing?.perSubjectMonthly || 499);
+  const baseMonthlyPrice = subjectPricing?.perSubjectMonthly || 499;
+  const qDiscount = cycleSettings?.quarterlyDiscount || 10;
+  const yDiscount = cycleSettings?.yearlyDiscount || 20;
 
-  const calculatedTotalPrice = customSelectedSubjects.length * activeRate;
+  const count = customSelectedSubjects.length;
+  let calculatedTotalPrice = 0;
+  let grossPrice = 0;
+  let savingsAmount = 0;
+  let activeDiscountLabel = '';
+
+  if (customDuration === 'Yearly') {
+    grossPrice = count * baseMonthlyPrice * 12;
+    const discAmount = grossPrice * (yDiscount / 100);
+    calculatedTotalPrice = Math.round(grossPrice - discAmount);
+    savingsAmount = Math.round(discAmount);
+    activeDiscountLabel = `${yDiscount}% Admin Yearly Discount`;
+  } else if (customDuration === 'Quarterly') {
+    grossPrice = count * baseMonthlyPrice * 3;
+    const discAmount = grossPrice * (qDiscount / 100);
+    calculatedTotalPrice = Math.round(grossPrice - discAmount);
+    savingsAmount = Math.round(discAmount);
+    activeDiscountLabel = `${qDiscount}% Admin Quarterly Discount`;
+  } else {
+    grossPrice = count * baseMonthlyPrice;
+    calculatedTotalPrice = grossPrice;
+    savingsAmount = 0;
+    activeDiscountLabel = 'Standard Monthly Rate';
+  }
 
   const handleActivateCustomPlan = () => {
     if (customSelectedSubjects.length === 0) return;
     createCustomPlan(customSelectedSubjects, customDuration);
   };
 
+  const isSubscribed = userSubscriptionStatus === 'ACTIVE';
+
   const handleSubjectClick = (subjectId) => {
+    if (!isSubscribed) {
+      alert('Subscription plan required to access course content! Please select and purchase a plan below.');
+      const plansSection = document.getElementById('subscription-plans-section');
+      if (plansSection) {
+        plansSection.scrollIntoView({ behavior: 'smooth' });
+      }
+      return;
+    }
     navigate(generateRoute(ROUTES.SUBJECT_DETAIL, { subjectId }));
   };
 
-  const selectedBoardObj = BOARDS.find(b => b.id === selectedBoard) || { name: String(selectedBoard || 'CBSE').toUpperCase() };
-  const selectedClassObj = CLASSES.find(c => String(c.id) === selectedClass) || { name: `Class ${selectedClass || 10}` };
+  const selectedBoardObj = BOARDS.find(b => b.id === selectedBoard) || { name: selectedBoard?.toUpperCase() };
+  const selectedClassObj = CLASSES.find(c => String(c.id) === selectedClass) || { name: `Class ${selectedClass}` };
   const availableSubjectList = allSubjects && allSubjects.length > 0 ? allSubjects : subjects;
 
   return (
@@ -190,13 +222,13 @@ const MySyllabus = () => {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '8px 14px',
-              borderRadius: '8px',
-              border: '1px solid #CBD5E1',
-              background: '#FFFFFF',
-              fontSize: '13px',
+              padding: '6px 12px',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--color-border)',
+              background: 'var(--color-surface)',
+              fontSize: '12px',
               fontWeight: '600',
-              color: '#475569',
+              color: 'var(--color-text-secondary)',
               cursor: 'pointer'
             }}
           >
@@ -205,7 +237,7 @@ const MySyllabus = () => {
           </button>
         </div>
 
-        <div style={{ display: 'flex', gap: '16px', marginTop: '16px', flexWrap: 'wrap' }}>
+        <div style={s.filterRow}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#94A3B8', fontWeight: '700' }}>BOARD</span>
             <select
@@ -251,13 +283,6 @@ const MySyllabus = () => {
               ))}
             </select>
           </div>
-        </div>
-
-        <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--color-border-light)', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <Badge variant="primary" size="sm">ADMIN CURATED</Badge>
-          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', fontWeight: '500' }}>
-            Official Syllabus set & verified by <b>Academic Admin Council</b> for <b>{selectedBoardObj.name} {selectedClassObj.name}</b>
-          </span>
         </div>
       </div>
 
@@ -308,18 +333,31 @@ const MySyllabus = () => {
               Build Your Custom Subject Subscription ({selectedClassObj.name})
             </h3>
             <p style={{ fontSize: '13.5px', color: '#E2E8F0', marginTop: '6px', maxWidth: '640px', lineHeight: '1.5' }}>
-              Select specific subjects from the dropdown below. Pricing is automatically calculated per subject based on Admin rate (<b>₹{activeRate}/{customDuration.toLowerCase()}</b> per subject).
+              Select specific subjects from the dropdown below. Base Rate: <b>₹{baseMonthlyPrice}/mo</b> per subject. Discounts configured by Admin: <b>{qDiscount}% OFF Quarterly</b> & <b>{yDiscount}% OFF Yearly</b>.
             </p>
           </div>
 
           <div style={{ background: 'rgba(255, 255, 255, 0.12)', backdropFilter: 'blur(8px)', padding: '12px 20px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.2)', textAlign: 'right' }}>
             <span style={{ fontSize: '10px', textTransform: 'uppercase', color: '#CBD5E1', fontWeight: '700', display: 'block' }}>CALCULATED TOTAL PRICE</span>
-            <span style={{ fontSize: '26px', fontWeight: '900', color: '#86EFAC' }}>
-              ₹{calculatedTotalPrice}
-            </span>
-            <span style={{ fontSize: '11px', color: '#E2E8F0', display: 'block' }}>
-              ({customSelectedSubjects.length} {customSelectedSubjects.length === 1 ? 'subject' : 'subjects'} x ₹{activeRate})
-            </span>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'flex-end', gap: '8px', margin: '2px 0' }}>
+              {savingsAmount > 0 && (
+                <span style={{ fontSize: '16px', color: '#94A3B8', textDecoration: 'line-through', fontWeight: '600' }}>
+                  ₹{grossPrice}
+                </span>
+              )}
+              <span style={{ fontSize: '28px', fontWeight: '900', color: '#86EFAC' }}>
+                ₹{calculatedTotalPrice}
+              </span>
+            </div>
+            {savingsAmount > 0 ? (
+              <span style={{ fontSize: '11.5px', color: '#FDE047', fontWeight: '700', display: 'block' }}>
+                🔥 SAVE ₹{savingsAmount} ({activeDiscountLabel})
+              </span>
+            ) : (
+              <span style={{ fontSize: '11px', color: '#E2E8F0', display: 'block' }}>
+                {customSelectedSubjects.length} {customSelectedSubjects.length === 1 ? 'subject' : 'subjects'} (Standard Rate)
+              </span>
+            )}
           </div>
         </div>
 
@@ -363,24 +401,42 @@ const MySyllabus = () => {
               2. Select Billing Cycle:
             </label>
             <div style={{ display: 'flex', gap: '6px' }}>
-              {['Monthly', 'Quarterly', 'Yearly'].map(cycle => (
+              {[
+                { id: 'Monthly', label: 'Monthly', badge: 'Base Rate' },
+                { id: 'Quarterly', label: 'Quarterly', badge: `${qDiscount}% OFF` },
+                { id: 'Yearly', label: 'Yearly', badge: `${yDiscount}% OFF` }
+              ].map(cycle => (
                 <button
-                  key={cycle}
+                  key={cycle.id}
                   type="button"
-                  onClick={() => setCustomDuration(cycle)}
+                  onClick={() => setCustomDuration(cycle.id)}
                   style={{
                     flex: 1,
-                    padding: '9px 10px',
+                    padding: '8px 6px',
                     borderRadius: '8px',
                     border: '1px solid rgba(255, 255, 255, 0.3)',
-                    background: customDuration === cycle ? '#86EFAC' : 'rgba(255, 255, 255, 0.1)',
-                    color: customDuration === cycle ? '#064E3B' : '#ffffff',
+                    background: customDuration === cycle.id ? '#86EFAC' : 'rgba(255, 255, 255, 0.1)',
+                    color: customDuration === cycle.id ? '#064E3B' : '#ffffff',
                     fontWeight: '700',
                     fontSize: '12px',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '2px'
                   }}
                 >
-                  {cycle}
+                  <span>{cycle.label}</span>
+                  <span style={{
+                    fontSize: '9.5px',
+                    padding: '1px 5px',
+                    borderRadius: '4px',
+                    background: customDuration === cycle.id ? '#15803D' : 'rgba(255, 255, 255, 0.2)',
+                    color: '#ffffff',
+                    fontWeight: '800'
+                  }}>
+                    {cycle.badge}
+                  </span>
                 </button>
               ))}
             </div>
@@ -653,7 +709,19 @@ const MySyllabus = () => {
                   </span>
                 </div>
               </div>
-              <ChevronRight size={18} color="#94A3B8" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {!isSubscribed && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '700' }}>
+                    <Lock size={12} />
+                    <span>Locked</span>
+                  </div>
+                )}
+                {isSubscribed ? (
+                  <ChevronRight size={18} color="#94A3B8" />
+                ) : (
+                  <Lock size={18} color="#DC2626" />
+                )}
+              </div>
             </div>
           ))}
         </div>

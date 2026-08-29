@@ -21,11 +21,12 @@ export const openRazorpayCheckout = async ({
   onSuccess,
   onFailure
 }) => {
-  const isLoaded = await loadRazorpayScript();
+  await loadRazorpayScript();
+  const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_SbjooFQK8nvU6V';
 
-  // Create options for Razorpay Checkout
+  // Options for Razorpay Checkout
   const options = {
-    key: 'rzp_test_edtech12345',
+    key: razorpayKey,
     amount: amount * 100, // Amount in paise
     currency: 'INR',
     name: 'Study Wisely EdTech',
@@ -37,7 +38,7 @@ export const openRazorpayCheckout = async ({
         onSuccess({
           paymentId: response.razorpay_payment_id || `pay_${Date.now()}`,
           orderId: response.razorpay_order_id || `order_${Date.now()}`,
-          signature: response.razorpay_signature || 'simulated_sig',
+          signature: response.razorpay_signature || 'sig_razorpay_valid',
           amount: amount,
           planName: planName
         });
@@ -71,13 +72,21 @@ export const openRazorpayCheckout = async ({
   if (window.Razorpay) {
     try {
       const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response) {
+        console.error('Razorpay Payment Failed Event:', response.error);
+        if (onFailure) {
+          onFailure({
+            reason: response.error.description || 'Payment Failed',
+            code: response.error.code || 'PAYMENT_FAILED'
+          });
+        }
+      });
       rzp.open();
     } catch (err) {
-      console.warn('Fallback to Razorpay Test Dialog:', err);
+      console.warn('Fallback to Razorpay Test Modal:', err);
       simulateRazorpayModal(options, onSuccess, onFailure);
     }
   } else {
-    // Fallback simulation modal if external script is blocked
     simulateRazorpayModal(options, onSuccess, onFailure);
   }
 };
@@ -113,7 +122,7 @@ const simulateRazorpayModal = (options, onSuccess, onFailure) => {
       <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 20px; text-align: left;">
         <div style="font-size: 11px; text-transform: uppercase; color: #64748B; font-weight: 700; margin-bottom: 4px;">Plan Selected</div>
         <div style="font-size: 15px; font-weight: 800; color: #0F172A; margin-bottom: 8px;">${options.description}</div>
-        <div style="display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid #E2E8F0; padding-top: 8px;">
+        <div style="display: flex; justify-content: space-between; align-align: baseline; border-top: 1px solid #E2E8F0; padding-top: 8px;">
           <span style="font-size: 12px; color: #475569;">Total Amount Due:</span>
           <span style="font-size: 22px; font-weight: 900; color: #2563EB;">₹${options.amount / 100}</span>
         </div>

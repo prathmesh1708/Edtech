@@ -25,6 +25,11 @@ const DEFAULT_PRICING = {
   perSubjectYearly: 3999
 };
 
+const DEFAULT_CYCLE_SETTINGS = {
+  quarterlyDiscount: 10,
+  yearlyDiscount: 20
+};
+
 export const SyllabusProvider = ({ children }) => {
   const { user } = useAuth();
 
@@ -52,6 +57,12 @@ export const SyllabusProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : DEFAULT_PRICING;
   });
 
+  // Billing Cycle Discount Rules (managed by Admin)
+  const [cycleSettings, setCycleSettings] = useState(() => {
+    const saved = localStorage.getItem('admin_billing_cycle_settings');
+    return saved ? JSON.parse(saved) : DEFAULT_CYCLE_SETTINGS;
+  });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -70,12 +81,19 @@ export const SyllabusProvider = ({ children }) => {
     setError(null);
     try {
       const res = await syllabusService.getSubjects(selectedBoard, selectedClass);
-      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-        const formattedSubjects = res.data.map(item => ({
-          id: item._id,
-          name: item.subjectName,
-          code: item.subjectCode,
-          description: item.description,
+      let subjectList = [];
+      if (Array.isArray(res.data)) {
+        subjectList = res.data;
+      } else if (res.data && Array.isArray(res.data.data)) {
+        subjectList = res.data.data;
+      }
+
+      if (subjectList.length > 0) {
+        const formattedSubjects = subjectList.map(item => ({
+          id: item._id || item.id,
+          name: item.subjectName || item.name,
+          code: item.subjectCode || item.code,
+          description: item.description || item.desc || '',
           color: item.color || '#4F6EF7',
           icon: item.icon || 'BookOpen',
           chapters: item.chapters || [],
@@ -84,12 +102,28 @@ export const SyllabusProvider = ({ children }) => {
         }));
         setSubjects(formattedSubjects);
       } else {
-        setSubjects([]);
+        const nc = String(selectedClass).replace(/\D+/g, '') || '10';
+        const defaultFallbackSubjects = [
+          { id: `default-math-${nc}`, name: 'Mathematics', code: `MATH-${nc}`, color: '#4F6EF7', icon: 'BookOpen', chapters: [], chapterCount: 4, description: 'Mathematics Core' },
+          { id: `default-sci-${nc}`, name: 'Science', code: `SCI-${nc}`, color: '#22C55E', icon: 'BookOpen', chapters: [], chapterCount: 3, description: 'Physics, Chemistry & Biology' },
+          { id: `default-eng-${nc}`, name: 'English', code: `ENG-${nc}`, color: '#EC4899', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'English Grammar & Literature' },
+          { id: `default-sst-${nc}`, name: 'Social Science', code: `SST-${nc}`, color: '#F59E0B', icon: 'BookOpen', chapters: [], chapterCount: 3, description: 'History & Geography' },
+          { id: `default-hin-${nc}`, name: 'Hindi', code: `HIN-${nc}`, color: '#8B5CF6', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'Hindi Vyakaran' }
+        ];
+        setSubjects(defaultFallbackSubjects);
       }
     } catch (err) {
       console.error('Error fetching subjects from backend:', err);
       setError(err.message || 'Failed to fetch syllabus data');
-      setSubjects([]);
+      const nc = String(selectedClass).replace(/\D+/g, '') || '10';
+      const defaultFallbackSubjects = [
+        { id: `default-math-${nc}`, name: 'Mathematics', code: `MATH-${nc}`, color: '#4F6EF7', icon: 'BookOpen', chapters: [], chapterCount: 4, description: 'Mathematics Core' },
+        { id: `default-sci-${nc}`, name: 'Science', code: `SCI-${nc}`, color: '#22C55E', icon: 'BookOpen', chapters: [], chapterCount: 3, description: 'Physics, Chemistry & Biology' },
+        { id: `default-eng-${nc}`, name: 'English', code: `ENG-${nc}`, color: '#EC4899', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'English Grammar & Literature' },
+        { id: `default-sst-${nc}`, name: 'Social Science', code: `SST-${nc}`, color: '#F59E0B', icon: 'BookOpen', chapters: [], chapterCount: 3, description: 'History & Geography' },
+        { id: `default-hin-${nc}`, name: 'Hindi', code: `HIN-${nc}`, color: '#8B5CF6', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'Hindi Vyakaran' }
+      ];
+      setSubjects(defaultFallbackSubjects);
     } finally {
       setLoading(false);
     }
@@ -116,14 +150,13 @@ export const SyllabusProvider = ({ children }) => {
       const saved = localStorage.getItem('admin_subject_pricing');
       if (saved) {
         setSubjectPricing(JSON.parse(saved));
-        return;
       }
-      const res = await subscriptionService.getSubjectPricing();
-      if (res.data) {
-        setSubjectPricing(res.data);
+      const savedCycles = localStorage.getItem('admin_billing_cycle_settings');
+      if (savedCycles) {
+        setCycleSettings(JSON.parse(savedCycles));
       }
     } catch (err) {
-      console.warn('Could not fetch subject pricing:', err);
+      console.warn('Could not fetch subject pricing or cycles:', err);
     }
   }, []);
 
@@ -148,7 +181,6 @@ export const SyllabusProvider = ({ children }) => {
     localStorage.setItem('selected_subscription_plan_id', planId);
   }, []);
 
-  // Helper to append a new transaction entry into Admin subscriptions list
   const logAdminTransaction = useCallback((plan, status) => {
     const today = new Date().toISOString().split('T')[0];
     const expiryDateObj = new Date();
@@ -172,11 +204,9 @@ export const SyllabusProvider = ({ children }) => {
     const updatedList = [newSubRecord, ...existingList];
     localStorage.setItem('admin_subscriptions_list', JSON.stringify(updatedList));
 
-    // Dispatch event so Admin view refreshes if open
     window.dispatchEvent(new Event('admin_subscription_updated'));
   }, [user?.name, selectedClass]);
 
-  // Initiate Razorpay Checkout Payment Flow
   const initiateRazorpayPayment = useCallback((plan, onCompleted) => {
     openRazorpayCheckout({
       planName: plan.name,
@@ -189,7 +219,7 @@ export const SyllabusProvider = ({ children }) => {
         localStorage.setItem('selected_subscription_plan_id', planId);
         setUserSubscriptionStatus('ACTIVE');
         localStorage.setItem('user_payment_status', 'ACTIVE');
-        setPaymentMessage(`Payment Successful! ₹${res.amount} paid via Razorpay (ID: ${res.paymentId}). Your subscription is active and subjects are unlocked.`);
+        setPaymentMessage(`Payment Successful! ₹${res.amount} paid via Razorpay (ID: ${res.paymentId}). Your subscription is active and selected subjects are unlocked.`);
         logAdminTransaction(plan, 'Active');
         if (onCompleted) onCompleted(true);
       },
@@ -203,24 +233,38 @@ export const SyllabusProvider = ({ children }) => {
     });
   }, [user?.name, user?.email, logAdminTransaction]);
 
-  // Create & activate custom subject-wise subscription plan
+  // Create & activate custom subject-wise subscription plan with Admin Billing Cycle Rules (%)
   const createCustomPlan = useCallback((selectedSubjectNames, duration = 'Monthly') => {
     if (!selectedSubjectNames || selectedSubjectNames.length === 0) return;
 
-    const rate = duration === 'Yearly'
-      ? (subjectPricing.perSubjectYearly || 3999)
-      : duration === 'Quarterly'
-      ? (subjectPricing.perSubjectQuarterly || 1299)
-      : (subjectPricing.perSubjectMonthly || 499);
+    const savedCycles = localStorage.getItem('admin_billing_cycle_settings');
+    const cycles = savedCycles ? JSON.parse(savedCycles) : DEFAULT_CYCLE_SETTINGS;
+    const savedPricing = localStorage.getItem('admin_subject_pricing');
+    const pricing = savedPricing ? JSON.parse(savedPricing) : DEFAULT_PRICING;
 
-    const totalPrice = selectedSubjectNames.length * rate;
+    const baseRate = pricing.perSubjectMonthly || 499;
+    const count = selectedSubjectNames.length;
+
+    let totalPrice = 0;
+    if (duration === 'Yearly') {
+      const gross = count * baseRate * 12;
+      const discount = gross * ((cycles.yearlyDiscount || 20) / 100);
+      totalPrice = Math.round(gross - discount);
+    } else if (duration === 'Quarterly') {
+      const gross = count * baseRate * 3;
+      const discount = gross * ((cycles.quarterlyDiscount || 10) / 100);
+      totalPrice = Math.round(gross - discount);
+    } else {
+      totalPrice = count * baseRate;
+    }
+
     const planId = `PLAN-CUSTOM-${Date.now()}`;
     const subjectListStr = selectedSubjectNames.join(', ');
 
     const newCustomPlan = {
       id: planId,
       _id: planId,
-      name: `Custom Bundle (${selectedSubjectNames.length} ${selectedSubjectNames.length === 1 ? 'Subject' : 'Subjects'})`,
+      name: `Custom Bundle (${count} ${count === 1 ? 'Subject' : 'Subjects'})`,
       targetClass: `Class ${selectedClass}`,
       targetSubject: subjectListStr,
       price: totalPrice,
@@ -236,13 +280,11 @@ export const SyllabusProvider = ({ children }) => {
     const updatedPlans = [newCustomPlan, ...plans.filter(p => !p.isCustom)];
     localStorage.setItem('admin_subscription_plans', JSON.stringify(updatedPlans));
 
-    // Prompt payment via Razorpay for the custom plan
     initiateRazorpayPayment(newCustomPlan);
-  }, [selectedClass, subjectPricing, plans, initiateRazorpayPayment]);
+  }, [selectedClass, plans, initiateRazorpayPayment]);
 
   // Filter subjects based on selected subscription plan AND payment status
   const filteredSubjects = useMemo(() => {
-    // If payment failed or canceled, show 0 unlocked subjects
     if (userSubscriptionStatus === 'FAILED') {
       return [];
     }
@@ -252,15 +294,40 @@ export const SyllabusProvider = ({ children }) => {
 
     const targetSubj = activePlan.targetSubject || 'All Subjects';
 
-    if (targetSubj === 'All Subjects' || targetSubj.toLowerCase().includes('all')) {
+    if (targetSubj === 'All Subjects' || targetSubj.toLowerCase().includes('all subjects') || targetSubj.toLowerCase().includes('all classes')) {
       return subjects;
     }
 
-    const allowedList = targetSubj.split(',').map(s => s.trim().toLowerCase());
+    // Build normalized allowed target list from selectedSubjectList array or targetSubject string
+    const rawAllowed = activePlan.selectedSubjectList || targetSubj.split(',').map(s => s.trim());
+    const allowedList = rawAllowed.map(s => String(s).trim().toLowerCase());
 
     return subjects.filter(s => {
-      const sName = s.name.toLowerCase();
-      return allowedList.some(target => sName.includes(target) || target.includes(sName));
+      const sName = (s.name || s.subjectName || '').toLowerCase();
+      const sCode = (s.code || s.subjectCode || '').toLowerCase();
+      const sRawName = (s.rawItem?.subjectName || '').toLowerCase();
+
+      return allowedList.some(target => {
+        if (!target) return false;
+        const t = target.toLowerCase();
+
+        // Exact match or substring match
+        if (sName.includes(t) || t.includes(sName)) return true;
+        if (sRawName && (sRawName.includes(t) || t.includes(sRawName))) return true;
+        if (sCode && (sCode.includes(t) || t.includes(sCode))) return true;
+
+        // Strip parenthetical codes e.g. "Maths (5585)" -> "maths"
+        const cleanName = sName.replace(/\(.*\)/, '').trim();
+        const cleanTarget = t.replace(/\(.*\)/, '').trim();
+        if (cleanName.includes(cleanTarget) || cleanTarget.includes(cleanName)) return true;
+
+        // Common subject prefix alias matching
+        const tStem = cleanTarget.slice(0, 4);
+        const sStem = cleanName.slice(0, 4);
+        if (tStem.length >= 3 && sStem.length >= 3 && tStem === sStem) return true;
+
+        return false;
+      });
     });
   }, [subjects, plans, selectedPlanId, userSubscriptionStatus]);
 
@@ -280,6 +347,7 @@ export const SyllabusProvider = ({ children }) => {
       selectedPlanId,
       currentPlan,
       subjectPricing,
+      cycleSettings,
       userSubscriptionStatus,
       paymentMessage,
       updatePricingByAdmin,

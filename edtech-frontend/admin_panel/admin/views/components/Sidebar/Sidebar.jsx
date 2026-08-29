@@ -12,7 +12,6 @@ import {
   Bell, 
   Image, 
   LogOut,
-  GraduationCap,
   CreditCard,
   User,
   Cpu,
@@ -49,7 +48,6 @@ const Sidebar = () => {
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
-    { name: 'Educational Insights', path: '/admin/educational-insights', icon: GraduationCap },
     { name: 'Students', path: '/admin/students', icon: Users },
     { name: 'Subscriptions', path: '/admin/subscriptions', icon: CreditCard },
     

@@ -44,22 +44,31 @@ const SubjectDetail = () => {
   const { subjectId } = useParams();
   const navigate = useNavigate();
   const {
-    subjects,
+    subjects = [],
     currentSubject,
-    chapters,
+    chapters = [],
     fetchChapters,
     loading,
     selectedBoard,
-    selectedClass
+    selectedClass,
+    userSubscriptionStatus
   } = useSyllabusController();
 
   useEffect(() => {
+    if (userSubscriptionStatus !== 'ACTIVE') {
+      alert('Subscription plan required to access course content! Redirecting to Subscription Plans...');
+      navigate(ROUTES.MY_SYLLABUS);
+      return;
+    }
     if (subjectId) {
       fetchChapters(subjectId);
     }
-  }, [subjectId, fetchChapters]);
+  }, [subjectId, fetchChapters, userSubscriptionStatus, navigate]);
 
-  const activeSubject = currentSubject || subjects.find(s => s.id === subjectId) || {
+  const safeSubjects = Array.isArray(subjects) ? subjects : [];
+  const safeChapters = Array.isArray(chapters) ? chapters : [];
+
+  const activeSubject = currentSubject || safeSubjects.find(s => s.id === subjectId || s._id === subjectId) || {
     name: 'Subject',
     color: '#4F6EF7',
     description: ''
@@ -105,7 +114,11 @@ const SubjectDetail = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
         <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '700', fontFamily: 'var(--font-heading)' }}>Chapters</h3>
         <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-tertiary)' }}>
+<<<<<<< HEAD
           {(chapters || []).length} {(chapters || []).length === 1 ? 'Chapter' : 'Chapters'}
+=======
+          {safeChapters.length} {safeChapters.length === 1 ? 'Chapter' : 'Chapters'}
+>>>>>>> 73e255ab40df3bc835accc986132fd8a82a0e26e
         </span>
       </div>
 
@@ -113,9 +126,15 @@ const SubjectDetail = () => {
         <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
           Loading chapters...
         </div>
+<<<<<<< HEAD
       ) : (chapters || []).length > 0 ? (
         <div style={s.chapterList}>
           {(chapters || []).map((ch, idx) => (
+=======
+      ) : safeChapters.length > 0 ? (
+        <div style={s.chapterList}>
+          {safeChapters.map((ch, idx) => (
+>>>>>>> 73e255ab40df3bc835accc986132fd8a82a0e26e
             <div
               key={ch.id || idx}
               style={s.chapterCard}

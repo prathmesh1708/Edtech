@@ -105,6 +105,98 @@ const Analytics = () => {
     }
   };
 
+  const handleExportReport = () => {
+    const timeRangeLabels = {
+      '7d': 'Last 7 Days',
+      '30d': 'Last 30 Days',
+      '90d': 'Last 90 Days',
+      'ytd': 'Year to Date'
+    };
+
+    const boardLabels = {
+      'all': 'All Boards',
+      'cbse': 'CBSE Board',
+      'icse': 'ICSE Board',
+      'state': 'State Boards'
+    };
+
+    const header = [
+      '"Platform Analytics & Insights"',
+      '"Real-time performance metrics, learning patterns, and growth trends."',
+      `"Time Range: ${timeRangeLabels[timeRange] || timeRange}"`,
+      `"Board: ${boardLabels[boardFilter] || boardFilter}"`,
+      `"Exported On: ${new Date().toLocaleString()}"`,
+      ''
+    ].join('\n');
+
+    const kpisSection = [
+      'KPIs',
+      `"Total Active Learners","${kpis?.totalActiveLearners || ''}"`,
+      `"Avg. Daily Study Time","${kpis?.avgStudyTime || ''}"`,
+      `"Quiz Completion Rate","${kpis?.quizCompletionRate || ''}"`,
+      `"Monthly Revenue","${kpis?.monthlyRevenue || ''}"`,
+      ''
+    ].join('\n');
+
+    const growthRows = [
+      'Student Growth & Active Trend',
+      'Date,Active Users,New Signups',
+      ...(userGrowthData || []).map(d => `"${d.date || ''}",${d.activeUsers || 0},${d.newSignups || 0}`),
+      ''
+    ].join('\n');
+
+    const subjectRows = [
+      'Subject Distribution',
+      'Subject Name,Hours,Share (%)',
+      ...(subjectData || []).map(d => `"${d.name || ''}",${d.hours || 0},${d.value || 0}`),
+      ''
+    ].join('\n');
+
+    const gradeRows = [
+      'Grade Demographics',
+      'Grade,Student Count',
+      ...(gradeData || []).map(d => `"${d.grade || ''}",${d.students || 0}`),
+      ''
+    ].join('\n');
+
+    const revenueRows = [
+      'Subscription Revenue & Tiers',
+      'Month,Free Users,Basic Plan,Pro Plan,ARPU',
+      ...(revenueData || []).map(d => `"${d.month || ''}",${d.freeUsers || 0},${d.basicPlan || 0},${d.proPlan || 0},${d.arpu || 0}`),
+      ''
+    ].join('\n');
+
+    const topCourseRows = [
+      'Top Performing Content / Courses',
+      'Course Title,Student Count,Completion Rate,Avg Score',
+      ...(topCourses || []).map(d => `"${d.title || ''}",${d.students || 0},"${d.completion || 0}%","${d.avgScore || ''}"`),
+      ''
+    ].join('\n');
+
+    const csvContent = [
+      header,
+      kpisSection,
+      growthRows,
+      subjectRows,
+      gradeRows,
+      revenueRows,
+      topCourseRows
+    ].join('\n');
+
+    // ponytail: simple client-side csv generation, opens natively in Excel
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const formattedRange = (timeRangeLabels[timeRange] || timeRange).replace(/\s+/g, '_');
+    const formattedBoard = (boardLabels[boardFilter] || boardFilter).replace(/\s+/g, '_');
+    link.href = url;
+    link.setAttribute('download', `Platform_Analytics_Report_${formattedRange}_${formattedBoard}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    alert('Analytics report exported successfully!');
+  };
+
   const { kpis, userGrowthData, subjectData, revenueData, gradeData, peakHoursData, topCourses } = analyticsData;
 
   return (
@@ -152,7 +244,7 @@ const Analytics = () => {
             </select>
           </div>
 
-          <button className={styles.exportBtn} onClick={() => alert('Analytics report exported successfully!')}>
+          <button className={styles.exportBtn} onClick={handleExportReport}>
             <Download size={16} />
             <span>Export Report</span>
           </button>

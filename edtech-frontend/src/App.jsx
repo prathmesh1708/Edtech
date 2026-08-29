@@ -38,7 +38,6 @@ const Settings = lazy(() => import('./views/pages/student/Settings/Settings'));
 // Admin Pages
 const AdminDashboard = lazy(() => import('../admin_panel/admin/views/pages/Dashboard/Dashboard'));
 const AdminAnalytics = lazy(() => import('../admin_panel/admin/views/pages/Analytics/Analytics'));
-const EducationalInsights = lazy(() => import('../admin_panel/admin/views/pages/EducationalInsights/EducationalInsights'));
 const StudentManagement = lazy(() => import('../admin_panel/admin/views/pages/StudentManagement/StudentManagement'));
 const TeacherManagement = lazy(() => import('../admin_panel/admin/views/pages/TeacherManagement/TeacherManagement'));
 const SubscriptionManagement = lazy(() => import('../admin_panel/admin/views/pages/SubscriptionManagement/SubscriptionManagement'));
@@ -103,7 +102,6 @@ function App() {
                 <Route element={<AdminLayout />}>
                   <Route path={ROUTES.ADMIN_DASHBOARD} element={<AdminDashboard />} />
                   <Route path={ROUTES.ADMIN_ANALYTICS} element={<AdminAnalytics />} />
-                  <Route path={ROUTES.ADMIN_EDUCATIONAL_INSIGHTS} element={<EducationalInsights />} />
                   <Route path={ROUTES.ADMIN_STUDENTS} element={<StudentManagement />} />
                   <Route path={ROUTES.ADMIN_TEACHERS} element={<TeacherManagement />} />
                   <Route path={ROUTES.ADMIN_SUBSCRIPTIONS} element={<SubscriptionManagement />} />

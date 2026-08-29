@@ -188,7 +188,6 @@ const StudentLayout = () => {
                 }}
                 style={{ 
                   position: 'relative', 
-                  background: 'none', 
                   border: 'none', 
                   cursor: 'pointer', 
                   display: 'flex', 

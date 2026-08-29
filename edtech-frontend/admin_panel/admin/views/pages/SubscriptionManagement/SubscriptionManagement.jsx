@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, 
-  CreditCard, 
-  Plus, 
-  X, 
-  Edit2, 
-  Trash2, 
-  Calendar, 
-  DollarSign, 
-  CheckCircle, 
-  AlertTriangle, 
-  Clock, 
+import {
+  Search,
+  CreditCard,
+  Plus,
+  X,
+  Edit2,
+  Trash2,
+  Calendar,
+  DollarSign,
+  CheckCircle,
+  AlertTriangle,
+  Clock,
   Activity,
   Layers,
   Check,
@@ -96,7 +96,7 @@ const SubscriptionManagement = () => {
     localStorage.setItem('admin_billing_cycle_settings', JSON.stringify(cycleSettings));
     toast.success('Global Billing Cycle Discounts updated successfully!', 'Settings Saved');
   };
-  
+
   // Search & Filter (Subscriptions)
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPlanFilter, setSelectedPlanFilter] = useState('All');
@@ -171,7 +171,7 @@ const SubscriptionManagement = () => {
   const handlePurchaseDateOrPlanChange = (name, value, currentFormData) => {
     const updatedForm = { ...currentFormData, [name]: value };
     const selectedPlan = plans.find(p => p.name === updatedForm.planName);
-    
+
     if (updatedForm.purchaseDate && selectedPlan) {
       const pDate = new Date(updatedForm.purchaseDate);
       if (selectedPlan.duration === 'Monthly') {
@@ -227,10 +227,10 @@ const SubscriptionManagement = () => {
     };
 
     setSubscriptions(prev => [newSub, ...prev]);
-    
+
     // Increment plan subscriber count
     if (selectedPlan) {
-      setPlans(prevPlans => 
+      setPlans(prevPlans =>
         prevPlans.map(p => p.id === selectedPlan.id ? { ...p, subscribers: p.subscribers + 1 } : p)
       );
     }
@@ -267,7 +267,7 @@ const SubscriptionManagement = () => {
 
     // Adjust subscriber counts if plan changed
     if (currentSub.planName !== subFormData.planName) {
-      setPlans(prevPlans => 
+      setPlans(prevPlans =>
         prevPlans.map(p => {
           if (p.name === currentSub.planName) return { ...p, subscribers: Math.max(0, p.subscribers - 1) };
           if (p.name === subFormData.planName) return { ...p, subscribers: p.subscribers + 1 };
@@ -276,14 +276,14 @@ const SubscriptionManagement = () => {
       );
     }
 
-    setSubscriptions(prev => 
-      prev.map(s => s.id === currentSub.id ? { 
-        ...s, 
-        ...subFormData, 
-        targetClass, 
-        targetSubject, 
-        price: pricePaid, 
-        duration: duration 
+    setSubscriptions(prev =>
+      prev.map(s => s.id === currentSub.id ? {
+        ...s,
+        ...subFormData,
+        targetClass,
+        targetSubject,
+        price: pricePaid,
+        duration: duration
       } : s)
     );
     setIsEditSubModalOpen(false);
@@ -298,9 +298,9 @@ const SubscriptionManagement = () => {
 
   const handleDeleteSubConfirm = () => {
     setSubscriptions(prev => prev.filter(s => s.id !== currentSub.id));
-    
+
     // Decrement plan subscriber count
-    setPlans(prevPlans => 
+    setPlans(prevPlans =>
       prevPlans.map(p => p.name === currentSub.planName ? { ...p, subscribers: Math.max(0, p.subscribers - 1) } : p)
     );
 
@@ -359,11 +359,11 @@ const SubscriptionManagement = () => {
       return;
     }
 
-    setPlans(prev => 
-      prev.map(p => p.id === currentPlan.id ? { 
-        ...p, 
-        ...planFormData, 
-        price: parseFloat(planFormData.price) 
+    setPlans(prev =>
+      prev.map(p => p.id === currentPlan.id ? {
+        ...p,
+        ...planFormData,
+        price: parseFloat(planFormData.price)
       } : p)
     );
     setIsEditPlanModalOpen(false);
@@ -396,7 +396,7 @@ const SubscriptionManagement = () => {
 
   // Filter Logic (Subscriptions)
   const filteredSubscriptions = subscriptions.filter(sub => {
-    const matchesSearch = 
+    const matchesSearch =
       sub.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       sub.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       sub.planName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -411,7 +411,7 @@ const SubscriptionManagement = () => {
 
   // Filter Logic (Plans)
   const filteredPlans = plans.filter(plan => {
-    const matchesSearch = 
+    const matchesSearch =
       plan.name.toLowerCase().includes(planSearchTerm.toLowerCase()) ||
       plan.features.toLowerCase().includes(planSearchTerm.toLowerCase());
 
@@ -438,7 +438,7 @@ const SubscriptionManagement = () => {
         </div>
         <div>
           {activeTab === 'subscriptions' ? (
-            <button 
+            <button
               className={styles.primaryButton}
               onClick={() => { resetSubForm(); setIsAddSubModalOpen(true); }}
             >
@@ -446,7 +446,7 @@ const SubscriptionManagement = () => {
               <span>Add Subscriber</span>
             </button>
           ) : (
-            <button 
+            <button
               className={styles.primaryButton}
               onClick={() => { resetPlanForm(); setIsAddPlanModalOpen(true); }}
             >
@@ -502,14 +502,14 @@ const SubscriptionManagement = () => {
 
       {/* Tab Switcher */}
       <div className={styles.tabSection}>
-        <button 
+        <button
           className={`${styles.tabButton} ${activeTab === 'subscriptions' ? styles.activeTab : ''}`}
           onClick={() => setActiveTab('subscriptions')}
         >
           <Activity size={16} />
           <span>Subscriptions List</span>
         </button>
-        <button 
+        <button
           className={`${styles.tabButton} ${activeTab === 'plans' ? styles.activeTab : ''}`}
           onClick={() => setActiveTab('plans')}
         >
@@ -531,9 +531,9 @@ const SubscriptionManagement = () => {
           <div className={styles.cardHeader}>
             <div className={styles.searchContainer}>
               <Search size={18} className={styles.searchIcon} />
-              <input 
-                type="text" 
-                placeholder="Search by student name or sub ID..." 
+              <input
+                type="text"
+                placeholder="Search by student name or sub ID..."
                 className={styles.searchInput}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -541,7 +541,7 @@ const SubscriptionManagement = () => {
             </div>
 
             <div className={styles.controlsContainer}>
-              <select 
+              <select
                 className={styles.filterSelect}
                 value={selectedClassFilter}
                 onChange={(e) => setSelectedClassFilter(e.target.value)}
@@ -551,7 +551,7 @@ const SubscriptionManagement = () => {
                 ))}
               </select>
 
-              <select 
+              <select
                 className={styles.filterSelect}
                 value={selectedSubjectFilter}
                 onChange={(e) => setSelectedSubjectFilter(e.target.value)}
@@ -561,7 +561,7 @@ const SubscriptionManagement = () => {
                 ))}
               </select>
 
-              <select 
+              <select
                 className={styles.filterSelect}
                 value={selectedPlanFilter}
                 onChange={(e) => setSelectedPlanFilter(e.target.value)}
@@ -572,7 +572,7 @@ const SubscriptionManagement = () => {
                 ))}
               </select>
 
-              <select 
+              <select
                 className={styles.filterSelect}
                 value={selectedStatusFilter}
                 onChange={(e) => setSelectedStatusFilter(e.target.value)}
@@ -629,25 +629,24 @@ const SubscriptionManagement = () => {
                       <td>{formatDate(sub.purchaseDate)}</td>
                       <td>{formatDate(sub.expiryDate)}</td>
                       <td>
-                        <span className={`${styles.statusBadge} ${
-                          sub.status === 'Active' ? styles.statusActive : 
-                          sub.status === 'Pending' ? styles.statusPending : 
-                          styles.statusExpired
-                        }`}>
+                        <span className={`${styles.statusBadge} ${sub.status === 'Active' ? styles.statusActive :
+                            sub.status === 'Pending' ? styles.statusPending :
+                              styles.statusExpired
+                          }`}>
                           {sub.status}
                         </span>
                       </td>
                       <td>
                         <div className={styles.actionButtons}>
-                          <button 
-                            className={styles.iconButton} 
+                          <button
+                            className={styles.iconButton}
                             onClick={() => handleEditSubClick(sub)}
                             title="Edit Subscription"
                           >
                             <Edit2 size={16} />
                           </button>
-                          <button 
-                            className={`${styles.iconButton} ${styles.danger}`} 
+                          <button
+                            className={`${styles.iconButton} ${styles.danger}`}
                             onClick={() => handleDeleteSubClick(sub)}
                             title="Cancel/Delete"
                           >
@@ -688,9 +687,9 @@ const SubscriptionManagement = () => {
           <div className={styles.plansHeaderBar}>
             <div className={styles.searchContainer}>
               <Search size={18} className={styles.searchIcon} />
-              <input 
-                type="text" 
-                placeholder="Search plans by name or feature..." 
+              <input
+                type="text"
+                placeholder="Search plans by name or feature..."
                 className={styles.searchInput}
                 value={planSearchTerm}
                 onChange={(e) => setPlanSearchTerm(e.target.value)}
@@ -698,7 +697,7 @@ const SubscriptionManagement = () => {
             </div>
 
             <div className={styles.controlsContainer}>
-              <select 
+              <select
                 className={styles.filterSelect}
                 value={planClassFilter}
                 onChange={(e) => setPlanClassFilter(e.target.value)}
@@ -708,7 +707,7 @@ const SubscriptionManagement = () => {
                 ))}
               </select>
 
-              <select 
+              <select
                 className={styles.filterSelect}
                 value={planSubjectFilter}
                 onChange={(e) => setPlanSubjectFilter(e.target.value)}
@@ -735,7 +734,7 @@ const SubscriptionManagement = () => {
                       </button>
                     </div>
                   </div>
-                  
+
                   <h3 className={styles.planName}>{plan.name}</h3>
 
                   <div className={styles.planScopeBadges}>
@@ -746,21 +745,21 @@ const SubscriptionManagement = () => {
                       <GraduationCap size={13} /> {plan.targetSubject || 'All Subjects'}
                     </span>
                   </div>
-                  
+
                   <div className={styles.planPricing}>
                     <span className={styles.planCurrency}>₹</span>
                     <span className={styles.planAmount}>{plan.price.toLocaleString('en-IN')}</span>
                     <span className={styles.planSlash}>/</span>
                     <span className={styles.planDurationText}>{plan.duration.toLowerCase()}</span>
                   </div>
-                  
+
                   <div className={styles.planStats}>
                     <span className={styles.planStatLabel}>Active Members:</span>
                     <span className={styles.planStatValue}>{plan.subscribers}</span>
                   </div>
 
                   <hr className={styles.planDivider} />
-                  
+
                   <div className={styles.featuresList}>
                     <p className={styles.featuresHeading}>Included Features:</p>
                     <ul>
@@ -862,7 +861,7 @@ const SubscriptionManagement = () => {
       )}
 
       {/* Modals for Subscriptions */}
-      
+
       {/* Add Subscription Modal */}
       {isAddSubModalOpen && (
         <div className={styles.modalOverlay}>
@@ -877,10 +876,10 @@ const SubscriptionManagement = () => {
               <div className={styles.modalBody}>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Student Full Name *</label>
-                  <input 
-                    type="text" 
-                    name="studentName" 
-                    required 
+                  <input
+                    type="text"
+                    name="studentName"
+                    required
                     placeholder="e.g. Rahul Sharma"
                     className={styles.formInput}
                     value={subFormData.studentName}
@@ -890,7 +889,7 @@ const SubscriptionManagement = () => {
 
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Select Subscription Plan *</label>
-                  <select 
+                  <select
                     name="planName"
                     className={styles.formSelect}
                     value={subFormData.planName}
@@ -905,10 +904,10 @@ const SubscriptionManagement = () => {
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Start Date *</label>
-                    <input 
-                      type="date" 
-                      name="purchaseDate" 
-                      required 
+                    <input
+                      type="date"
+                      name="purchaseDate"
+                      required
                       className={styles.formInput}
                       value={subFormData.purchaseDate}
                       onChange={handleSubInputChange}
@@ -917,10 +916,10 @@ const SubscriptionManagement = () => {
 
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Expiry Date *</label>
-                    <input 
-                      type="date" 
-                      name="expiryDate" 
-                      required 
+                    <input
+                      type="date"
+                      name="expiryDate"
+                      required
                       className={styles.formInput}
                       value={subFormData.expiryDate}
                       onChange={handleSubInputChange}
@@ -930,7 +929,7 @@ const SubscriptionManagement = () => {
 
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Payment Status</label>
-                  <select 
+                  <select
                     name="status"
                     className={styles.formSelect}
                     value={subFormData.status}
@@ -970,10 +969,10 @@ const SubscriptionManagement = () => {
               <div className={styles.modalBody}>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Student Full Name *</label>
-                  <input 
-                    type="text" 
-                    name="studentName" 
-                    required 
+                  <input
+                    type="text"
+                    name="studentName"
+                    required
                     className={styles.formInput}
                     value={subFormData.studentName}
                     onChange={handleSubInputChange}
@@ -982,7 +981,7 @@ const SubscriptionManagement = () => {
 
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Subscription Plan *</label>
-                  <select 
+                  <select
                     name="planName"
                     className={styles.formSelect}
                     value={subFormData.planName}
@@ -997,10 +996,10 @@ const SubscriptionManagement = () => {
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Start Date *</label>
-                    <input 
-                      type="date" 
-                      name="purchaseDate" 
-                      required 
+                    <input
+                      type="date"
+                      name="purchaseDate"
+                      required
                       className={styles.formInput}
                       value={subFormData.purchaseDate}
                       onChange={handleSubInputChange}
@@ -1009,10 +1008,10 @@ const SubscriptionManagement = () => {
 
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Expiry Date *</label>
-                    <input 
-                      type="date" 
-                      name="expiryDate" 
-                      required 
+                    <input
+                      type="date"
+                      name="expiryDate"
+                      required
                       className={styles.formInput}
                       value={subFormData.expiryDate}
                       onChange={handleSubInputChange}
@@ -1022,7 +1021,7 @@ const SubscriptionManagement = () => {
 
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Subscription Status</label>
-                  <select 
+                  <select
                     name="status"
                     className={styles.formSelect}
                     value={subFormData.status}
@@ -1068,9 +1067,9 @@ const SubscriptionManagement = () => {
               <button type="button" className={styles.secondaryButton} onClick={() => setIsDeleteSubModalOpen(false)}>
                 Cancel
               </button>
-              <button 
-                type="button" 
-                className={styles.primaryButton} 
+              <button
+                type="button"
+                className={styles.primaryButton}
                 style={{ backgroundColor: 'var(--color-error)' }}
                 onClick={handleDeleteSubConfirm}
               >
@@ -1097,10 +1096,10 @@ const SubscriptionManagement = () => {
               <div className={styles.modalBody}>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Plan Name *</label>
-                  <input 
-                    type="text" 
-                    name="name" 
-                    required 
+                  <input
+                    type="text"
+                    name="name"
+                    required
                     placeholder="e.g. Pro Learn"
                     className={styles.formInput}
                     value={planFormData.name}
@@ -1111,7 +1110,7 @@ const SubscriptionManagement = () => {
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Target Class *</label>
-                    <select 
+                    <select
                       name="targetClass"
                       className={styles.formSelect}
                       value={planFormData.targetClass}
@@ -1125,7 +1124,7 @@ const SubscriptionManagement = () => {
 
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Target Subject *</label>
-                    <select 
+                    <select
                       name="targetSubject"
                       className={styles.formSelect}
                       value={planFormData.targetSubject}
@@ -1141,10 +1140,10 @@ const SubscriptionManagement = () => {
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Price (₹ INR) *</label>
-                    <input 
-                      type="number" 
-                      name="price" 
-                      required 
+                    <input
+                      type="number"
+                      name="price"
+                      required
                       placeholder="e.g. 1999"
                       className={styles.formInput}
                       value={planFormData.price}
@@ -1154,7 +1153,7 @@ const SubscriptionManagement = () => {
 
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Duration Cycle *</label>
-                    <select 
+                    <select
                       name="duration"
                       className={styles.formSelect}
                       value={planFormData.duration}
@@ -1169,9 +1168,9 @@ const SubscriptionManagement = () => {
 
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Included Features * (comma separated)</label>
-                  <textarea 
-                    name="features" 
-                    required 
+                  <textarea
+                    name="features"
+                    required
                     placeholder="Access to Syllabus, 10 Mock Tests, 24/7 AI Tutor"
                     rows="3"
                     className={styles.formInput}
@@ -1183,7 +1182,7 @@ const SubscriptionManagement = () => {
 
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Status</label>
-                  <select 
+                  <select
                     name="status"
                     className={styles.formSelect}
                     value={planFormData.status}
@@ -1222,10 +1221,10 @@ const SubscriptionManagement = () => {
               <div className={styles.modalBody}>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Plan Name *</label>
-                  <input 
-                    type="text" 
-                    name="name" 
-                    required 
+                  <input
+                    type="text"
+                    name="name"
+                    required
                     className={styles.formInput}
                     value={planFormData.name}
                     onChange={handlePlanInputChange}
@@ -1235,7 +1234,7 @@ const SubscriptionManagement = () => {
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Target Class *</label>
-                    <select 
+                    <select
                       name="targetClass"
                       className={styles.formSelect}
                       value={planFormData.targetClass}
@@ -1249,7 +1248,7 @@ const SubscriptionManagement = () => {
 
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Target Subject *</label>
-                    <select 
+                    <select
                       name="targetSubject"
                       className={styles.formSelect}
                       value={planFormData.targetSubject}
@@ -1265,10 +1264,10 @@ const SubscriptionManagement = () => {
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Price (₹ INR) *</label>
-                    <input 
-                      type="number" 
-                      name="price" 
-                      required 
+                    <input
+                      type="number"
+                      name="price"
+                      required
                       className={styles.formInput}
                       value={planFormData.price}
                       onChange={handlePlanInputChange}
@@ -1277,7 +1276,7 @@ const SubscriptionManagement = () => {
 
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Duration Cycle *</label>
-                    <select 
+                    <select
                       name="duration"
                       className={styles.formSelect}
                       value={planFormData.duration}
@@ -1292,9 +1291,9 @@ const SubscriptionManagement = () => {
 
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Included Features * (comma separated)</label>
-                  <textarea 
-                    name="features" 
-                    required 
+                  <textarea
+                    name="features"
+                    required
                     rows="3"
                     className={styles.formInput}
                     style={{ resize: 'vertical' }}
@@ -1305,7 +1304,7 @@ const SubscriptionManagement = () => {
 
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Status</label>
-                  <select 
+                  <select
                     name="status"
                     className={styles.formSelect}
                     value={planFormData.status}
@@ -1350,9 +1349,9 @@ const SubscriptionManagement = () => {
               <button type="button" className={styles.secondaryButton} onClick={() => setIsDeletePlanModalOpen(false)}>
                 Cancel
               </button>
-              <button 
-                type="button" 
-                className={styles.primaryButton} 
+              <button
+                type="button"
+                className={styles.primaryButton}
                 style={{ backgroundColor: 'var(--color-error)' }}
                 onClick={handleDeletePlanConfirm}
               >
