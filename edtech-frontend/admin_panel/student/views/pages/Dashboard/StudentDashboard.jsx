@@ -308,7 +308,7 @@ const StudentDashboard = () => {
                     </div>
                   </div>
                   {!isSubscribed && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '700' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', color: 'var(--color-error)', padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '700' }}>
                       <Lock size={12} />
                       <span>Locked</span>
                     </div>
@@ -325,7 +325,7 @@ const StudentDashboard = () => {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', color: isSubscribed ? (subj.color || '#4F6EF7') : '#DC2626', fontSize: 'var(--text-xs)', fontWeight: '700', gap: '4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', color: isSubscribed ? (subj.color || 'var(--color-accent)') : 'var(--color-error)', fontSize: 'var(--text-xs)', fontWeight: '700', gap: '4px' }}>
                   {isSubscribed ? (
                     <>
                       <span>Continue Study</span>

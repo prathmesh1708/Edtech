@@ -255,7 +255,7 @@
 
 .themeBtn:hover:not(.themeBtnActive) {
   color: var(--color-text-primary);
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--color-surface-hover);
 }
 
 @media (max-width: 1024px) {

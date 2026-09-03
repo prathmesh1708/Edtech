@@ -149,14 +149,14 @@ const Dashboard = () => {
                     <stop offset="95%" stopColor="#1A73E8" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94A3B8' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94A3B8' }} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }} />
                 <Tooltip 
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                  labelStyle={{ fontWeight: 'bold', color: '#0F172A' }}
+                  contentStyle={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-primary)', borderRadius: '12px', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-lg)' }}
+                  labelStyle={{ fontWeight: 'bold', color: 'var(--color-text-primary)' }}
                 />
-                <Area type="monotone" dataKey="activeUsers" stroke="#1A73E8" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" name="Active Learners" />
+                <Area type="monotone" dataKey="activeUsers" stroke="#38BDF8" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" name="Active Learners" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -185,7 +185,7 @@ const Dashboard = () => {
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                  contentStyle={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-primary)', borderRadius: '12px', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-lg)' }}
                 />
               </PieChart>
             </ResponsiveContainer>

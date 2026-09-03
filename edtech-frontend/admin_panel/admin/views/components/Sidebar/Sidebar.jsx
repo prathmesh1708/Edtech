@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import Logo from '../../../../../src/views/components/common/Logo/Logo';
 import { useAuth } from '../../../../../src/models/context/AuthContext';
 import { ROUTES } from '../../../../../src/config/routes';
@@ -77,7 +77,9 @@ const Sidebar = () => {
   return (
     <aside className={styles.sidebar}>
       <div className={styles.logoContainer}>
-        <Logo className={styles.sidebarLogo} />
+        <Link to="/admin" className={styles.logoLink} title="Study Wisely Admin">
+          <Logo className={styles.sidebarLogo} />
+        </Link>
       </div>
       
       <div className={styles.navSection}>

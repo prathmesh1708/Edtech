@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../../../models/context/AuthContext';
+import { useTheme } from '../../../../models/context/ThemeContext';
 import { BOARDS, CLASSES } from '../../../../config/constants';
 import Button from '../../../components/common/Button/Button';
 import Input from '../../../components/common/Input/Input';
@@ -25,6 +26,7 @@ const s = {
 
 const Settings = () => {
   const { user, updateProfile } = useAuth();
+  const { theme, setTheme } = useTheme();
   
   // Set fallback state if user context is empty/null
   const currentUser = user || { name: 'John Doe', email: 'student@example.com', board: 'cbse', classId: '10' };
@@ -33,17 +35,12 @@ const Settings = () => {
   const [email, setEmail] = useState(currentUser.email);
   const [board, setBoard] = useState(currentUser.board);
   const [classId, setClassId] = useState(currentUser.classId);
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const [saving, setSaving] = useState(false);
 
   const handleSave = (e) => {
     e.preventDefault();
     setSaving(true);
     setTimeout(() => {
-      // Ensure theme is persisted and set
-      localStorage.setItem('theme', theme);
-      document.documentElement.setAttribute('data-theme', theme);
-      
       updateProfile({ name, email, board, classId });
       setSaving(false);
       alert('Profile updated successfully!');
@@ -110,12 +107,7 @@ const Settings = () => {
             <select
               style={s.select}
               value={theme}
-              onChange={(e) => {
-                const newTheme = e.target.value;
-                setTheme(newTheme);
-                document.documentElement.setAttribute('data-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-              }}
+              onChange={(e) => setTheme(e.target.value)}
             >
               <option value="light">☀️ Light Theme</option>
               <option value="dark">🌙 Dark Theme</option>

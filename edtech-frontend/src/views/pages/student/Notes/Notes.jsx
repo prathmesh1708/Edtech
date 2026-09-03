@@ -529,7 +529,7 @@ const s = {
     padding: 'var(--space-3) var(--space-5)',
     border: 'none',
     background: 'transparent',
-    color: active ? 'var(--color-primary-dark)' : 'var(--color-text-tertiary)',
+    color: active ? 'var(--color-accent)' : 'var(--color-text-secondary)',
     fontWeight: '700',
     fontSize: 'var(--text-base)',
     cursor: 'pointer',
@@ -977,10 +977,10 @@ const Notes = () => {
         <div style={s.glowEffect} />
         <div style={{ zIndex: 2 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-            <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: '900', color: 'var(--color-primary-dark)', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-heading)', margin: 0 }}>
+            <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: '900', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-heading)', margin: 0 }}>
               <Sparkles size={24} color="var(--color-accent)" /> Notes & Study Hub
             </h2>
-            <Badge variant="primary" style={{ background: 'rgba(99, 102, 241, 0.12)', color: 'var(--color-primary-dark)', border: '1px solid rgba(99, 102, 241, 0.3)', width: 'fit-content' }}>
+            <Badge variant="primary" style={{ background: 'rgba(56, 189, 248, 0.12)', color: 'var(--color-accent)', border: '1px solid rgba(56, 189, 248, 0.3)', width: 'fit-content' }}>
               📚 Curated for {studentBoardStr} Class {studentClassNum}
             </Badge>
           </div>
@@ -1223,7 +1223,7 @@ const Notes = () => {
                           </div>
                           <h3 
                             onClick={() => setActiveTopicModal({ chapter: ch, topic: ch.topics[0] })}
-                            style={{ fontSize: 'var(--text-lg)', fontWeight: '800', color: 'var(--color-primary-dark)', fontFamily: 'var(--font-heading)', cursor: 'pointer' }}
+                            style={{ fontSize: 'var(--text-lg)', fontWeight: '800', color: 'var(--color-text-primary)', fontFamily: 'var(--font-heading)', cursor: 'pointer' }}
                             className="subject-card-hover"
                           >
                             {ch.title}
@@ -1261,7 +1261,7 @@ const Notes = () => {
                               className="subject-card-hover"
                             >
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                <span style={{ fontWeight: '700', fontSize: 'var(--text-sm)', color: 'var(--color-primary-dark)' }}>{t.title}</span>
+                                <span style={{ fontWeight: '700', fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)' }}>{t.title}</span>
                                 <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5', whitespace: 'pre-line' }}>{t.content}</p>
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--color-accent)', fontWeight: '700', fontSize: 'var(--text-xs)', flexShrink: 0, paddingLeft: '12px' }}>
@@ -1311,7 +1311,7 @@ const Notes = () => {
                         <Badge variant="secondary">{vid.subjectName || 'Tutorial'}</Badge>
                         <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>{vid.views}</span>
                       </div>
-                      <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', color: 'var(--color-primary-dark)', lineHeight: '1.4' }}>
+                      <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', color: 'var(--color-text-primary)', lineHeight: '1.4' }}>
                         {vid.title}
                       </h4>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
@@ -1349,7 +1349,7 @@ const Notes = () => {
                           <Badge variant="primary">{dl.subjectName || dl.fileType}</Badge>
                           <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', fontWeight: '600' }}>{dl.fileSize}</span>
                         </div>
-                        <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', color: 'var(--color-primary-dark)', marginBottom: '4px' }}>
+                        <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', color: 'var(--color-text-primary)', marginBottom: '4px' }}>
                           {dl.title}
                         </h4>
                         <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>
@@ -1445,7 +1445,7 @@ const Notes = () => {
                 <div key={note.id} style={s.noteCard}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
-                      <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', color: 'var(--color-primary-dark)' }}>{note.title}</h4>
+                      <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', color: 'var(--color-text-primary)' }}>{note.title}</h4>
                       <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
                         <Clock size={12} /> {note.createdAt || 'Just now'}
                       </span>
@@ -1493,13 +1493,13 @@ const Notes = () => {
                 <span style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-accent)', textTransform: 'uppercase' }}>
                   {activeTopicModal.chapter?.title}
                 </span>
-                <h3 style={{ fontSize: 'var(--text-xl)', fontWeight: '900', color: 'var(--color-primary-dark)', marginTop: '4px', fontFamily: 'var(--font-heading)' }}>
+                <h3 style={{ fontSize: 'var(--text-xl)', fontWeight: '900', color: 'var(--color-text-primary)', marginTop: '4px', fontFamily: 'var(--font-heading)' }}>
                   {activeTopicModal.topic?.title || activeTopicModal.chapter?.title}
                 </h3>
               </div>
 
               <div style={{ padding: 'var(--space-4)', background: 'var(--color-surface-hover)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border-light)' }}>
-                <h4 style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-primary-dark)', textTransform: 'uppercase', marginBottom: '6px' }}>
+                <h4 style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-text-primary)', textTransform: 'uppercase', marginBottom: '6px' }}>
                   📖 Chapter Overview & Syllabus Context
                 </h4>
                 <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', lineHeight: '1.6' }}>
@@ -1507,8 +1507,8 @@ const Notes = () => {
                 </p>
               </div>
 
-              <div style={{ padding: 'var(--space-5)', background: 'rgba(99, 102, 241, 0.05)', borderRadius: 'var(--radius-xl)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
-                <h4 style={{ fontSize: 'var(--text-sm)', fontWeight: '800', color: 'var(--color-primary-dark)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ padding: 'var(--space-5)', background: 'rgba(56, 189, 248, 0.08)', borderRadius: 'var(--radius-xl)', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                <h4 style={{ fontSize: 'var(--text-sm)', fontWeight: '800', color: 'var(--color-text-primary)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Sparkles size={16} color="var(--color-accent)" /> Detailed Concept & Solution Breakdown
                 </h4>
                 <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)', lineHeight: '1.7', whiteSpace: 'pre-line' }}>

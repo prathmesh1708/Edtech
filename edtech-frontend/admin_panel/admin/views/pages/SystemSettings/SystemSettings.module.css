@@ -52,8 +52,8 @@
   width: 48px;
   height: 48px;
   border-radius: var(--radius-md);
-  background-color: rgba(26, 115, 232, 0.08);
-  color: #1A73E8;
+  background-color: rgba(56, 189, 248, 0.12);
+  color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -91,7 +91,7 @@
 
 .progressBar {
   height: 100%;
-  background-color: #1A73E8;
+  background-color: var(--color-primary);
   border-radius: 3px;
   transition: width 0.5s ease;
 }
@@ -114,7 +114,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
@@ -152,17 +152,18 @@
   font-size: var(--text-sm);
   outline: none;
   transition: border-color 0.2s;
-  background-color: var(--color-surface);
+  background-color: var(--color-bg);
   color: var(--color-text-primary);
 }
 
 .formInput:focus, .formSelect:focus {
-  border-color: #1A73E8;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
 }
 
 .primaryButton {
-  background-color: #1A73E8;
-  color: white;
+  background-color: var(--color-primary);
+  color: #ffffff;
   border: none;
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-md);
@@ -170,7 +171,7 @@
   font-weight: var(--font-semibold);
   font-size: var(--text-sm);
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -178,8 +179,13 @@
   align-self: flex-start;
 }
 
+[data-theme="dark"] .primaryButton {
+  color: #0A192F;
+}
+
 .primaryButton:hover {
-  background-color: #1557B0;
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 .secondaryButton {
@@ -200,7 +206,7 @@
 }
 
 .secondaryButton:hover {
-  background-color: rgba(15, 23, 42, 0.05);
+  background-color: var(--color-surface-hover);
   color: var(--color-text-primary);
 }
 

@@ -201,13 +201,12 @@
     justify-content: space-between;
   }
   .headerTitle {
-    font-size: var(--text-base);
-    flex: 1;
+    display: none; /* Hide page title text on mobile to keep header clean and spacious */
   }
   .mobileLogo {
     display: flex;
     align-items: center;
-    height: 40px;
+    height: 44px;
   }
   .mobileLogo a {
     display: flex;
@@ -215,7 +214,7 @@
     height: 100%;
   }
   .mobileLogo img {
-    height: 36px;
+    height: 40px;
     width: auto;
   }
   .contentBody {

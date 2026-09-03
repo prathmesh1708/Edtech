@@ -26,8 +26,8 @@
 }
 
 .primaryButton {
-  background-color: #1A73E8;
-  color: white;
+  background-color: var(--color-primary);
+  color: #ffffff;
   border: none;
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-md);
@@ -38,11 +38,16 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .primaryButton {
+  color: #0A192F;
 }
 
 .primaryButton:hover {
-  background-color: #1557B0;
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 .layout {
@@ -57,7 +62,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   padding: var(--space-4);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--shadow-sm);
 }
 
 .nav {
@@ -84,13 +89,13 @@
 }
 
 .navItem:hover {
-  background-color: var(--color-bg);
-  color: var(--color-text-primary);
+  background-color: var(--color-surface-hover);
+  color: var(--color-primary);
 }
 
 .navItem.active {
-  background-color: rgba(26, 115, 232, 0.1);
-  color: #1A73E8;
+  background-color: rgba(56, 189, 248, 0.15);
+  color: var(--color-primary);
   font-weight: var(--font-semibold);
 }
 
@@ -105,7 +110,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -145,14 +150,16 @@
   border-radius: var(--radius-md);
   font-family: var(--font-body);
   font-size: var(--text-sm);
+  background-color: var(--color-bg);
   color: var(--color-text-primary);
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
   max-width: 400px;
 }
 
 .input:focus, .select:focus {
-  border-color: #1A73E8;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
 }
 
 /* Switch & Toggle */
@@ -228,7 +235,7 @@
 }
 
 .switch input:checked + .slider {
-  background-color: #1A73E8;
+  background-color: var(--color-primary);
 }
 
 .switch input:checked + .slider:before {

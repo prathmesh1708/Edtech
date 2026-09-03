@@ -6,19 +6,14 @@ import Logo from '../../common/Logo/Logo';
 import { NAV_LINKS } from '../../../../config/constants';
 import { ROUTES } from '../../../../config/routes';
 import Button from '../../common/Button/Button';
+import { useTheme } from '../../../../models/context/ThemeContext';
 import styles from './Navbar.module.css';
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
-
-  const toggleTheme = (newTheme) => {
-    setTheme(newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-  };
+  const { theme, isDark, toggleTheme, setTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,23 +32,6 @@ const Navbar = () => {
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
-  }, [mobileOpen]);
-
-  // Keep theme state in sync with localStorage changes
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const currentTheme = localStorage.getItem('theme') || 'light';
-      setTheme(currentTheme);
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
-  // Update theme state when drawer menu opens to ensure accuracy
-  useEffect(() => {
-    if (mobileOpen) {
-      setTheme(localStorage.getItem('theme') || 'light');
-    }
   }, [mobileOpen]);
 
   return (
@@ -80,12 +58,12 @@ const Navbar = () => {
         {/* Desktop Actions */}
         <div className={styles.actions}>
           <button
-            onClick={() => toggleTheme(theme === 'light' ? 'dark' : 'light')}
+            onClick={toggleTheme}
             className={styles.desktopThemeBtn}
             aria-label="Toggle theme"
-            title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+            title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
-            {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
           <Link to={ROUTES.LOGIN}>
@@ -131,14 +109,14 @@ const Navbar = () => {
           <span className={styles.themeLabel}>Theme Selection</span>
           <div className={styles.themeButtons}>
             <button
-              onClick={() => toggleTheme('light')}
+              onClick={() => setTheme('light')}
               className={`${styles.themeBtn} ${theme === 'light' ? styles.themeBtnActive : ''}`}
             >
               <Sun size={16} />
               <span>Light Theme</span>
             </button>
             <button
-              onClick={() => toggleTheme('dark')}
+              onClick={() => setTheme('dark')}
               className={`${styles.themeBtn} ${theme === 'dark' ? styles.themeBtnActive : ''}`}
             >
               <Moon size={16} />

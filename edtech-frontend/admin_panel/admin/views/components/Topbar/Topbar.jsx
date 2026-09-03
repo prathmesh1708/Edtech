@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Bell, User, X } from 'lucide-react';
+import { Search, Bell, User, X, Sun, Moon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../../../../src/views/components/common/Toast/Toast';
 import { useAuth } from '../../../../../src/models/context/AuthContext';
+import { useTheme } from '../../../../../src/models/context/ThemeContext';
 import { API_BASE_URL } from '../../../../../src/config/constants';
 import styles from './Topbar.module.css';
 
 const Topbar = () => {
   const { user, updateProfile } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
   const navigate = useNavigate();
@@ -123,6 +125,15 @@ const Topbar = () => {
       </div>
 
       <div className={styles.actions}>
+        <button
+          className={styles.iconButton}
+          onClick={toggleTheme}
+          title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          aria-label="Toggle Theme"
+        >
+          {isDark ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
+
         <button 
           className={styles.iconButton}
           onClick={() => navigate('/admin/notifications')}

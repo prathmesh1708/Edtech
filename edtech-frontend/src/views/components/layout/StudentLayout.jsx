@@ -111,8 +111,8 @@ const StudentLayout = () => {
       {/* Sidebar for Desktop */}
       <aside className={styles.sidebar}>
         <div className={styles.logoArea}>
-          <Link to="/">
-            <Logo />
+          <Link to="/" className={styles.logoLink}>
+            <Logo className={styles.sidebarLogo} />
           </Link>
         </div>
 
@@ -150,6 +150,13 @@ const StudentLayout = () => {
       <div className={styles.mainContainer}>
         {/* Sticky Header */}
         <header className={styles.header}>
+          {/* Mobile Logo (only visible on mobile screens) */}
+          <div className={styles.mobileLogo}>
+            <Link to="/" className={styles.logoLink}>
+              <Logo />
+            </Link>
+          </div>
+
           <div className={styles.headerTitle}>
             {MENU_ITEMS.find((item) => item.path === location.pathname)?.label || 'Study Wisely'}
           </div>

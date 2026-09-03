@@ -39,7 +39,6 @@
 .brand img {
   height: 72px;
   width: auto;
-  filter: brightness(0) invert(1);
 }
 
 .brandDesc {

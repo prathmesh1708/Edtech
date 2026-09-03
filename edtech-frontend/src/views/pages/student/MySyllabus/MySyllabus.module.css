@@ -1,0 +1,804 @@
+.container {
+  padding-bottom: 40px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Page Header */
+.header {
+  background: var(--color-surface);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light);
+  margin-bottom: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.headerTitle {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.headerSubtitle {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  margin: 4px 0 0 0;
+  line-height: 1.5;
+}
+
+.refreshButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.refreshButton:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Filters */
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: center;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 140px;
+}
+
+.filterLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.filterSelect {
+  padding: 10px 16px;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--color-border);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  outline: none;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filterSelect:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+/* Payment Status Banner */
+.paymentBanner {
+  margin-bottom: var(--space-6);
+  padding: 16px 20px;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.paymentBannerSuccess {
+  background: linear-gradient(90deg, rgba(34, 197, 94, 0.12) 0%, rgba(34, 197, 94, 0.05) 100%);
+  border: 1.5px solid var(--color-success);
+}
+
+.paymentBannerError {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.12) 0%, rgba(239, 68, 68, 0.05) 100%);
+  border: 1.5px solid var(--color-error);
+}
+
+.paymentBannerTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.paymentBannerText {
+  margin: 2px 0 0 0;
+  font-size: 13px;
+}
+
+/* Custom Subject Subscription Builder */
+.builderCard {
+  background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-6);
+  color: #FFFFFF;
+  margin-bottom: var(--space-8);
+  box-shadow: 0 12px 36px rgba(49, 46, 129, 0.35);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.builderTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.builderInfo {
+  flex: 1;
+  min-width: 260px;
+}
+
+.builderBadgeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.builderSubText {
+  font-size: 12px;
+  color: #E2E8F0;
+  font-weight: 500;
+}
+
+.builderTitle {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0;
+  color: #FFFFFF;
+  line-height: 1.3;
+}
+
+.builderDesc {
+  font-size: 13px;
+  color: #E2E8F0;
+  margin-top: 4px;
+  max-width: 640px;
+  line-height: 1.4;
+}
+
+.priceBox {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 12px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  text-align: right;
+  min-width: 200px;
+  box-sizing: border-box;
+}
+
+.priceBoxLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #CBD5E1;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  display: block;
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 2px 0;
+}
+
+.priceGross {
+  font-size: 15px;
+  color: #94A3B8;
+  text-decoration: line-through;
+  font-weight: 600;
+}
+
+.priceNet {
+  font-size: 26px;
+  font-weight: 900;
+  color: #86EFAC;
+}
+
+.priceSavings {
+  font-size: 11px;
+  color: #FDE047;
+  font-weight: 700;
+  display: block;
+}
+
+.priceStandard {
+  font-size: 11px;
+  color: #E2E8F0;
+  display: block;
+}
+
+/* Builder Form Controls */
+.builderForm {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fieldLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #FFFFFF;
+}
+
+.subjectSelect {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  background: #1E1B4B;
+  color: #FFFFFF;
+  font-weight: 600;
+  font-size: 12.5px;
+  outline: none;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.billingCycles {
+  display: flex;
+  gap: 5px;
+  width: 100%;
+}
+
+.cycleBtn {
+  flex: 1;
+  padding: 6px 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.2s ease;
+}
+
+.cycleBtnActive {
+  background: #86EFAC !important;
+  color: #064E3B !important;
+  border-color: #86EFAC !important;
+  box-shadow: 0 4px 10px rgba(134, 239, 172, 0.3);
+}
+
+.cycleBadge {
+  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+  font-weight: 800;
+}
+
+.cycleBtnActive .cycleBadge {
+  background: #15803D !important;
+  color: #FFFFFF !important;
+}
+
+.activateBtnWrap {
+  display: flex;
+  align-items: flex-end;
+}
+
+.activateBtn {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 800;
+  font-size: 12.5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  transition: all 0.2s ease;
+}
+
+.activateBtnEnabled {
+  background: #22C55E;
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);
+}
+
+.activateBtnEnabled:hover {
+  background: #16A34A;
+}
+
+.activateBtnDisabled {
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+  cursor: not-allowed;
+}
+
+/* Selected Subjects Drawer */
+.selectedContainer {
+  margin-top: 12px;
+}
+
+.selectedHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.selectedHeading {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.toggleCheckboxBtn {
+  background: none;
+  border: none;
+  color: #FDE047;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0;
+}
+
+.selectedPills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.emptyPillsText {
+  font-size: 11.5px;
+  color: #CBD5E1;
+  font-style: italic;
+}
+
+.subjectChip {
+  background: rgba(255, 255, 255, 0.22);
+  color: #FFFFFF;
+  padding: 3px 10px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.removeChipBtn {
+  cursor: pointer;
+  color: #FFFFFF;
+  opacity: 0.9;
+  padding-left: 2px;
+  font-weight: 800;
+}
+
+.checkboxesGrid {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 6px;
+}
+
+.checkboxCard {
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.2s ease;
+}
+
+.checkboxCardActive {
+  background: rgba(134, 239, 172, 0.25);
+  border-color: #86EFAC;
+}
+
+/* Preset Plans Section */
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sectionTitle {
+  font-size: var(--text-base);
+  font-weight: 700;
+  font-family: var(--font-heading);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.sectionSubtitle {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+.planGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.planCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+/* Subjects Section */
+.subjectsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-3);
+}
+
+.subjectCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.subjectCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+.subjectInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.subjectIconWrap {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.subjectName {
+  font-weight: 700;
+  margin: 0 0 2px 0;
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+}
+
+.subjectCount {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+.lockTag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--color-error);
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 30px 16px;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px dashed var(--color-border);
+  margin-top: var(--space-3);
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVENESS OVERRIDES (Compact, space-efficient, touch-friendly)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .header {
+    padding: 12px 14px;
+    border-radius: var(--radius-lg);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .headerTop {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .headerTitle {
+    font-size: 15px;
+  }
+
+  .headerSubtitle {
+    display: none; /* Hide verbose subtitle to preserve mobile vertical screen real estate */
+  }
+
+  .refreshButton {
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+
+  .filterRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding-top: 6px;
+  }
+
+  .filterGroup {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .filterLabel {
+    font-size: 9.5px;
+  }
+
+  .filterSelect {
+    padding: 6px 10px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+
+  /* Compact Custom Builder on Mobile */
+  .builderCard {
+    padding: 12px 14px;
+    border-radius: var(--radius-xl);
+    margin-bottom: 16px;
+    box-shadow: 0 4px 16px rgba(49, 46, 129, 0.25);
+  }
+
+  .builderTop {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .builderInfo {
+    min-width: 100%;
+  }
+
+  .builderBadgeRow {
+    margin-bottom: 2px;
+    gap: 6px;
+  }
+
+  .builderSubText {
+    font-size: 11px;
+  }
+
+  .builderTitle {
+    font-size: 15px;
+  }
+
+  .builderDesc {
+    display: none; /* Removed from mobile view */
+  }
+
+  .priceBox {
+    display: none; /* Removed from mobile view */
+  }
+
+  .builderForm {
+    grid-template-columns: 1fr;
+    padding: 10px 12px;
+    gap: 10px;
+    border-radius: 10px;
+  }
+
+  .fieldLabel {
+    font-size: 10px;
+  }
+
+  .subjectSelect {
+    padding: 8px 10px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+
+  .billingCycles {
+    gap: 4px;
+  }
+
+  .cycleBtn {
+    padding: 5px 3px;
+    font-size: 10.5px;
+    border-radius: 6px;
+  }
+
+  .cycleBadge {
+    font-size: 8.5px;
+    padding: 1px 3px;
+  }
+
+  .activateBtn {
+    padding: 10px 12px;
+    font-size: 12px;
+    min-height: 38px;
+    border-radius: 6px;
+  }
+
+  .selectedContainer {
+    margin-top: 8px;
+  }
+
+  .selectedHeading {
+    font-size: 9.5px;
+  }
+
+  .toggleCheckboxBtn {
+    font-size: 10.5px;
+  }
+
+  .selectedPills {
+    gap: 4px;
+  }
+
+  .emptyPillsText {
+    display: none; /* Removed from mobile view */
+  }
+
+  .subjectChip {
+    padding: 2px 8px;
+    font-size: 10.5px;
+    border-radius: 12px;
+  }
+
+  .checkboxesGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+
+  .checkboxCard {
+    padding: 5px 8px;
+    font-size: 10.5px;
+  }
+
+  /* Preset Plans Mobile Compact */
+  .sectionTitle {
+    font-size: 14px;
+  }
+
+  .sectionSubtitle {
+    font-size: 11px;
+  }
+
+  .planGrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .planCard {
+    padding: 12px 14px;
+    border-radius: var(--radius-lg);
+  }
+
+  /* Subjects Mobile Compact */
+  .subjectsGrid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .subjectCard {
+    padding: 8px 12px;
+    border-radius: var(--radius-lg);
+  }
+
+  .subjectIconWrap {
+    width: 34px;
+    height: 34px;
+  }
+
+  .subjectName {
+    font-size: 13px;
+  }
+
+  .subjectCount {
+    font-size: 10.5px;
+  }
+}

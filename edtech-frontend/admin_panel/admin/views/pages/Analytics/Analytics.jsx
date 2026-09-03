@@ -346,13 +346,13 @@ const Analytics = () => {
                     <stop offset="95%" stopColor="#22C55E" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 12 }} dy={8} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} dy={8} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#FFFFFF', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', border: 'none' }}
+                  contentStyle={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-primary)', borderRadius: '12px', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--color-border)' }}
                 />
-                <Area type="monotone" dataKey="activeUsers" stroke="#1A73E8" strokeWidth={3} fillOpacity={1} fill="url(#activeGradient)" name="Active Users" />
+                <Area type="monotone" dataKey="activeUsers" stroke="#38BDF8" strokeWidth={3} fillOpacity={1} fill="url(#activeGradient)" name="Active Users" />
                 <Area type="monotone" dataKey="newSignups" stroke="#22C55E" strokeWidth={3} fillOpacity={1} fill="url(#newGradient)" name="New Signups" />
               </AreaChart>
             </ResponsiveContainer>
@@ -381,11 +381,11 @@ const Analytics = () => {
                   dataKey="value"
                 >
                   {subjectData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color || '#1A73E8'} />
+                    <Cell key={`cell-${index}`} fill={entry.color || '#38BDF8'} />
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#FFFFFF', borderRadius: '10px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', border: 'none' }}
+                  contentStyle={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-primary)', borderRadius: '10px', boxShadow: 'var(--shadow-md)', border: '1px solid var(--color-border)' }}
                   formatter={(val) => [`${val}% of total study hours`, 'Share']}
                 />
               </PieChart>
@@ -394,7 +394,7 @@ const Analytics = () => {
             <div className={styles.pieLegend}>
               {subjectData.map((item, idx) => (
                 <div key={idx} className={styles.pieLegendItem}>
-                  <div className={styles.legendColorBox} style={{ backgroundColor: item.color || '#1A73E8' }}></div>
+                  <div className={styles.legendColorBox} style={{ backgroundColor: item.color || '#38BDF8' }}></div>
                   <span className={styles.legendLabel}>{item.name}</span>
                   <span className={styles.legendValue}>{item.value}% ({item.hours} hrs)</span>
                 </div>
@@ -418,15 +418,15 @@ const Analytics = () => {
           <div className={styles.chartWrapper}>
             <ResponsiveContainer width="100%" height={280}>
               <ComposedChart data={revenueData} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 12 }} dy={8} />
-                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 12 }} />
-                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} dy={8} />
+                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} />
+                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#FFFFFF', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', border: 'none' }}
+                  contentStyle={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-primary)', borderRadius: '12px', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--color-border)' }}
                 />
-                <Bar yAxisId="left" dataKey="basicPlan" stackId="a" fill="#3B82F6" radius={[0, 0, 0, 0]} name="Basic Plan ($)" />
-                <Bar yAxisId="left" dataKey="proPlan" stackId="a" fill="#8B5CF6" radius={[6, 6, 0, 0]} name="Pro Plan ($)" />
+                <Bar yAxisId="left" dataKey="basicPlan" stackId="a" fill="#38BDF8" radius={[0, 0, 0, 0]} name="Basic Plan ($)" />
+                <Bar yAxisId="left" dataKey="proPlan" stackId="a" fill="#818CF8" radius={[6, 6, 0, 0]} name="Pro Plan ($)" />
                 <Line yAxisId="right" type="monotone" dataKey="arpu" stroke="#F59E0B" strokeWidth={3} dot={{ r: 4 }} name="ARPU ($)" />
               </ComposedChart>
             </ResponsiveContainer>
@@ -445,13 +445,13 @@ const Analytics = () => {
           <div className={styles.chartWrapper}>
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={gradeData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                <XAxis dataKey="grade" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 12 }} dy={8} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
+                <XAxis dataKey="grade" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} dy={8} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#FFFFFF', borderRadius: '10px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', border: 'none' }}
+                  contentStyle={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-primary)', borderRadius: '10px', boxShadow: 'var(--shadow-md)', border: '1px solid var(--color-border)' }}
                 />
-                <Bar dataKey="students" fill="#1A73E8" radius={[8, 8, 0, 0]} name="Enrolled Students" />
+                <Bar dataKey="students" fill="#38BDF8" radius={[8, 8, 0, 0]} name="Enrolled Students" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -472,11 +472,11 @@ const Analytics = () => {
           <div className={styles.chartWrapper}>
             <ResponsiveContainer width="100%" height={260}>
               <LineChart data={peakHoursData} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 12 }} dy={8} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
+                <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} dy={8} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#FFFFFF', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', border: 'none' }}
+                  contentStyle={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-primary)', borderRadius: '12px', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--color-border)' }}
                 />
                 <Line type="monotone" dataKey="users" stroke="#EC4899" strokeWidth={3} dot={{ fill: '#EC4899', r: 5 }} name="Active Students" />
               </LineChart>

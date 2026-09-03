@@ -114,11 +114,7 @@ const SubjectDetail = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
         <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '700', fontFamily: 'var(--font-heading)' }}>Chapters</h3>
         <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-tertiary)' }}>
-<<<<<<< HEAD
-          {(chapters || []).length} {(chapters || []).length === 1 ? 'Chapter' : 'Chapters'}
-=======
           {safeChapters.length} {safeChapters.length === 1 ? 'Chapter' : 'Chapters'}
->>>>>>> 73e255ab40df3bc835accc986132fd8a82a0e26e
         </span>
       </div>
 
@@ -126,15 +122,9 @@ const SubjectDetail = () => {
         <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
           Loading chapters...
         </div>
-<<<<<<< HEAD
-      ) : (chapters || []).length > 0 ? (
-        <div style={s.chapterList}>
-          {(chapters || []).map((ch, idx) => (
-=======
       ) : safeChapters.length > 0 ? (
         <div style={s.chapterList}>
           {safeChapters.map((ch, idx) => (
->>>>>>> 73e255ab40df3bc835accc986132fd8a82a0e26e
             <div
               key={ch.id || idx}
               style={s.chapterCard}

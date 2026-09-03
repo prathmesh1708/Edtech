@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ROUTES } from './config/routes';
 import { AuthProvider } from './models/context/AuthContext';
 import { SyllabusProvider } from './models/context/SyllabusContext';
+import { ThemeProvider } from './models/context/ThemeContext';
 import { ToastProvider } from './views/components/common/Toast/Toast';
 import PublicLayout from './views/components/layout/PublicLayout';
 import StudentLayout from '../admin_panel/student/views/components/Layout/StudentLayout';
@@ -59,10 +60,11 @@ const EducationalMaterialOrganization = lazy(() => import('../admin_panel/admin/
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <SyllabusProvider>
-          <ToastProvider>
+    <ThemeProvider>
+      <Router>
+        <AuthProvider>
+          <SyllabusProvider>
+            <ToastProvider>
             <Suspense fallback={<Loader fullScreen text="Loading Study Wisely..." />}>
               <Routes>
                 {/* Public Pages with Navbar & Footer */}
@@ -132,6 +134,7 @@ function App() {
         </SyllabusProvider>
       </AuthProvider>
     </Router>
+    </ThemeProvider>
   );
 }
 
