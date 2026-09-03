@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'studywisely-api',
+      name: 'backend',
       script: 'server.js',
       cwd: './',
       instances: 1,
