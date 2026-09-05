@@ -5,7 +5,10 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
+    "check-env": "node scripts/check-env.js",
+    "prestart": "node scripts/check-env.js",
     "start": "node server.js",
+    "predev": "node scripts/check-env.js",
     "dev": "nodemon server.js"
   },
   "dependencies": {
