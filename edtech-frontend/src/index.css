@@ -7,7 +7,23 @@
 
 /* ---------- CSS Custom Properties ---------- */
 :root {
-  /* Brand Colors - Light Theme (Navy Blue) */
+  /* Study Wisely Core Design Tokens (Light) */
+  --surface-page: #FFFFFF;
+  --surface-raised: #FFFFFF;
+  --surface-subtle: #F2F5FA;      /* segmented control track */
+  --panel-bg: #0E1F49;            /* the proof panel stays dark in both themes */
+  --text-primary: #0F1E3D;
+  --text-secondary: #51648A;
+  --text-muted: #7A8AA8;
+  --border: rgba(16,30,57,.16);
+  --border-hover: rgba(16,30,57,.30);
+  --brand: #12275C;
+  --brand-hover: #1B3574;
+  --brand-soft: #3B6FD4;
+  --success: #2E7D46;
+  --danger: #C4342F;
+
+  /* Brand Colors */
   --color-primary: #1B3A8C;
   --color-primary-light: #2563EB;
   --color-primary-dark: #0B2559;
@@ -151,6 +167,22 @@
 
 /* ---------- Dark Theme Overrides (High-Contrast & Off-White) ---------- */
 [data-theme="dark"] {
+  /* Study Wisely Core Design Tokens (Dark) */
+  --surface-page: #0A1120;
+  --surface-raised: #111B31;
+  --surface-subtle: rgba(255,255,255,.05);
+  --panel-bg: #0B1836;
+  --text-primary: #EAF2FF;
+  --text-secondary: #8FA3C4;
+  --text-muted: #6E82A5;
+  --border: rgba(255,255,255,.12);
+  --border-hover: rgba(255,255,255,.24);
+  --brand: #3B6FD4;
+  --brand-hover: #4F81E6;
+  --brand-soft: #57A8FF;
+  --success: #4CAF6B;
+  --danger: #E5645F;
+
   /* Neutral Colors */
   --color-bg: #0B0F19; /* Deep dark blue-black slate background */
   --color-bg-alt: #111827; /* Dark slate panels */

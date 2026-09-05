@@ -16,16 +16,27 @@ export const registerUser = async (req, res, next) => {
   const { name, email, password, role, phone, schoolName, childName, classId, board, address } = req.body;
 
   try {
-    if (!name || !email || !password) {
+    if (!name || !password) {
       res.status(400);
-      throw new Error('Please include name, email, and password');
+      throw new Error('Please include name and password');
     }
 
-    const userExists = (await User.findOne({ email })) || (await Admin.findOne({ email }));
+    let userExists = false;
+    if (email && email.trim()) {
+      userExists = (await User.findOne({ email: email.trim().toLowerCase() })) || (await Admin.findOne({ email: email.trim().toLowerCase() }));
+      if (userExists) {
+        res.status(400);
+        throw new Error('This email is already registered. Log in instead?');
+      }
+    }
 
-    if (userExists) {
-      res.status(400);
-      throw new Error('User already exists');
+    if (phone && phone.trim()) {
+      const phoneClean = phone.replace(/\D/g, '');
+      const existingPhoneUser = await User.findOne({ phone: { $in: [phone, phoneClean, `+91${phoneClean}`] } });
+      if (existingPhoneUser) {
+        res.status(400);
+        throw new Error('This number is already registered. Log in instead?');
+      }
     }
 
     if (role === 'admin') {
