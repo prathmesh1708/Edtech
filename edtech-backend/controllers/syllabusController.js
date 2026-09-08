@@ -5,11 +5,66 @@ import Subject from '../models/Subject.js';
 export const normBoard = (b) => {
   if (!b) return 'cbse';
   const s = String(b).toLowerCase().trim();
-  if (s.includes('state')) return 'state';
+  if (s === 'state-mp' || s === 'mp' || s.includes('mp board') || s.includes('mpbse') || s.includes('madhya pradesh')) return 'mp';
+  if (s === 'state-up' || s === 'up' || s.includes('up board') || s.includes('upmsp') || s.includes('uttar pradesh')) return 'up';
+  if (s === 'state-mh' || s === 'mh' || s.includes('maharashtra') || s.includes('msbshse')) return 'maharashtra';
+  if (s === 'state-br' || s === 'br' || s.includes('bihar') || s.includes('bseb')) return 'bihar';
+  if (s === 'state-rj' || s === 'rj' || s.includes('rajasthan') || s.includes('rbse')) return 'rajasthan';
+  if (s === 'state-gj' || s === 'gj' || s.includes('gujarat') || s.includes('gseb')) return 'gujarat';
+  if (s === 'state-ka' || s === 'ka' || s.includes('karnataka') || s.includes('kseeb')) return 'karnataka';
+  if (s === 'state-tn' || s === 'tn' || s.includes('tamil') || s.includes('tnbse')) return 'tamilnadu';
+  if (s === 'state-wb' || s === 'wb' || s.includes('bengal') || s.includes('wbbse')) return 'westbengal';
+  if (s === 'state-pb' || s === 'pb' || s.includes('punjab') || s.includes('pseb')) return 'punjab';
   if (s.includes('icse') || s.includes('cisce')) return 'icse';
   if (s.includes('ib') || s.includes('international')) return 'ib';
   if (s.includes('cambridge') || s.includes('cie')) return 'cambridge';
+  if (s.includes('cbse')) return 'cbse';
+  if (s.startsWith('state-')) return s.replace('state-', '');
+  if (s.includes('state')) return 'state';
   return s;
+};
+
+export const getBoardDisplayName = (b) => {
+  const nb = normBoard(b);
+  switch (nb) {
+    case 'mp': return 'MP Board';
+    case 'up': return 'UP Board';
+    case 'maharashtra': return 'Maharashtra Board';
+    case 'bihar': return 'Bihar Board';
+    case 'rajasthan': return 'Rajasthan Board';
+    case 'gujarat': return 'Gujarat Board';
+    case 'karnataka': return 'Karnataka Board';
+    case 'tamilnadu': return 'Tamil Nadu Board';
+    case 'westbengal': return 'West Bengal Board';
+    case 'punjab': return 'Punjab Board';
+    case 'icse': return 'ICSE';
+    case 'ib': return 'IB';
+    case 'cambridge': return 'Cambridge';
+    case 'cbse': return 'CBSE';
+    default: return String(b).toUpperCase();
+  }
+};
+
+export const getBoardRegex = (b) => {
+  const nb = normBoard(b);
+  switch (nb) {
+    case 'mp': return /(mp\b|mpbse|madhya\s*pradesh|mp\s*board|state-mp)/i;
+    case 'up': return /(up\b|upmsp|uttar\s*pradesh|up\s*board|state-up)/i;
+    case 'maharashtra': return /(mh\b|msbshse|maharashtra|state-mh)/i;
+    case 'bihar': return /(br\b|bseb|bihar|state-br)/i;
+    case 'rajasthan': return /(rj\b|rbse|rajasthan|state-rj)/i;
+    case 'gujarat': return /(gj\b|gseb|gujarat|state-gj)/i;
+    case 'karnataka': return /(ka\b|kseeb|karnataka|state-ka)/i;
+    case 'tamilnadu': return /(tn\b|tnbse|tamil|state-tn)/i;
+    case 'westbengal': return /(wb\b|wbbse|bengal|state-wb)/i;
+    case 'punjab': return /(pb\b|pseb|punjab|state-pb)/i;
+    case 'icse': return /(icse|cisce)/i;
+    case 'ib': return /(ib\b|international\s*baccalaureate)/i;
+    case 'cambridge': return /(cambridge|cie)/i;
+    case 'cbse': return /cbse/i;
+    case 'state': return /(state|board)/i;
+    default: return new RegExp(nb, 'i');
+  }
 };
 
 export const normClass = (c) => {
@@ -18,7 +73,7 @@ export const normClass = (c) => {
   return match ? match[0] : String(c).replace(/class/i, '').trim();
 };
 
-// Default initial seed data for popular boards
+// Default initial seed data for popular boards including State Boards (MP Board, UP Board, CBSE, etc.)
 const DEFAULT_SYLLABUS_SEED = [
   {
     _id: 'seed-math-10',
@@ -85,6 +140,269 @@ const DEFAULT_SYLLABUS_SEED = [
       }
     ]
   },
+  // MP Board Seeds
+  {
+    _id: 'seed-mp-math-10',
+    board: 'mp',
+    class: '10',
+    subjectName: 'Mathematics (MPBSE Ganit)',
+    subjectCode: 'MP-MATH-10',
+    description: 'MP Board Class 10 Mathematics syllabus as per MPBSE / NCERT curriculum (वास्तविक संख्याएँ, बहुपद, दो चर वाले रैखिक समीकरण).',
+    color: '#4F6EF7',
+    icon: 'Calculator',
+    status: 'Published',
+    chapters: [
+      {
+        title: 'अध्याय 1: वास्तविक संख्याएँ (Real Numbers)',
+        description: 'अंकगणित की आधारभूत प्रमेय, अपरिमेय संख्याओं का पुनर्भ्रमण',
+        progress: 75,
+        topics: [
+          { name: 'अंकगणित की आधारभूत प्रमेय', completed: true },
+          { name: 'अपरिमेय संख्याओं का सत्यापन', completed: true },
+          { name: 'महत्तम समापवर्तक (HCF) एवं लघुत्तम समापवर्त्य (LCM)', completed: false }
+        ],
+        resources: [
+          { title: 'MPBSE सूत्र संग्रह एवं नोट्स (PDF)', type: 'PDF', url: '#' },
+          { title: 'अध्याय 1 वीडियो व्याख्यान', type: 'Video', url: '#' }
+        ]
+      },
+      {
+        title: 'अध्याय 2: बहुपद (Polynomials)',
+        description: 'बहुपद के शून्यकों का ज्यामितीय अर्थ, गुणांकों में संबंध',
+        progress: 50,
+        topics: [
+          { name: 'बहुपद के शून्यक', completed: true },
+          { name: 'शून्यकों और गुणांकों के बीच सम्बंध', completed: true },
+          { name: 'द्विघात बहुपद के अनुप्रयोग', completed: false }
+        ],
+        resources: [
+          { title: 'बहुपद अभ्यास प्रश्न पत्र (PDF)', type: 'PDF', url: '#' }
+        ]
+      },
+      {
+        title: 'अध्याय 3: दो चर वाले रैखिक समीकरण युग्म',
+        description: 'आलेखीय एवं बीजगणितीय विधियाँ (प्रतिस्थापन एवं विलोपन)',
+        progress: 0,
+        topics: [
+          { name: 'रैखिक समीकरण युग्म का आलेखीय हल', completed: false },
+          { name: 'प्रतिस्थापन विधि', completed: false },
+          { name: 'विलोपन विधि', completed: false }
+        ]
+      }
+    ]
+  },
+  {
+    _id: 'seed-mp-sci-10',
+    board: 'mp',
+    class: '10',
+    subjectName: 'Science (MPBSE Vigyan)',
+    subjectCode: 'MP-SCI-10',
+    description: 'MP Board Class 10 Science (विज्ञान) complete curriculum including Physics, Chemistry & Biology modules.',
+    color: '#22C55E',
+    icon: 'FlaskConical',
+    status: 'Published',
+    chapters: [
+      {
+        title: 'अध्याय 1: रासायनिक अभिक्रियाएँ एवं समीकरण',
+        description: 'रासायनिक परिवर्तन, संतुलित रासायनिक समीकरण, अभिक्रियाओं के प्रकार',
+        progress: 60,
+        topics: [
+          { name: 'रासायनिक समीकरण लिखना और संतुलित करना', completed: true },
+          { name: 'संयोजन, वियोजन एवं विस्थापन अभिक्रियाएँ', completed: true },
+          { name: 'संक्षारण एवं विकृतगंधिता', completed: false }
+        ]
+      },
+      {
+        title: 'अध्याय 2: अम्ल, क्षारक एवं लवण',
+        description: 'pH पैमाना, सूचक, दैनिक जीवन में pH का महत्व, महत्वपूर्ण लवण',
+        progress: 20,
+        topics: [
+          { name: 'अम्ल एवं क्षारकों के रासायनिक गुणधर्म', completed: true },
+          { name: 'pH मान एवं इसका महत्व', completed: false },
+          { name: 'विरंजक चूर्ण, बेकिंग सोडा, धावन सोडा एवं प्लास्टर ऑफ पेरिस', completed: false }
+        ]
+      },
+      {
+        title: 'अध्याय 6: जैव प्रक्रम (Life Processes)',
+        description: 'पोषण, श्वसन, वहन एवं उत्सर्जन',
+        progress: 0,
+        topics: [
+          { name: 'स्वपोषी एवं विषमपोषी पोषण', completed: false },
+          { name: 'मानव श्वसन तंत्र', completed: false },
+          { name: 'मानव हृदय एवं उत्सर्जन तंत्र', completed: false }
+        ]
+      }
+    ]
+  },
+  {
+    _id: 'seed-mp-sst-10',
+    board: 'mp',
+    class: '10',
+    subjectName: 'Social Science (MPBSE Samajik Vigyan)',
+    subjectCode: 'MP-SST-10',
+    description: 'MP Board Class 10 Social Science: History (इतिहास), Geography (भूगोल), Civics (नागरिक शास्त्र), and Economics (अर्थशास्त्र).',
+    color: '#F59E0B',
+    icon: 'Globe',
+    status: 'Published',
+    chapters: [
+      {
+        title: 'इतिहास अध्याय 1: यूरोप में राष्ट्रवाद का उदय',
+        description: 'फ्रांसीसी क्रांति, राष्ट्र का विचार, 1848 की क्रांतियाँ',
+        progress: 0,
+        topics: [
+          { name: 'फ्रांसीसी क्रांति और राष्ट्र का विचार', completed: false },
+          { name: 'जर्मनी और इटली का एकीकरण', completed: false }
+        ]
+      },
+      {
+        title: 'भूगोल अध्याय 1: संसाधन एवं विकास',
+        description: 'संसाधनों के प्रकार, संरक्षण एवं भारत में मृदा प्रकार',
+        progress: 0,
+        topics: [
+          { name: 'संसाधनों का वर्गीकरण', completed: false },
+          { name: 'मृदा संसाधन एवं अपरदन', completed: false }
+        ]
+      }
+    ]
+  },
+  {
+    _id: 'seed-mp-hin-10',
+    board: 'mp',
+    class: '10',
+    subjectName: 'Hindi (MPBSE Hindi Vishesh)',
+    subjectCode: 'MP-HIN-10',
+    description: 'MP Board Class 10 Hindi: क्षितिज भाग-2 (पद्य व गद्य खंड), कृतिका भाग-2 एवं व्याकरण।',
+    color: '#8B5CF6',
+    icon: 'BookOpen',
+    status: 'Published',
+    chapters: [
+      {
+        title: 'पद्य खंड: सूरदास के पद',
+        description: 'सूरदास के पदों की व्याख्या एवं भाव सौंदर्य',
+        progress: 40,
+        topics: [
+          { name: 'पद व्याख्या एवं भावार्थ', completed: true },
+          { name: 'काव्य सौंदर्य एवं प्रश्नोत्तर', completed: false }
+        ]
+      },
+      {
+        title: 'व्याकरण: रस, छंद एवं अलंकार',
+        description: 'रस के भेद, स्थायी भाव, दोहा, चौपाई एवं प्रमुख अलंकार',
+        progress: 0,
+        topics: [
+          { name: 'रस परिचय एवं स्थायी भाव', completed: false },
+          { name: 'अनुप्रास, यमक, श्लेष, उपमा, रूपक अलंकार', completed: false }
+        ]
+      }
+    ]
+  },
+  {
+    _id: 'seed-mp-eng-10',
+    board: 'mp',
+    class: '10',
+    subjectName: 'English (MPBSE English General)',
+    subjectCode: 'MP-ENG-10',
+    description: 'MP Board Class 10 English: First Flight prose and poetry, Footprints without Feet, and English Grammar.',
+    color: '#EC4899',
+    icon: 'BookOpen',
+    status: 'Published',
+    chapters: [
+      {
+        title: 'Chapter 1: A Letter to God',
+        description: 'Story of Lencho\'s unwavering faith in God and the hailstorm',
+        progress: 30,
+        topics: [
+          { name: 'Reading & Line by Line Explanation', completed: true },
+          { name: 'Character Sketch & Question Answers', completed: false }
+        ]
+      },
+      {
+        title: 'Grammar: Tenses, Modals & Voice',
+        description: 'Essential grammar structures for MP Board examination',
+        progress: 0,
+        topics: [
+          { name: 'Active and Passive Voice', completed: false },
+          { name: 'Direct and Indirect Narration', completed: false }
+        ]
+      }
+    ]
+  },
+  // UP Board Seeds
+  {
+    _id: 'seed-up-math-10',
+    board: 'up',
+    class: '10',
+    subjectName: 'Mathematics (UPMSP Ganit)',
+    subjectCode: 'UP-MATH-10',
+    description: 'UP Board Class 10 Mathematics (उत्तर प्रदेश माध्यमिक शिक्षा परिषद् - गणित पाठ्यक्रम).',
+    color: '#4F6EF7',
+    icon: 'Calculator',
+    status: 'Published',
+    chapters: [
+      {
+        title: 'अध्याय 1: वास्तविक संख्याएँ',
+        description: 'अंकगणित की आधारभूत प्रमेय एवं अपरिमेय संख्याओं का सत्यापन',
+        progress: 0,
+        topics: [
+          { name: 'अंकगणित की आधारभूत प्रमेय', completed: false },
+          { name: 'अपरिमेय संख्याओं का सत्यापन', completed: false }
+        ]
+      },
+      {
+        title: 'अध्याय 2: द्विघात समीकरण',
+        description: 'द्विघात सूत्र (श्रीधराचार्य विधि), गुणनखंड विधि, मूलों की प्रकृति',
+        progress: 0,
+        topics: [
+          { name: 'द्विघात समीकरण का मानक रूप', completed: false },
+          { name: 'श्रीधराचार्य सूत्र विधि', completed: false }
+        ]
+      }
+    ]
+  },
+  {
+    _id: 'seed-up-sci-10',
+    board: 'up',
+    class: '10',
+    subjectName: 'Science (UPMSP Vigyan)',
+    subjectCode: 'UP-SCI-10',
+    description: 'UP Board Class 10 Science (भौतिक विज्ञान, रसायन विज्ञान एवं जीव विज्ञान).',
+    color: '#22C55E',
+    icon: 'FlaskConical',
+    status: 'Published',
+    chapters: [
+      {
+        title: 'अध्याय 1: रासायनिक अभिक्रियाएँ एवं समीकरण',
+        description: 'रासायनिक समीकरण एवं रासायनिक अभिक्रियाओं के विभिन्न प्रकार',
+        progress: 0,
+        topics: [
+          { name: 'रासायनिक समीकरण संतुलित करना', completed: false },
+          { name: 'रेडॉक्स अभिक्रियाएँ (उपचयन एवं अपचयन)', completed: false }
+        ]
+      }
+    ]
+  },
+  {
+    _id: 'seed-up-hin-10',
+    board: 'up',
+    class: '10',
+    subjectName: 'Hindi (UPMSP Hindi)',
+    subjectCode: 'UP-HIN-10',
+    description: 'UP Board Class 10 Hindi: गद्य खंड, काव्य खंड, अनिवार्य संस्कृत एवं व्याकरण।',
+    color: '#8B5CF6',
+    icon: 'BookOpen',
+    status: 'Published',
+    chapters: [
+      {
+        title: 'गद्य खंड: मित्रता (आचार्य रामचंद्र शुक्ल)',
+        description: 'पाठ का सारांश, गद्यांशों की संदर्भ सहित व्याख्या',
+        progress: 0,
+        topics: [
+          { name: 'पाठ व्याख्या एवं कठिन शब्दार्थ', completed: false },
+          { name: 'गद्यांश पर आधारित प्रश्नोत्तर', completed: false }
+        ]
+      }
+    ]
+  },
   {
     _id: 'seed-state-math-12',
     board: 'state',
@@ -104,49 +422,25 @@ const DEFAULT_SYLLABUS_SEED = [
           { name: 'Types of Relations', completed: false },
           { name: 'One to One and Onto Functions', completed: false }
         ]
-      },
-      {
-        title: 'Chapter 2: Derivatives & Continuity',
-        description: 'Calculus derivatives of composite and implicit functions.',
-        progress: 0,
-        topics: [
-          { name: 'Continuity & Differentiability', completed: false },
-          { name: 'Chain Rule Derivatives', completed: false }
-        ]
-      }
-    ]
-  },
-  {
-    _id: 'seed-state-phy-12',
-    board: 'state',
-    class: '12',
-    subjectName: 'Physics',
-    subjectCode: 'PHY-12',
-    description: 'Class 12 State Board Physics (Electrostatics, Current Electricity & Optics)',
-    color: '#3B82F6',
-    icon: 'Atom',
-    status: 'Published',
-    chapters: [
-      {
-        title: 'Chapter 1: Electrostatics',
-        description: 'Electric charges, Coulomb\'s Law, and Electric Dipole.',
-        progress: 0,
-        topics: [
-          { name: 'Electric Charge & Conservation', completed: false },
-          { name: 'Coulomb\'s Law & Field Lines', completed: false }
-        ]
       }
     ]
   }
 ];
 
-// Helper to auto seed database if empty
+// Helper to auto seed database if empty or missing state board seeds
 const seedIfEmpty = async () => {
   try {
     const count = await Syllabus.countDocuments().maxTimeMS(3000);
     if (count === 0) {
       await Syllabus.insertMany(DEFAULT_SYLLABUS_SEED);
-      console.log('Syllabus database seeded automatically with initial data.');
+      console.log('Syllabus database seeded automatically with initial national and state board data.');
+    } else {
+      // Ensure MP & UP board seed items exist
+      const mpCount = await Syllabus.countDocuments({ board: 'mp' }).maxTimeMS(3000);
+      if (mpCount === 0) {
+        const mpSeeds = DEFAULT_SYLLABUS_SEED.filter(s => s.board === 'mp' || s.board === 'up');
+        await Syllabus.insertMany(mpSeeds);
+      }
     }
   } catch (err) {
     console.warn('Skipping auto-seed due to DB connection timeout/error:', err.message);
@@ -159,39 +453,63 @@ const seedIfEmpty = async () => {
  * @access  Public
  */
 export const getSyllabuses = async (req, res) => {
-  const { board, class: classVal, status, search } = req.query;
+  const { board, class: classVal, status, search, stateBoard } = req.query;
 
   try {
     await seedIfEmpty();
 
-    const nb = normBoard(board);
+    const queryBoard = stateBoard || board;
+    const nb = normBoard(queryBoard);
     const nc = normClass(classVal);
+    const boardRegex = getBoardRegex(queryBoard);
+    const boardDisplayName = getBoardDisplayName(queryBoard);
 
     const filter = {};
-    if (board) filter.board = { $regex: nb, $options: 'i' };
-    if (classVal) {
+    if (queryBoard) {
       filter.$or = [
+        { board: { $regex: boardRegex } },
+        { board: nb }
+      ];
+    }
+    if (classVal) {
+      const classFilter = [
         { class: { $regex: nc, $options: 'i' } },
         { classId: { $regex: nc, $options: 'i' } }
       ];
+      if (filter.$or) {
+        filter.$and = [{ $or: filter.$or }, { $or: classFilter }];
+        delete filter.$or;
+      } else {
+        filter.$or = classFilter;
+      }
     }
     if (status && status !== 'All') {
       filter.status = { $regex: new RegExp(`^(${status}|Published|Active)$`, 'i') };
     }
     if (search) {
-      filter.$or = [
+      const searchFilter = [
         { subjectName: { $regex: search, $options: 'i' } },
         { subjectCode: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } }
       ];
+      if (filter.$and) {
+        filter.$and.push({ $or: searchFilter });
+      } else if (filter.$or) {
+        filter.$and = [{ $or: filter.$or }, { $or: searchFilter }];
+        delete filter.$or;
+      } else {
+        filter.$or = searchFilter;
+      }
     }
 
     // 1. Fetch from Syllabus collection
     const syllabuses = await Syllabus.find(filter).sort({ createdAt: -1 }).maxTimeMS(3000);
 
-    // 2. Fetch from Subject collection (set by Admin)
+    // 2. Fetch from Subject collection (created by Admin)
     const subjectFilter = { isDeleted: false };
-    if (board) subjectFilter.board = { $regex: nb, $options: 'i' };
+    if (queryBoard) {
+      subjectFilter.board = { $regex: boardRegex };
+    }
     if (classVal) {
       subjectFilter.$or = [
         { classId: { $regex: nc, $options: 'i' } },
@@ -212,7 +530,7 @@ export const getSyllabuses = async (req, res) => {
           class: s.class,
           subjectName: s.subjectName,
           subjectCode: s.subjectCode || 'SUB-101',
-          description: s.description || `Official ${s.subjectName} syllabus curated by Admin.`,
+          description: s.description || `Official ${s.subjectName} syllabus curated for ${boardDisplayName}.`,
           color: s.color || '#4F6EF7',
           icon: s.icon || 'BookOpen',
           status: s.status || 'Published',
@@ -228,7 +546,7 @@ export const getSyllabuses = async (req, res) => {
       if (!subjectMap.has(key)) {
         subjectMap.set(key, {
           _id: sub._id,
-          board: sub.board || nb.toUpperCase(),
+          board: sub.board || boardDisplayName,
           class: sub.classId || nc,
           subjectName: sub.subjectName,
           subjectCode: sub.subjectCode || 'SUB-101',
@@ -247,29 +565,50 @@ export const getSyllabuses = async (req, res) => {
 
     let results = Array.from(subjectMap.values());
 
-    // If no subjects found for this specific class & board, generate default Admin curriculum subjects
+    // If no subjects found for this specific class & board, generate default dynamic curriculum subjects
     if (results.length === 0) {
-      const defaultSubjects = [
-        { name: 'Mathematics', code: `MATH-${nc}`, color: '#4F6EF7', desc: 'Numbers, Algebra, Geometry, and Mensuration' },
-        { name: 'Science', code: `SCI-${nc}`, color: '#22C55E', desc: 'Physics, Chemistry, and Biology fundamentals' },
-        { name: 'English', code: `ENG-${nc}`, color: '#EC4899', desc: 'Grammar, Literature, and Reading Comprehension' },
-        { name: 'Social Studies', code: `SST-${nc}`, color: '#F59E0B', desc: 'History, Geography, and Civics' },
-        { name: 'Hindi', code: `HIN-${nc}`, color: '#8B5CF6', desc: 'Hindi Vyakaran and Sahitya' }
-      ];
+      const isState = nb === 'mp' || nb === 'up' || nb === 'maharashtra' || nb === 'bihar' || nb === 'rajasthan' || nb === 'state';
+      
+      let defaultSubjects = [];
+      if (nb === 'mp') {
+        defaultSubjects = [
+          { name: 'Mathematics (MPBSE Ganit)', code: `MP-MATH-${nc}`, color: '#4F6EF7', desc: 'MP Board Class ' + nc + ' Mathematics curriculum' },
+          { name: 'Science (MPBSE Vigyan)', code: `MP-SCI-${nc}`, color: '#22C55E', desc: 'MP Board Class ' + nc + ' Science fundamentals' },
+          { name: 'Social Science (MPBSE Samajik Vigyan)', code: `MP-SST-${nc}`, color: '#F59E0B', desc: 'MP Board History, Geography, Civics and Economics' },
+          { name: 'Hindi (MPBSE Hindi Vishesh)', code: `MP-HIN-${nc}`, color: '#8B5CF6', desc: 'MP Board Hindi Vyakaran, Gadya evam Kavya' },
+          { name: 'English (MPBSE English General)', code: `MP-ENG-${nc}`, color: '#EC4899', desc: 'MP Board English Literature and Grammar' }
+        ];
+      } else if (nb === 'up') {
+        defaultSubjects = [
+          { name: 'Mathematics (UPMSP Ganit)', code: `UP-MATH-${nc}`, color: '#4F6EF7', desc: 'UP Board Class ' + nc + ' Mathematics curriculum' },
+          { name: 'Science (UPMSP Vigyan)', code: `UP-SCI-${nc}`, color: '#22C55E', desc: 'UP Board Class ' + nc + ' Science fundamentals' },
+          { name: 'Social Science (UPMSP Samajik Vigyan)', code: `UP-SST-${nc}`, color: '#F59E0B', desc: 'UP Board Social Science curriculum' },
+          { name: 'Hindi (UPMSP Hindi)', code: `UP-HIN-${nc}`, color: '#8B5CF6', desc: 'UP Board Hindi Sahitya evam Vyakaran' },
+          { name: 'English (UPMSP English)', code: `UP-ENG-${nc}`, color: '#EC4899', desc: 'UP Board English Literature and Grammar' }
+        ];
+      } else {
+        defaultSubjects = [
+          { name: 'Mathematics', code: `MATH-${nc}`, color: '#4F6EF7', desc: 'Numbers, Algebra, Geometry, and Mensuration' },
+          { name: 'Science', code: `SCI-${nc}`, color: '#22C55E', desc: 'Physics, Chemistry, and Biology fundamentals' },
+          { name: 'English', code: `ENG-${nc}`, color: '#EC4899', desc: 'Grammar, Literature, and Reading Comprehension' },
+          { name: 'Social Studies', code: `SST-${nc}`, color: '#F59E0B', desc: 'History, Geography, and Civics' },
+          { name: 'Hindi', code: `HIN-${nc}`, color: '#8B5CF6', desc: 'Hindi Vyakaran and Sahitya' }
+        ];
+      }
 
       results = defaultSubjects.map((d, i) => ({
-        _id: `admin-sub-${nc}-${i}`,
-        board: nb.toUpperCase(),
+        _id: `curated-${nb}-${nc}-${i}`,
+        board: boardDisplayName,
         class: nc,
         subjectName: d.name,
         subjectCode: d.code,
-        description: `Official ${nb.toUpperCase()} Class ${nc} ${d.name} syllabus set by Admin. ${d.desc}.`,
+        description: `Official ${boardDisplayName} Class ${nc} ${d.name} syllabus. ${d.desc}.`,
         color: d.color,
         icon: 'BookOpen',
         status: 'Published',
         chapters: [
-          { title: `Chapter 1: ${d.name} Overview`, description: 'Core topics and concepts', progress: 0 },
-          { title: `Chapter 2: Advanced ${d.name} Practice`, description: 'Exemplar exercises', progress: 0 }
+          { title: `Chapter 1: ${d.name} Overview & Foundations`, description: 'Core topics and fundamental concepts', progress: 0 },
+          { title: `Chapter 2: Advanced ${d.name} Practice`, description: 'Exemplar exercises and practice questions', progress: 0 }
         ],
         adminCurated: true,
         adminName: 'Academic Admin Council'

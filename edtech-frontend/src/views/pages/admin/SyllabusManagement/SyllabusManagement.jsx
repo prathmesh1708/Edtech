@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Trash2, Edit2, BookOpen, Layers, X, Check, Search, RefreshCw, AlertCircle } from 'lucide-react';
-import { BOARDS, CLASSES } from '../../../../config/constants';
+import { BOARDS, STATE_BOARDS, CLASSES } from '../../../../config/constants';
 import syllabusService from '../../../../models/services/syllabusService';
 import { useSyllabusState } from '../../../../models/context/SyllabusContext';
 import { useToast } from '../../../../views/components/common/Toast/Toast';
@@ -327,9 +327,16 @@ const SyllabusManagement = () => {
               value={selectedBoard}
               onChange={(e) => setSelectedBoard(e.target.value)}
             >
-              {BOARDS.map(b => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
+              <optgroup label="National & International">
+                {BOARDS.filter(b => b.id !== 'state').map(b => (
+                  <option key={b.id} value={b.id}>{b.name}</option>
+                ))}
+              </optgroup>
+              <optgroup label="State Boards (UP, MP, Maharashtra, Bihar, etc.)">
+                {STATE_BOARDS.map(sb => (
+                  <option key={sb.id} value={sb.id}>{sb.name} ({sb.state})</option>
+                ))}
+              </optgroup>
             </select>
           </div>
 
@@ -446,9 +453,16 @@ const SyllabusManagement = () => {
                     value={formData.board}
                     onChange={(e) => setFormData({ ...formData, board: e.target.value })}
                   >
-                    {BOARDS.map(b => (
-                      <option key={b.id} value={b.id}>{b.name}</option>
-                    ))}
+                    <optgroup label="State Boards (UP, MP, Maharashtra, Bihar, etc.)">
+                      {STATE_BOARDS.map(sb => (
+                        <option key={sb.id} value={sb.id}>{sb.name} ({sb.state})</option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="National & International">
+                      {BOARDS.filter(b => b.id !== 'state').map(b => (
+                        <option key={b.id} value={b.id}>{b.name}</option>
+                      ))}
+                    </optgroup>
                   </select>
                 </div>
 

@@ -1,0 +1,299 @@
+.container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.label {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.trigger {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.trigger:hover {
+  border-color: var(--color-primary);
+}
+
+.trigger:focus-visible,
+.triggerOpen {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+.triggerContent {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.triggerName {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.triggerSub {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chevron {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+  color: var(--color-primary);
+}
+
+/* Dropdown Menu - 100% CONSTRAINED TO CONTAINER */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18), 0 4px 10px rgba(0, 0, 0, 0.08);
+  z-index: 1000;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.18s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.searchWrap {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  gap: 8px;
+  border-bottom: 1px solid var(--color-border-light);
+  background: var(--color-bg);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.searchIcon {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.searchInput {
+  width: 100%;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 12.5px;
+  color: var(--color-text-primary);
+  padding: 2px 0;
+}
+
+.searchInput::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.clearSearch {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-tertiary);
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.clearSearch:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+.optionsList {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 4px;
+  overscroll-behavior: contain;
+}
+
+/* Custom Scrollbar for Options List */
+.optionsList::-webkit-scrollbar {
+  width: 5px;
+}
+
+.optionsList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.optionsList::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+.optionsList::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  gap: 8px;
+}
+
+.option:hover {
+  background: var(--color-surface-hover);
+}
+
+.optionSelected {
+  background: rgba(79, 110, 247, 0.1) !important;
+  color: var(--color-primary);
+}
+
+.optionContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.optionName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.optionSelected .optionName {
+  color: var(--color-primary);
+}
+
+.optionState {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.optionRight {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  letter-spacing: 0.3px;
+}
+
+.checkIcon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.noResults {
+  padding: 16px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+/* Mobile Responsiveness Overrides */
+@media (max-width: 768px) {
+  .label {
+    font-size: 10px;
+  }
+
+  .trigger {
+    padding: 8px 11px;
+  }
+
+  .triggerName {
+    font-size: 12.5px;
+  }
+
+  .triggerSub {
+    font-size: 11px;
+  }
+
+  .dropdown {
+    max-height: 250px;
+  }
+
+  .optionsList {
+    max-height: 190px;
+  }
+
+  .option {
+    padding: 8px 10px;
+  }
+
+  .optionName {
+    font-size: 12px;
+  }
+
+  .optionState {
+    font-size: 10.5px;
+  }
+}

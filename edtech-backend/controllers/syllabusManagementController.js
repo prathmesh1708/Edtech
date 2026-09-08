@@ -97,11 +97,21 @@ export const getBoards = async (req, res, next) => {
 
     if (list.length === 0) {
       const seeds = [
-        { boardName: 'CBSE', code: 'CBSE-IND', description: 'Central Board of Secondary Education', status: 'Active', logoUrl: 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&w=150&q=80' },
-        { boardName: 'ICSE', code: 'CISCE-IND', description: 'Indian Certificate of Secondary Education', status: 'Active', logoUrl: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=150&q=80' },
-        { boardName: 'State Board', code: 'STATE-EDU', description: 'State Higher Secondary Education Board', status: 'Active', logoUrl: '' },
-        { boardName: 'IB', code: 'IB-INT', description: 'International Baccalaureate Organization', status: 'Active', logoUrl: '' },
-        { boardName: 'Cambridge', code: 'CIE-UK', description: 'Cambridge Assessment International Education', status: 'Active', logoUrl: '' }
+        { boardName: 'CBSE', code: 'CBSE-IND', boardType: 'National', stateName: '', stateCode: '', description: 'Central Board of Secondary Education', status: 'Active', logoUrl: 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&w=150&q=80' },
+        { boardName: 'ICSE', code: 'CISCE-IND', boardType: 'National', stateName: '', stateCode: '', description: 'Indian Certificate of Secondary Education', status: 'Active', logoUrl: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=150&q=80' },
+        { boardName: 'IB', code: 'IB-INT', boardType: 'International', stateName: '', stateCode: '', description: 'International Baccalaureate Organization', status: 'Active', logoUrl: '' },
+        { boardName: 'Cambridge', code: 'CIE-UK', boardType: 'International', stateName: '', stateCode: '', description: 'Cambridge Assessment International Education', status: 'Active', logoUrl: '' },
+        // Pre-seeded State Boards
+        { boardName: 'UP Board', code: 'UPMSP', boardType: 'State Board', stateName: 'Uttar Pradesh', stateCode: 'UP', description: 'Uttar Pradesh Board of High School and Intermediate Education', status: 'Active', logoUrl: '' },
+        { boardName: 'MP Board', code: 'MPBSE', boardType: 'State Board', stateName: 'Madhya Pradesh', stateCode: 'MP', description: 'Madhya Pradesh Board of Secondary Education', status: 'Active', logoUrl: '' },
+        { boardName: 'Maharashtra Board', code: 'MSBSHSE', boardType: 'State Board', stateName: 'Maharashtra', stateCode: 'MH', description: 'Maharashtra State Board of Secondary and Higher Secondary Education', status: 'Active', logoUrl: '' },
+        { boardName: 'Bihar Board', code: 'BSEB', boardType: 'State Board', stateName: 'Bihar', stateCode: 'BR', description: 'Bihar School Examination Board', status: 'Active', logoUrl: '' },
+        { boardName: 'Rajasthan Board', code: 'RBSE', boardType: 'State Board', stateName: 'Rajasthan', stateCode: 'RJ', description: 'Board of Secondary Education Rajasthan', status: 'Active', logoUrl: '' },
+        { boardName: 'Gujarat Board', code: 'GSEB', boardType: 'State Board', stateName: 'Gujarat', stateCode: 'GJ', description: 'Gujarat Secondary and Higher Secondary Education Board', status: 'Active', logoUrl: '' },
+        { boardName: 'Karnataka Board', code: 'KSEEB', boardType: 'State Board', stateName: 'Karnataka', stateCode: 'KA', description: 'Karnataka School Examination and Assessment Board', status: 'Active', logoUrl: '' },
+        { boardName: 'Tamil Nadu Board', code: 'TNBSE', boardType: 'State Board', stateName: 'Tamil Nadu', stateCode: 'TN', description: 'Tamil Nadu State Board of School Examination', status: 'Active', logoUrl: '' },
+        { boardName: 'West Bengal Board', code: 'WBBSE', boardType: 'State Board', stateName: 'West Bengal', stateCode: 'WB', description: 'West Bengal Board of Secondary Education', status: 'Active', logoUrl: '' },
+        { boardName: 'Punjab Board', code: 'PSEB', boardType: 'State Board', stateName: 'Punjab', stateCode: 'PB', description: 'Punjab School Education Board', status: 'Active', logoUrl: '' },
       ];
       await Board.insertMany(seeds);
       list = await Board.find({ isDeleted: false }).sort({ createdAt: -1 });
@@ -115,14 +125,17 @@ export const getBoards = async (req, res, next) => {
 
 export const createBoard = async (req, res, next) => {
   try {
-    const { boardName, code, description, logoUrl, status, assignedSyllabus } = req.body;
+    const { boardName, code, boardType, stateName, stateCode, description, logoUrl, status, assignedSyllabus } = req.body;
     if (!boardName) {
       res.status(400);
       throw new Error('Board Name is required');
     }
     const item = await Board.create({
-      boardName,
-      code: code || '',
+      boardName: boardName.trim(),
+      code: code ? code.trim() : '',
+      boardType: boardType || 'National',
+      stateName: stateName ? stateName.trim() : '',
+      stateCode: stateCode ? stateCode.trim() : '',
       description: description || '',
       logoUrl: logoUrl || '',
       status: status || 'Active',
@@ -141,9 +154,12 @@ export const updateBoard = async (req, res, next) => {
       res.status(404);
       throw new Error('Board not found');
     }
-    const { boardName, code, description, logoUrl, status, assignedSyllabus } = req.body;
-    if (boardName) item.boardName = boardName;
-    if (code !== undefined) item.code = code;
+    const { boardName, code, boardType, stateName, stateCode, description, logoUrl, status, assignedSyllabus } = req.body;
+    if (boardName) item.boardName = boardName.trim();
+    if (code !== undefined) item.code = code.trim();
+    if (boardType !== undefined) item.boardType = boardType;
+    if (stateName !== undefined) item.stateName = stateName.trim();
+    if (stateCode !== undefined) item.stateCode = stateCode.trim();
     if (description !== undefined) item.description = description;
     if (logoUrl !== undefined) item.logoUrl = logoUrl;
     if (status) item.status = status;
@@ -185,7 +201,15 @@ export const getSubjects = async (req, res, next) => {
         { subjectName: 'Physics', subjectCode: 'PHY-102', board: 'CBSE', classId: 'Class 10', description: 'Light, Electricity & Magnetic Effects', color: '#4F6EF7', status: 'Active' },
         { subjectName: 'Chemistry', subjectCode: 'CHEM-103', board: 'CBSE', classId: 'Class 10', description: 'Chemical Reactions, Acids & Carbon Compounds', color: '#A855F7', status: 'Active' },
         { subjectName: 'Biology', subjectCode: 'BIO-104', board: 'ICSE', classId: 'Class 9', description: 'Cellular Structures & Plant Physiology', color: '#22C55E', status: 'Active' },
-        { subjectName: 'English Literature', subjectCode: 'ENG-105', board: 'CBSE', classId: 'Class 10', description: 'First Flight & Footprints Prose Literature', color: '#EC4899', status: 'Active' }
+        { subjectName: 'English Literature', subjectCode: 'ENG-105', board: 'CBSE', classId: 'Class 10', description: 'First Flight & Footprints Prose Literature', color: '#EC4899', status: 'Active' },
+        // MP Board initial subjects
+        { subjectName: 'Mathematics (MPBSE Ganit)', subjectCode: 'MP-MATH-101', board: 'MP Board', classId: 'Class 10', description: 'MP Board Class 10 Ganit (Mathematics)', color: '#1A73E8', status: 'Active', price: 499 },
+        { subjectName: 'Science (MPBSE Vigyan)', subjectCode: 'MP-SCI-102', board: 'MP Board', classId: 'Class 10', description: 'MP Board Class 10 Vigyan (Science)', color: '#22C55E', status: 'Active', price: 499 },
+        { subjectName: 'Social Science (MPBSE Samajik Vigyan)', subjectCode: 'MP-SST-103', board: 'MP Board', classId: 'Class 10', description: 'MP Board Class 10 Samajik Vigyan', color: '#F59E0B', status: 'Active', price: 499 },
+        { subjectName: 'Hindi (MPBSE Hindi Vishesh)', subjectCode: 'MP-HIN-104', board: 'MP Board', classId: 'Class 10', description: 'MP Board Class 10 Hindi Special', color: '#8B5CF6', status: 'Active', price: 399 },
+        // UP Board initial subjects
+        { subjectName: 'Mathematics (UPMSP Ganit)', subjectCode: 'UP-MATH-101', board: 'UP Board', classId: 'Class 10', description: 'UP Board Class 10 Ganit (Mathematics)', color: '#1A73E8', status: 'Active', price: 499 },
+        { subjectName: 'Science (UPMSP Vigyan)', subjectCode: 'UP-SCI-102', board: 'UP Board', classId: 'Class 10', description: 'UP Board Class 10 Vigyan', color: '#22C55E', status: 'Active', price: 499 },
       ];
       await Subject.insertMany(seeds);
       list = await Subject.find({ isDeleted: false }).sort({ createdAt: -1 });

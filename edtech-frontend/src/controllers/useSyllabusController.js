@@ -6,6 +6,8 @@ const useSyllabusController = () => {
   const {
     selectedBoard,
     setSelectedBoard,
+    selectedStateBoard,
+    setSelectedStateBoard,
     selectedClass,
     setSelectedClass,
     subjects,
@@ -33,6 +35,10 @@ const useSyllabusController = () => {
   const selectBoard = useCallback((board) => {
     setSelectedBoard(board);
   }, [setSelectedBoard]);
+
+  const selectStateBoard = useCallback((stateBoard) => {
+    setSelectedStateBoard(stateBoard);
+  }, [setSelectedStateBoard]);
 
   const selectClass = useCallback((cls) => {
     setSelectedClass(cls);
@@ -111,6 +117,8 @@ const useSyllabusController = () => {
 
   return {
     selectedBoard,
+    selectedStateBoard,
+    setSelectedStateBoard,
     selectedClass,
     subjects,
     allSubjects,
@@ -129,12 +137,11 @@ const useSyllabusController = () => {
     currentSubject,
     chapters,
     selectBoard,
+    selectStateBoard,
     selectClass,
     fetchChapters,
     refreshSubjects,
-    refreshPlans,
-    currentSubject,
-    chapters
+    refreshPlans
   };
 };
 

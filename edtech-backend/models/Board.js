@@ -12,6 +12,19 @@ const boardSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
+    boardType: {
+      type: String,
+      enum: ['National', 'State Board', 'International'],
+      default: 'National'
+    },
+    stateName: {
+      type: String,
+      default: ''
+    },
+    stateCode: {
+      type: String,
+      default: ''
+    },
     description: {
       type: String,
       default: ''

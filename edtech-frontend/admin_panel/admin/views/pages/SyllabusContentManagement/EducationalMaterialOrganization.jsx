@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '../../../../../src/views/components/common/Toast/Toast';
 import syllabusManagementService from '../../../../../src/models/services/syllabusManagementService';
+import { STATE_BOARDS } from '../../../../../src/config/constants';
 import styles from './SyllabusContentManagement.module.css';
 
 const EducationalMaterialOrganization = () => {
@@ -397,10 +398,17 @@ const EducationalMaterialOrganization = () => {
                         value={formData.board}
                         onChange={(e) => setFormData({ ...formData, board: e.target.value })}
                       >
-                        <option value="CBSE">CBSE</option>
-                        <option value="ICSE">ICSE</option>
-                        <option value="State Board">State Board</option>
-                        <option value="IB">IB</option>
+                        <optgroup label="State Boards">
+                          {STATE_BOARDS.map(sb => (
+                            <option key={sb.id} value={sb.name}>{sb.name} ({sb.state})</option>
+                          ))}
+                        </optgroup>
+                        <optgroup label="National & International">
+                          <option value="CBSE">CBSE</option>
+                          <option value="ICSE">ICSE</option>
+                          <option value="IB">IB</option>
+                          <option value="Cambridge">Cambridge</option>
+                        </optgroup>
                       </select>
                       <select 
                         className={styles.formSelect}

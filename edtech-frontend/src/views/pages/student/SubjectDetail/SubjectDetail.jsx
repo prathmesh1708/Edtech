@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, ChevronRight, AlertCircle } from 'lucide-react';
-import { BOARDS, CLASSES } from '../../../../config/constants';
+import { BOARDS, CLASSES, resolveBoardInfo } from '../../../../config/constants';
 import { ROUTES, generateRoute } from '../../../../config/routes';
 import useSyllabusController from '../../../../controllers/useSyllabusController';
 import Badge from '../../../components/common/Badge/Badge';
@@ -50,6 +50,7 @@ const SubjectDetail = () => {
     fetchChapters,
     loading,
     selectedBoard,
+    selectedStateBoard,
     selectedClass,
     userSubscriptionStatus
   } = useSyllabusController();
@@ -74,8 +75,8 @@ const SubjectDetail = () => {
     description: ''
   };
 
-  const selectedBoardObj = BOARDS.find(b => b.id === selectedBoard) || { name: selectedBoard?.toUpperCase() };
-  const selectedClassObj = CLASSES.find(c => String(c.id) === selectedClass) || { name: `Class ${selectedClass}` };
+  const selectedBoardObj = resolveBoardInfo(activeSubject.board || (selectedBoard === 'state' ? selectedStateBoard : selectedBoard));
+  const selectedClassObj = CLASSES.find(c => String(c.id) === (activeSubject.classLevel || activeSubject.class || selectedClass)) || { name: `Class ${selectedClass}` };
 
   const handleChapterClick = (chapterId) => {
     navigate(generateRoute(ROUTES.CHAPTER_VIEW, { chapterId }), {

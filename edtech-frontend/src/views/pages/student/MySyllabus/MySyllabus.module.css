@@ -16,6 +16,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  box-sizing: border-box;
+  position: relative;
+  z-index: 30;
 }
 
 .headerTop {
@@ -32,6 +35,7 @@
   font-family: var(--font-heading);
   color: var(--color-text-primary);
   margin: 0;
+  letter-spacing: -0.02em;
 }
 
 .headerSubtitle {
@@ -68,17 +72,24 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
-  align-items: center;
-  padding-top: var(--space-2);
+  align-items: flex-end;
+  padding-top: var(--space-3);
   border-top: 1px solid var(--color-border-light);
+  position: relative;
+  z-index: 40;
 }
 
 .filterGroup {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  flex: 1;
+  gap: 6px;
+  flex: 1 1 180px;
   min-width: 140px;
+  box-sizing: border-box;
+}
+
+.filterGroupStateBoard {
+  flex: 1.5 1 240px;
 }
 
 .filterLabel {
@@ -90,10 +101,10 @@
 }
 
 .filterSelect {
-  padding: 10px 16px;
+  padding: 10px 14px;
   border-radius: var(--radius-lg);
   border: 1.5px solid var(--color-border);
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   color: var(--color-text-primary);
   background: var(--color-surface);
@@ -101,6 +112,7 @@
   width: 100%;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .filterSelect:focus {
@@ -117,6 +129,7 @@
   align-items: center;
   gap: 14px;
   box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
 }
 
 .paymentBannerSuccess {
@@ -143,46 +156,76 @@
 /* Custom Subject Subscription Builder */
 .builderCard {
   background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%);
-  border-radius: var(--radius-2xl);
-  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  padding: 14px 18px;
   color: #FFFFFF;
-  margin-bottom: var(--space-8);
-  box-shadow: 0 12px 36px rgba(49, 46, 129, 0.35);
+  margin-bottom: var(--space-5);
+  box-shadow: 0 8px 24px rgba(49, 46, 129, 0.28);
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.15);
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+}
+
+.builderCardCollapsed {
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+.builderCardCollapsed:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 28px rgba(49, 46, 129, 0.35);
+}
+
+.builderCardExpanded {
+  padding: 16px 20px;
 }
 
 .builderTop {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 18px;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
 }
 
 .builderInfo {
-  flex: 1;
-  min-width: 260px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .builderBadgeRow {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   flex-wrap: wrap;
 }
 
+.customBadge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(245, 158, 11, 0.25);
+  color: #FDE047;
+  border: 1px solid rgba(253, 224, 71, 0.4);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .builderSubText {
-  font-size: 12px;
+  font-size: 11.5px;
   color: #E2E8F0;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .builderTitle {
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 800;
   margin: 0;
   color: #FFFFFF;
@@ -190,22 +233,119 @@
 }
 
 .builderDesc {
-  font-size: 13px;
-  color: #E2E8F0;
-  margin-top: 4px;
-  max-width: 640px;
+  font-size: 12px;
+  color: #CBD5E1;
+  margin: 6px 0 0 0;
+  max-width: 600px;
   line-height: 1.4;
 }
 
-.priceBox {
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  padding: 12px 18px;
-  border-radius: 14px;
+.builderRightSummary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.priceMiniPill {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(134, 239, 172, 0.4);
+}
+
+.priceMiniPill .priceNet {
+  font-size: 14px;
+  font-weight: 800;
+  color: #86EFAC;
+}
+
+.priceMiniPill .priceCount {
+  font-size: 11px;
+  color: #CBD5E1;
+}
+
+.builderToggleBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.25);
-  text-align: right;
-  min-width: 200px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.builderToggleBtn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.builderCollapseRow {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.builderBottomCollapseBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #E2E8F0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.builderBottomCollapseBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+}
+
+.builderBody {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  animation: fadeInBody 0.2s ease-out;
+}
+
+@keyframes fadeInBody {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.priceBox {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
   box-sizing: border-box;
 }
 
@@ -221,20 +361,18 @@
 .priceRow {
   display: flex;
   align-items: baseline;
-  justify-content: flex-end;
   gap: 8px;
-  margin: 2px 0;
 }
 
 .priceGross {
-  font-size: 15px;
+  font-size: 13px;
   color: #94A3B8;
   text-decoration: line-through;
   font-weight: 600;
 }
 
 .priceNet {
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 900;
   color: #86EFAC;
 }
@@ -248,7 +386,7 @@
 
 .priceStandard {
   font-size: 11px;
-  color: #E2E8F0;
+  color: #CBD5E1;
   display: block;
 }
 
@@ -261,6 +399,7 @@
   padding: 16px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.12);
+  box-sizing: border-box;
 }
 
 .formField {
@@ -279,13 +418,13 @@
 
 .subjectSelect {
   width: 100%;
-  padding: 9px 12px;
+  padding: 10px 12px;
   border-radius: 8px;
   border: 1.5px solid rgba(255, 255, 255, 0.35);
   background: #1E1B4B;
   color: #FFFFFF;
   font-weight: 600;
-  font-size: 12.5px;
+  font-size: 13px;
   outline: none;
   cursor: pointer;
   box-sizing: border-box;
@@ -293,13 +432,13 @@
 
 .billingCycles {
   display: flex;
-  gap: 5px;
+  gap: 6px;
   width: 100%;
 }
 
 .cycleBtn {
   flex: 1;
-  padding: 6px 4px;
+  padding: 8px 6px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   background: rgba(255, 255, 255, 0.1);
@@ -312,6 +451,7 @@
   align-items: center;
   gap: 2px;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .cycleBtnActive {
@@ -342,18 +482,19 @@
 
 .activateBtn {
   width: 100%;
-  padding: 10px 14px;
+  padding: 11px 16px;
   border-radius: 8px;
   border: none;
   font-weight: 800;
-  font-size: 12.5px;
+  font-size: 13px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 40px;
+  min-height: 42px;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .activateBtnEnabled {
@@ -374,30 +515,31 @@
 
 /* Selected Subjects Drawer */
 .selectedContainer {
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .selectedHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   flex-wrap: wrap;
   gap: 6px;
 }
 
 .selectedHeading {
-  font-size: 10.5px;
+  font-size: 11px;
   text-transform: uppercase;
   font-weight: 700;
   color: #FFFFFF;
+  letter-spacing: 0.5px;
 }
 
 .toggleCheckboxBtn {
   background: none;
   border: none;
   color: #FDE047;
-  font-size: 11px;
+  font-size: 11.5px;
   cursor: pointer;
   font-weight: 600;
   padding: 0;
@@ -410,7 +552,7 @@
 }
 
 .emptyPillsText {
-  font-size: 11.5px;
+  font-size: 12px;
   color: #CBD5E1;
   font-style: italic;
 }
@@ -418,13 +560,13 @@
 .subjectChip {
   background: rgba(255, 255, 255, 0.22);
   color: #FFFFFF;
-  padding: 3px 10px;
+  padding: 4px 10px;
   border-radius: 16px;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -434,30 +576,33 @@
   opacity: 0.9;
   padding-left: 2px;
   font-weight: 800;
+  display: inline-flex;
+  align-items: center;
 }
 
 .checkboxesGrid {
-  margin-top: 10px;
-  padding-top: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.15);
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
 }
 
 .checkboxCard {
   background: rgba(255, 255, 255, 0.1);
   color: #FFFFFF;
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
+  gap: 8px;
+  font-size: 11.5px;
   font-weight: 600;
   border: 1px solid rgba(255, 255, 255, 0.15);
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .checkboxCardActive {
@@ -472,7 +617,7 @@
   align-items: center;
   margin-bottom: var(--space-4);
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .sectionTitle {
@@ -493,9 +638,9 @@
 
 .planGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--space-4);
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-8);
 }
 
 .planCard {
@@ -509,12 +654,18 @@
   justify-content: space-between;
   position: relative;
   transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.planCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 /* Subjects Section */
 .subjectsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: var(--space-3);
 }
 
@@ -529,6 +680,7 @@
   align-items: center;
   justify-content: space-between;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .subjectCard:hover {
@@ -541,6 +693,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .subjectIconWrap {
@@ -558,6 +711,9 @@
   margin: 0 0 2px 0;
   color: var(--color-text-primary);
   font-size: var(--text-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .subjectCount {
@@ -576,6 +732,7 @@
   border-radius: 8px;
   font-size: 10px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .emptyState {
@@ -588,102 +745,175 @@
 }
 
 /* ==========================================================================
-   MOBILE RESPONSIVENESS OVERRIDES (Compact, space-efficient, touch-friendly)
+   MOBILE & TABLET RESPONSIVENESS OVERRIDES
    ========================================================================== */
 
 @media (max-width: 768px) {
   .header {
-    padding: 12px 14px;
-    border-radius: var(--radius-lg);
-    gap: 8px;
-    margin-bottom: 12px;
+    padding: 14px 16px;
+    border-radius: var(--radius-xl);
+    gap: 10px;
+    margin-bottom: 14px;
   }
 
   .headerTop {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    gap: 8px;
   }
 
   .headerTitle {
-    font-size: 15px;
+    font-size: 16px;
   }
 
   .headerSubtitle {
-    display: none; /* Hide verbose subtitle to preserve mobile vertical screen real estate */
+    display: none;
   }
 
   .refreshButton {
-    padding: 4px 8px;
+    padding: 6px 10px;
     font-size: 11px;
     border-radius: 6px;
   }
 
+  /* Responsive 2-column filter row with full-width State Board */
   .filterRow {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
-    padding-top: 6px;
+    padding-top: 8px;
   }
 
   .filterGroup {
-    min-width: unset;
+    min-width: 0;
     width: 100%;
   }
 
+  .filterGroupStateBoard {
+    grid-column: 1 / -1; /* Spans full width so state board name fits without truncation */
+  }
+
   .filterLabel {
-    font-size: 9.5px;
+    font-size: 10px;
   }
 
   .filterSelect {
-    padding: 6px 10px;
-    font-size: 12px;
-    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 13px;
+    border-radius: 8px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
-  /* Compact Custom Builder on Mobile */
+  /* Ultra-Compact & Responsive Custom Builder on Mobile */
   .builderCard {
-    padding: 12px 14px;
-    border-radius: var(--radius-xl);
-    margin-bottom: 16px;
-    box-shadow: 0 4px 16px rgba(49, 46, 129, 0.25);
+    margin-bottom: 14px;
+    box-shadow: 0 4px 16px rgba(49, 46, 129, 0.22);
+  }
+
+  .builderCardCollapsed {
+    padding: 10px 12px;
+  }
+
+  .builderCardExpanded {
+    padding: 14px 12px;
   }
 
   .builderTop {
-    flex-direction: column;
-    align-items: stretch;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
     gap: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 0;
+  }
+
+  .builderCardExpanded .builderTop {
+    margin-bottom: 8px;
+    align-items: flex-start;
   }
 
   .builderInfo {
-    min-width: 100%;
+    min-width: 0;
+    flex: 1 1 auto;
   }
 
   .builderBadgeRow {
     margin-bottom: 2px;
-    gap: 6px;
+    gap: 4px;
+  }
+
+  .customBadge {
+    font-size: 8.5px;
+    padding: 1.5px 5px;
   }
 
   .builderSubText {
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .builderTitle {
-    font-size: 15px;
+    font-size: 13.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .builderDesc {
-    display: none; /* Removed from mobile view */
+    font-size: 11px;
+    margin-top: 4px;
+    line-height: 1.35;
+    color: #CBD5E1;
+  }
+
+  .builderRightSummary {
+    gap: 6px;
+  }
+
+  .priceMiniPill {
+    padding: 3px 6px;
+    border-radius: 6px;
+  }
+
+  .priceMiniPill .priceNet {
+    font-size: 13px;
+  }
+
+  .priceMiniPill .priceCount {
+    font-size: 10px;
+  }
+
+  .builderToggleBtn {
+    padding: 5px 8px;
+    font-size: 11px;
+    border-radius: 6px;
   }
 
   .priceBox {
-    display: none; /* Removed from mobile view */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    text-align: left;
+    min-width: 100%;
+    margin-top: 4px;
+  }
+
+  .priceRow {
+    justify-content: flex-end;
+  }
+
+  .priceNet {
+    font-size: 20px;
   }
 
   .builderForm {
     grid-template-columns: 1fr;
-    padding: 10px 12px;
+    padding: 12px;
     gap: 10px;
     border-radius: 10px;
   }
@@ -693,17 +923,17 @@
   }
 
   .subjectSelect {
-    padding: 8px 10px;
-    font-size: 12px;
-    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 12.5px;
+    border-radius: 8px;
   }
 
   .billingCycles {
-    gap: 4px;
+    gap: 5px;
   }
 
   .cycleBtn {
-    padding: 5px 3px;
+    padding: 7px 4px;
     font-size: 10.5px;
     border-radius: 6px;
   }
@@ -714,53 +944,49 @@
   }
 
   .activateBtn {
-    padding: 10px 12px;
-    font-size: 12px;
-    min-height: 38px;
-    border-radius: 6px;
+    padding: 11px 14px;
+    font-size: 12.5px;
+    min-height: 40px;
+    border-radius: 8px;
   }
 
   .selectedContainer {
-    margin-top: 8px;
+    margin-top: 10px;
   }
 
   .selectedHeading {
-    font-size: 9.5px;
+    font-size: 10px;
   }
 
   .toggleCheckboxBtn {
-    font-size: 10.5px;
+    font-size: 11px;
   }
 
   .selectedPills {
-    gap: 4px;
-  }
-
-  .emptyPillsText {
-    display: none; /* Removed from mobile view */
+    gap: 5px;
   }
 
   .subjectChip {
-    padding: 2px 8px;
-    font-size: 10.5px;
+    padding: 3px 8px;
+    font-size: 11px;
     border-radius: 12px;
   }
 
   .checkboxesGrid {
-    grid-template-columns: 1fr 1fr;
-    gap: 5px;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 6px;
     margin-top: 8px;
     padding-top: 8px;
   }
 
   .checkboxCard {
-    padding: 5px 8px;
-    font-size: 10.5px;
+    padding: 6px 8px;
+    font-size: 11px;
   }
 
-  /* Preset Plans Mobile Compact */
+  /* Preset Plans Mobile */
   .sectionTitle {
-    font-size: 14px;
+    font-size: 14.5px;
   }
 
   .sectionSubtitle {
@@ -769,36 +995,66 @@
 
   .planGrid {
     grid-template-columns: 1fr;
-    gap: 10px;
-    margin-bottom: 16px;
+    gap: 12px;
+    margin-bottom: 18px;
   }
 
   .planCard {
-    padding: 12px 14px;
+    padding: 14px 16px;
     border-radius: var(--radius-lg);
   }
 
-  /* Subjects Mobile Compact */
+  /* Subjects Mobile */
   .subjectsGrid {
     grid-template-columns: 1fr;
     gap: 8px;
   }
 
   .subjectCard {
-    padding: 8px 12px;
+    padding: 10px 14px;
     border-radius: var(--radius-lg);
   }
 
   .subjectIconWrap {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
   }
 
   .subjectName {
-    font-size: 13px;
+    font-size: 13.5px;
   }
 
   .subjectCount {
-    font-size: 10.5px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 420px) {
+  .header {
+    padding: 12px 12px;
+  }
+
+  .filterSelect {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .builderCard {
+    padding: 12px;
+  }
+
+  .billingCycles {
+    flex-direction: row;
+    gap: 4px;
+  }
+
+  .cycleBtn {
+    padding: 6px 2px;
+    font-size: 10px;
+  }
+
+  .cycleBadge {
+    display: block;
+    font-size: 8px;
   }
 }

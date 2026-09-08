@@ -29,11 +29,58 @@ export const CLASSES = [
 
 // Education Boards
 export const BOARDS = [
-  { id: 'cbse', name: 'CBSE', fullName: 'Central Board of Secondary Education' },
-  { id: 'icse', name: 'ICSE', fullName: 'Indian Certificate of Secondary Education' },
-  { id: 'state', name: 'State Board', fullName: 'State Board of Education' },
-  { id: 'ib', name: 'IB', fullName: 'International Baccalaureate' },
+  { id: 'cbse', name: 'CBSE', fullName: 'Central Board of Secondary Education', type: 'national' },
+  { id: 'icse', name: 'ICSE', fullName: 'Indian Certificate of Secondary Education', type: 'national' },
+  { id: 'state', name: 'State Board', fullName: 'State Board of Education', type: 'state' },
+  { id: 'ib', name: 'IB', fullName: 'International Baccalaureate', type: 'international' },
 ];
+
+// State Boards of India
+export const STATE_BOARDS = [
+  { id: 'state-up', code: 'UPMSP', name: 'UP Board', state: 'Uttar Pradesh', fullName: 'Uttar Pradesh Board of High School and Intermediate Education', icon: 'Award' },
+  { id: 'state-mp', code: 'MPBSE', name: 'MP Board', state: 'Madhya Pradesh', fullName: 'Madhya Pradesh Board of Secondary Education', icon: 'Award' },
+  { id: 'state-mh', code: 'MSBSHSE', name: 'Maharashtra Board', state: 'Maharashtra', fullName: 'Maharashtra State Board of Secondary & Higher Secondary Education', icon: 'Award' },
+  { id: 'state-br', code: 'BSEB', name: 'Bihar Board', state: 'Bihar', fullName: 'Bihar School Examination Board', icon: 'Award' },
+  { id: 'state-rj', code: 'RBSE', name: 'Rajasthan Board', state: 'Rajasthan', fullName: 'Board of Secondary Education Rajasthan', icon: 'Award' },
+  { id: 'state-gj', code: 'GSEB', name: 'Gujarat Board', state: 'Gujarat', fullName: 'Gujarat Secondary and Higher Secondary Education Board', icon: 'Award' },
+  { id: 'state-ka', code: 'KSEEB', name: 'Karnataka Board', state: 'Karnataka', fullName: 'Karnataka School Examination and Assessment Board', icon: 'Award' },
+  { id: 'state-tn', code: 'TNBSE', name: 'Tamil Nadu Board', state: 'Tamil Nadu', fullName: 'Tamil Nadu State Board of School Examination', icon: 'Award' },
+  { id: 'state-wb', code: 'WBBSE', name: 'West Bengal Board', state: 'West Bengal', fullName: 'West Bengal Board of Secondary Education', icon: 'Award' },
+  { id: 'state-pb', code: 'PSEB', name: 'Punjab Board', state: 'Punjab', fullName: 'Punjab School Education Board', icon: 'Award' },
+  { id: 'state-ap', code: 'BSEAP', name: 'Andhra Pradesh Board', state: 'Andhra Pradesh', fullName: 'Board of Secondary Education Andhra Pradesh', icon: 'Award' },
+  { id: 'state-ts', code: 'BSETS', name: 'Telangana Board', state: 'Telangana', fullName: 'Telangana Board of Secondary Education', icon: 'Award' },
+  { id: 'state-kl', code: 'KBPE', name: 'Kerala Board', state: 'Kerala', fullName: 'Kerala Board of Public Examinations', icon: 'Award' },
+  { id: 'state-od', code: 'BSEODISHA', name: 'Odisha Board', state: 'Odisha', fullName: 'Board of Secondary Education Odisha', icon: 'Award' },
+  { id: 'state-jh', code: 'JAC', name: 'Jharkhand Board', state: 'Jharkhand', fullName: 'Jharkhand Academic Council', icon: 'Award' },
+  { id: 'state-cg', code: 'CGBSE', name: 'Chhattisgarh Board', state: 'Chhattisgarh', fullName: 'Chhattisgarh Board of Secondary Education', icon: 'Award' },
+  { id: 'state-hr', code: 'BSEH', name: 'Haryana Board', state: 'Haryana', fullName: 'Board of School Education Haryana', icon: 'Award' },
+  { id: 'state-uk', code: 'UBSE', name: 'Uttarakhand Board', state: 'Uttarakhand', fullName: 'Uttarakhand Board of School Education', icon: 'Award' },
+  { id: 'state-as', code: 'SEBA', name: 'Assam Board', state: 'Assam', fullName: 'Board of Secondary Education Assam', icon: 'Award' },
+];
+
+export const resolveBoardInfo = (boardId) => {
+  if (!boardId) return { id: 'cbse', name: 'CBSE', fullName: 'Central Board of Secondary Education' };
+  const lower = String(boardId).toLowerCase().trim();
+  
+  // Direct state board match
+  const stateMatch = STATE_BOARDS.find(
+    (sb) =>
+      sb.id === lower ||
+      sb.code.toLowerCase() === lower ||
+      sb.name.toLowerCase() === lower ||
+      sb.state.toLowerCase() === lower ||
+      lower.includes(sb.name.toLowerCase()) ||
+      lower.includes(sb.state.toLowerCase())
+  );
+  if (stateMatch) return stateMatch;
+
+  // National / International board match
+  const mainMatch = BOARDS.find((b) => b.id === lower || b.name.toLowerCase() === lower);
+  if (mainMatch) return mainMatch;
+
+  // Fallback
+  return { id: boardId, name: String(boardId).toUpperCase(), fullName: `${String(boardId).toUpperCase()} Education Board` };
+};
 
 // Subjects
 export const SUBJECTS = [

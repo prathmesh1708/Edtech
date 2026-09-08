@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../../../models/context/AuthContext';
 import { useTheme } from '../../../../models/context/ThemeContext';
-import { BOARDS, CLASSES } from '../../../../config/constants';
+import { BOARDS, STATE_BOARDS, CLASSES } from '../../../../config/constants';
 import Button from '../../../components/common/Button/Button';
 import Input from '../../../components/common/Input/Input';
 import Card from '../../../components/common/Card/Card';
+import CustomSelect from '../../../components/common/CustomSelect/CustomSelect';
 
 const s = {
   form: {
@@ -29,11 +30,12 @@ const Settings = () => {
   const { theme, setTheme } = useTheme();
   
   // Set fallback state if user context is empty/null
-  const currentUser = user || { name: 'John Doe', email: 'student@example.com', board: 'cbse', classId: '10' };
+  const currentUser = user || { name: 'John Doe', email: 'student@example.com', board: 'cbse', stateBoard: 'state-mp', classId: '10' };
 
   const [name, setName] = useState(currentUser.name);
   const [email, setEmail] = useState(currentUser.email);
   const [board, setBoard] = useState(currentUser.board);
+  const [stateBoard, setStateBoard] = useState(currentUser.stateBoard || 'state-mp');
   const [classId, setClassId] = useState(currentUser.classId);
   const [saving, setSaving] = useState(false);
 
@@ -41,7 +43,7 @@ const Settings = () => {
     e.preventDefault();
     setSaving(true);
     setTimeout(() => {
-      updateProfile({ name, email, board, classId });
+      updateProfile({ name, email, board, stateBoard, classId });
       setSaving(false);
       alert('Profile updated successfully!');
     }, 1000);
@@ -70,35 +72,29 @@ const Settings = () => {
             required
           />
 
-          <div>
-            <label style={{ fontSize: 'var(--text-sm)', fontWeight: '500', display: 'block', marginBottom: 'var(--space-2)' }}>
-              Board Selection
-            </label>
-            <select
-              style={s.select}
-              value={board}
-              onChange={(e) => setBoard(e.target.value)}
-            >
-              {BOARDS.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
-            </select>
-          </div>
+          <CustomSelect
+            label="Board Selection"
+            value={board}
+            options={BOARDS}
+            onChange={(val) => setBoard(val)}
+          />
 
-          <div>
-            <label style={{ fontSize: 'var(--text-sm)', fontWeight: '500', display: 'block', marginBottom: 'var(--space-2)' }}>
-              Class Selection
-            </label>
-            <select
-              style={s.select}
-              value={classId}
-              onChange={(e) => setClassId(e.target.value)}
-            >
-              {CLASSES.map((c) => (
-                <option key={c.id} value={String(c.id)}>{c.name}</option>
-              ))}
-            </select>
-          </div>
+          {board === 'state' && (
+            <CustomSelect
+              label="State Board Selection"
+              value={stateBoard}
+              options={STATE_BOARDS}
+              searchable={true}
+              onChange={(val) => setStateBoard(val)}
+            />
+          )}
+
+          <CustomSelect
+            label="Class Selection"
+            value={classId}
+            options={CLASSES.map(c => ({ id: String(c.id), name: c.name }))}
+            onChange={(val) => setClassId(val)}
+          />
 
           <div>
             <label style={{ fontSize: 'var(--text-sm)', fontWeight: '500', display: 'block', marginBottom: 'var(--space-2)' }}>

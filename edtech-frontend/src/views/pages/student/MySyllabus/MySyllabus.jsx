@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { 
   BookOpen, 
   ChevronRight, 
+  ChevronDown,
+  ChevronUp,
   AlertCircle, 
   RefreshCw, 
   CheckCircle2, 
@@ -14,11 +16,12 @@ import {
   Lock, 
   XCircle 
 } from 'lucide-react';
-import { BOARDS, CLASSES } from '../../../../config/constants';
+import { BOARDS, CLASSES, STATE_BOARDS, resolveBoardInfo } from '../../../../config/constants';
 import { ROUTES, generateRoute } from '../../../../config/routes';
 import useSyllabusController from '../../../../controllers/useSyllabusController';
 import Badge from '../../../components/common/Badge/Badge';
 import Button from '../../../components/common/Button/Button';
+import CustomSelect from '../../../components/common/CustomSelect/CustomSelect';
 import styles from './MySyllabus.module.css';
 
 const MySyllabus = () => {
@@ -30,6 +33,7 @@ const MySyllabus = () => {
     currentPlan,
     loading,
     selectedBoard,
+    selectedStateBoard,
     selectedClass,
     selectedPlanId,
     userSubscriptionStatus,
@@ -37,6 +41,7 @@ const MySyllabus = () => {
     subjectPricing,
     cycleSettings,
     selectBoard,
+    selectStateBoard,
     selectClass,
     selectPlan,
     createCustomPlan,
@@ -44,18 +49,20 @@ const MySyllabus = () => {
     refreshSubjects
   } = useSyllabusController();
 
-  // Custom Builder Local State
   const [customSelectedSubjects, setCustomSelectedSubjects] = useState([]);
   const [customDuration, setCustomDuration] = useState('Monthly');
   const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false);
+  const [isBuilderExpanded, setIsBuilderExpanded] = useState(false);
 
   const handleSubjectToggle = (subjName) => {
+    setIsBuilderExpanded(true);
     setCustomSelectedSubjects(prev => 
       prev.includes(subjName) ? prev.filter(s => s !== subjName) : [...prev, subjName]
     );
   };
 
   const handleSelectAllSubjects = () => {
+    setIsBuilderExpanded(true);
     const allNames = (allSubjects || subjects || []).map(s => s.name || s.subjectName);
     setCustomSelectedSubjects(allNames);
   };
@@ -63,6 +70,7 @@ const MySyllabus = () => {
   const handleSubjectDropdownSelect = (e) => {
     const val = e.target.value;
     if (!val) return;
+    setIsBuilderExpanded(true);
     if (val === 'ALL') {
       handleSelectAllSubjects();
     } else if (!customSelectedSubjects.includes(val)) {
@@ -74,7 +82,6 @@ const MySyllabus = () => {
     setCustomSelectedSubjects(prev => prev.filter(s => s !== subjName));
   };
 
-  // Dynamic Subject-Wise Pricing Calculation based on backend & admin rules
   const baseMonthlyPrice = subjectPricing?.perSubjectMonthly || 499;
   const qDiscount = cycleSettings?.quarterlyDiscount || 10;
   const yDiscount = cycleSettings?.yearlyDiscount || 20;
@@ -123,13 +130,14 @@ const MySyllabus = () => {
     navigate(generateRoute(ROUTES.SUBJECT_DETAIL, { subjectId }));
   };
 
-  const selectedBoardObj = BOARDS.find(b => b.id === selectedBoard) || { name: selectedBoard?.toUpperCase() };
+  const selectedBoardObj = selectedBoard === 'state'
+    ? resolveBoardInfo(selectedStateBoard)
+    : (BOARDS.find(b => b.id === selectedBoard) || { name: selectedBoard?.toUpperCase() });
   const selectedClassObj = CLASSES.find(c => String(c.id) === selectedClass) || { name: `Class ${selectedClass}` };
   const availableSubjectList = allSubjects && allSubjects.length > 0 ? allSubjects : subjects;
 
   return (
     <div className={styles.container}>
-      {/* Page Header */}
       <div className={styles.header}>
         <div className={styles.headerTop}>
           <div>
@@ -138,11 +146,7 @@ const MySyllabus = () => {
               Choose a preset subscription plan or build a custom subject-wise plan tailored to your needs.
             </p>
           </div>
-
-          <button
-            onClick={refreshSubjects}
-            className={styles.refreshButton}
-          >
+          <button onClick={refreshSubjects} className={styles.refreshButton}>
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
             Refresh
           </button>
@@ -150,34 +154,19 @@ const MySyllabus = () => {
 
         <div className={styles.filterRow}>
           <div className={styles.filterGroup}>
-            <span className={styles.filterLabel}>BOARD</span>
-            <select
-              className={styles.filterSelect}
-              value={selectedBoard}
-              onChange={(e) => selectBoard(e.target.value)}
-            >
-              {BOARDS.map(b => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
-            </select>
+            <CustomSelect label="BOARD" value={selectedBoard} options={BOARDS} onChange={(val) => selectBoard(val)} />
           </div>
-
           <div className={styles.filterGroup}>
-            <span className={styles.filterLabel}>CLASS</span>
-            <select
-              className={styles.filterSelect}
-              value={selectedClass}
-              onChange={(e) => selectClass(e.target.value)}
-            >
-              {CLASSES.map(c => (
-                <option key={c.id} value={String(c.id)}>{c.name}</option>
-              ))}
-            </select>
+            <CustomSelect label="CLASS" value={selectedClass} options={CLASSES.map(c => ({ id: String(c.id), name: c.name }))} onChange={(val) => selectClass(val)} />
           </div>
+          {selectedBoard === 'state' && (
+            <div className={`${styles.filterGroup} ${styles.filterGroupStateBoard}`}>
+              <CustomSelect label="STATE BOARD" value={selectedStateBoard} options={STATE_BOARDS} searchable={true} placeholder="Select State Board" onChange={(val) => selectStateBoard(val)} />
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Razorpay Payment Status Banner */}
       {paymentMessage && (
         <div className={`${styles.paymentBanner} ${userSubscriptionStatus === 'ACTIVE' ? styles.paymentBannerSuccess : styles.paymentBannerError}`}>
           {userSubscriptionStatus === 'ACTIVE' ? (
@@ -196,186 +185,173 @@ const MySyllabus = () => {
         </div>
       )}
 
-      {/* Custom Subject-Wise Subscription Builder Section */}
-      <div className={styles.builderCard}>
-        <div className={styles.builderTop}>
+      <div className={`${styles.builderCard} ${isBuilderExpanded ? styles.builderCardExpanded : styles.builderCardCollapsed}`}>
+        <div 
+          className={styles.builderTop} 
+          onClick={() => setIsBuilderExpanded(!isBuilderExpanded)}
+          role="button"
+          tabIndex={0}
+        >
           <div className={styles.builderInfo}>
             <div className={styles.builderBadgeRow}>
-              <Badge variant="warning" style={{ background: 'rgba(245, 158, 11, 0.25)', color: '#FDE047', border: '1px solid rgba(253, 224, 71, 0.4)' }}>
-                CUSTOM PLAN BUILDER
-              </Badge>
-              <span className={styles.builderSubText}>Subject-Wise Pricing Set by Admin</span>
+              <span className={styles.customBadge}>CUSTOM PLAN BUILDER</span>
+              <span className={styles.builderSubText}>₹{baseMonthlyPrice}/mo • {selectedClassObj.name}</span>
             </div>
-            <h3 className={styles.builderTitle}>
-              Build Your Custom Subject Subscription ({selectedClassObj.name})
-            </h3>
-            <p className={styles.builderDesc}>
-              Select specific subjects from the dropdown below. Base Rate: <b>₹{baseMonthlyPrice}/mo</b> per subject. Discounts configured by Admin: <b>{qDiscount}% OFF Quarterly</b> & <b>{yDiscount}% OFF Yearly</b>.
-            </p>
+            <h3 className={styles.builderTitle}>Build Custom Subject Plan</h3>
+            {isBuilderExpanded && (
+              <p className={styles.builderDesc}>Select specific subjects. Base: <b>₹{baseMonthlyPrice}/mo</b>. Discounts: <b>{qDiscount}% OFF Quarterly</b> & <b>{yDiscount}% OFF Yearly</b>.</p>
+            )}
           </div>
 
-          <div className={styles.priceBox}>
-            <span className={styles.priceBoxLabel}>CALCULATED TOTAL PRICE</span>
-            <div className={styles.priceRow}>
-              {savingsAmount > 0 && (
-                <span className={styles.priceGross}>
-                  ₹{grossPrice}
-                </span>
+          <div className={styles.builderRightSummary}>
+            {customSelectedSubjects.length > 0 && (
+              <div className={styles.priceMiniPill}>
+                <span className={styles.priceNet}>₹{calculatedTotalPrice}</span>
+                <span className={styles.priceCount}>({customSelectedSubjects.length} sub)</span>
+              </div>
+            )}
+            <button 
+              type="button" 
+              className={styles.builderToggleBtn} 
+              onClick={(e) => { e.stopPropagation(); setIsBuilderExpanded(!isBuilderExpanded); }}
+            >
+              {isBuilderExpanded ? (
+                <>Collapse <ChevronUp size={14} /></>
+              ) : (
+                <>{customSelectedSubjects.length > 0 ? 'Edit Plan' : 'Customize'} <ChevronDown size={14} /></>
               )}
-              <span className={styles.priceNet}>
-                ₹{calculatedTotalPrice}
-              </span>
-            </div>
-            {savingsAmount > 0 ? (
-              <span className={styles.priceSavings}>
-                🔥 SAVE ₹{savingsAmount} ({activeDiscountLabel})
-              </span>
-            ) : (
-              <span className={styles.priceStandard}>
-                {customSelectedSubjects.length} {customSelectedSubjects.length === 1 ? 'subject' : 'subjects'} (Standard Rate)
-              </span>
-            )}
+            </button>
           </div>
         </div>
 
-        <div className={styles.builderForm}>
-          {/* Subject Dropdown Select */}
-          <div className={styles.formField}>
-            <label className={styles.fieldLabel}>
-              1. Select Subject from Dropdown:
-            </label>
-            <select
-              className={styles.subjectSelect}
-              value=""
-              onChange={handleSubjectDropdownSelect}
-            >
-              <option value="" disabled style={{ background: '#1E1B4B', color: '#FFFFFF' }}>-- Click to Select Subject --</option>
-              <option value="ALL" style={{ background: '#1E1B4B', color: '#86EFAC' }}>✨ Select All Available Subjects ({availableSubjectList.length})</option>
-              {availableSubjectList.map(subj => {
-                const sName = subj.name || subj.subjectName;
-                return (
-                  <option key={subj.id || subj._id || sName} value={sName} style={{ background: '#1E1B4B', color: '#FFFFFF' }}>
-                    📚 {sName} ({subj.code || subj.subjectCode || selectedClassObj.name})
-                  </option>
-                );
-              })}
-            </select>
-          </div>
+        {isBuilderExpanded && (
+          <div className={styles.builderBody}>
+            <div className={styles.priceBox}>
+              <span className={styles.priceBoxLabel}>CALCULATED TOTAL PRICE</span>
+              <div className={styles.priceRow}>
+                {savingsAmount > 0 && <span className={styles.priceGross}>₹{grossPrice}</span>}
+                <span className={styles.priceNet}>₹{calculatedTotalPrice}</span>
+              </div>
+              {savingsAmount > 0 ? (
+                <span className={styles.priceSavings}>🔥 SAVE ₹{savingsAmount} ({activeDiscountLabel})</span>
+              ) : (
+                <span className={styles.priceStandard}>{customSelectedSubjects.length} {customSelectedSubjects.length === 1 ? 'subject' : 'subjects'} (Standard Rate)</span>
+              )}
+            </div>
 
-          {/* Billing Cycle Selector */}
-          <div className={styles.formField}>
-            <label className={styles.fieldLabel}>
-              2. Select Billing Cycle:
-            </label>
-            <div className={styles.billingCycles}>
-              {[
-                { id: 'Monthly', label: 'Monthly', badge: 'Base Rate' },
-                { id: 'Quarterly', label: 'Quarterly', badge: `${qDiscount}% OFF` },
-                { id: 'Yearly', label: 'Yearly', badge: `${yDiscount}% OFF` }
-              ].map(cycle => (
+            <div className={styles.builderForm}>
+              <div className={styles.formField}>
+                <label className={styles.fieldLabel}>1. Select Subject:</label>
+                <select className={styles.subjectSelect} value="" onChange={handleSubjectDropdownSelect}>
+                  <option value="" disabled style={{ background: '#1E1B4B', color: '#FFFFFF' }}>-- Click to Select Subject --</option>
+                  <option value="ALL" style={{ background: '#1E1B4B', color: '#86EFAC' }}>✨ Select All Available Subjects ({availableSubjectList.length})</option>
+                  {availableSubjectList.map(subj => {
+                    const sName = subj.name || subj.subjectName;
+                    return (
+                      <option key={subj.id || subj._id || sName} value={sName} style={{ background: '#1E1B4B', color: '#FFFFFF' }}>
+                        📚 {sName} ({subj.code || subj.subjectCode || selectedClassObj.name})
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              <div className={styles.formField}>
+                <label className={styles.fieldLabel}>2. Billing Cycle:</label>
+                <div className={styles.billingCycles}>
+                  {[
+                    { id: 'Monthly', label: 'Monthly', badge: 'Base' },
+                    { id: 'Quarterly', label: 'Quarterly', badge: `${qDiscount}% OFF` },
+                    { id: 'Yearly', label: 'Yearly', badge: `${yDiscount}% OFF` }
+                  ].map(cycle => (
+                    <button
+                      key={cycle.id}
+                      type="button"
+                      onClick={() => setCustomDuration(cycle.id)}
+                      className={`${styles.cycleBtn} ${customDuration === cycle.id ? styles.cycleBtnActive : ''}`}
+                    >
+                      <span>{cycle.label}</span>
+                      <span className={styles.cycleBadge}>{cycle.badge}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.activateBtnWrap}>
                 <button
-                  key={cycle.id}
                   type="button"
-                  onClick={() => setCustomDuration(cycle.id)}
-                  className={`${styles.cycleBtn} ${customDuration === cycle.id ? styles.cycleBtnActive : ''}`}
+                  disabled={customSelectedSubjects.length === 0}
+                  onClick={handleActivateCustomPlan}
+                  className={`${styles.activateBtn} ${customSelectedSubjects.length > 0 ? styles.activateBtnEnabled : styles.activateBtnDisabled}`}
                 >
-                  <span>{cycle.label}</span>
-                  <span className={styles.cycleBadge}>
-                    {cycle.badge}
-                  </span>
+                  <CreditCard size={15} />
+                  {customSelectedSubjects.length > 0 ? `Pay ₹${calculatedTotalPrice} via Razorpay` : 'Select at least 1 subject'}
                 </button>
-              ))}
+              </div>
+            </div>
+
+            <div className={styles.selectedContainer}>
+              <div className={styles.selectedHeader}>
+                <span className={styles.selectedHeading}>SELECTED SUBJECTS ({customSelectedSubjects.length}):</span>
+                <button type="button" onClick={() => setSubjectDropdownOpen(!subjectDropdownOpen)} className={styles.toggleCheckboxBtn}>
+                  {subjectDropdownOpen ? 'Hide Checkboxes' : 'Toggle Checkboxes'}
+                </button>
+              </div>
+
+              <div className={styles.selectedPills}>
+                {customSelectedSubjects.length === 0 ? (
+                  <span className={styles.emptyPillsText}>No subjects selected yet. Choose subjects from the dropdown above.</span>
+                ) : (
+                  customSelectedSubjects.map(sName => (
+                    <span key={sName} className={styles.subjectChip}>
+                      <CheckCircle2 size={12} color="#86EFAC" />
+                      {sName}
+                      <span onClick={(e) => { e.stopPropagation(); handleSubjectRemove(sName); }} className={styles.removeChipBtn}>×</span>
+                    </span>
+                  ))
+                )}
+              </div>
+
+              {subjectDropdownOpen && (
+                <div className={styles.checkboxesGrid}>
+                  {availableSubjectList.map(subj => {
+                    const sName = subj.name || subj.subjectName;
+                    const checked = customSelectedSubjects.includes(sName);
+                    return (
+                      <div
+                        key={subj.id || subj._id || sName}
+                        onClick={() => handleSubjectToggle(sName)}
+                        className={`${styles.checkboxCard} ${checked ? styles.checkboxCardActive : ''}`}
+                      >
+                        {checked ? <CheckSquare size={14} color="#86EFAC" /> : <Square size={14} color="rgba(255, 255, 255, 0.6)" />}
+                        <span style={{ color: '#FFFFFF' }}>{sName}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className={styles.builderCollapseRow}>
+              <button 
+                type="button" 
+                className={styles.builderBottomCollapseBtn}
+                onClick={() => setIsBuilderExpanded(false)}
+              >
+                <ChevronUp size={14} /> Close Custom Plan Builder
+              </button>
             </div>
           </div>
-
-          {/* Activate Button */}
-          <div className={styles.activateBtnWrap}>
-            <button
-              type="button"
-              disabled={customSelectedSubjects.length === 0}
-              onClick={handleActivateCustomPlan}
-              className={`${styles.activateBtn} ${customSelectedSubjects.length > 0 ? styles.activateBtnEnabled : styles.activateBtnDisabled}`}
-            >
-              <CreditCard size={16} />
-              {customSelectedSubjects.length > 0 
-                ? `Pay ₹${calculatedTotalPrice} via Razorpay` 
-                : 'Select at least 1 subject'}
-            </button>
-          </div>
-        </div>
-
-        {/* Selected Subject Chips / Quick Checkboxes */}
-        <div className={styles.selectedContainer}>
-          <div className={styles.selectedHeader}>
-            <span className={styles.selectedHeading}>
-              SELECTED SUBJECTS ({customSelectedSubjects.length}):
-            </span>
-            <button
-              type="button"
-              onClick={() => setSubjectDropdownOpen(!subjectDropdownOpen)}
-              className={styles.toggleCheckboxBtn}
-            >
-              {subjectDropdownOpen ? 'Hide Subject Checkboxes' : 'Toggle Quick Checkboxes'}
-            </button>
-          </div>
-
-          {/* Selected Pills */}
-          <div className={styles.selectedPills}>
-            {customSelectedSubjects.length === 0 ? (
-              <span className={styles.emptyPillsText}>
-                No subjects selected yet. Use the dropdown above or check boxes to select subjects.
-              </span>
-            ) : (
-              customSelectedSubjects.map(sName => (
-                <span
-                  key={sName}
-                  className={styles.subjectChip}
-                >
-                  <CheckCircle2 size={13} color="#86EFAC" />
-                  {sName}
-                  <span
-                    onClick={() => handleSubjectRemove(sName)}
-                    className={styles.removeChipBtn}
-                  >
-                    ×
-                  </span>
-                </span>
-              ))
-            )}
-          </div>
-
-          {/* Quick Checkboxes list */}
-          {subjectDropdownOpen && (
-            <div className={styles.checkboxesGrid}>
-              {availableSubjectList.map(subj => {
-                const sName = subj.name || subj.subjectName;
-                const checked = customSelectedSubjects.includes(sName);
-                return (
-                  <div
-                    key={subj.id || subj._id || sName}
-                    onClick={() => handleSubjectToggle(sName)}
-                    className={`${styles.checkboxCard} ${checked ? styles.checkboxCardActive : ''}`}
-                  >
-                    {checked ? <CheckSquare size={16} color="#86EFAC" /> : <Square size={16} color="rgba(255, 255, 255, 0.6)" />}
-                    <span style={{ color: '#FFFFFF' }}>{sName}</span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
-      {/* Subscription Plans Section (Dynamic Cards from Admin Panel) */}
       <div id="subscription-plans-section" style={{ marginBottom: 'var(--space-8)' }}>
         <div className={styles.sectionHeader}>
           <h3 className={styles.sectionTitle}>
             <ShieldCheck size={20} color="var(--color-primary)" />
             Preset Subscription Plans (Admin Panel)
           </h3>
-          <span className={styles.sectionSubtitle}>
-            Click to pay & activate plan via Razorpay
-          </span>
+          <span className={styles.sectionSubtitle}>Click to pay & activate plan via Razorpay</span>
         </div>
 
         <div className={styles.planGrid}>
@@ -405,9 +381,7 @@ const MySyllabus = () => {
                     )}
                   </div>
 
-                  <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '800', marginBottom: '8px', color: 'var(--color-text-primary)' }}>
-                    {plan.name}
-                  </h4>
+                  <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '800', marginBottom: '8px', color: 'var(--color-text-primary)' }}>{plan.name}</h4>
 
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '16px' }}>
                     <span style={{ fontSize: '11px', background: 'rgba(56, 189, 248, 0.12)', color: 'var(--color-accent)', padding: '2px 8px', borderRadius: '4px', fontWeight: '600' }}>
@@ -419,12 +393,8 @@ const MySyllabus = () => {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '16px' }}>
-                    <span style={{ fontSize: '24px', fontWeight: '800', color: 'var(--color-text-primary)' }}>
-                      ₹{plan.price}
-                    </span>
-                    <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>
-                      / {durationLower}
-                    </span>
+                    <span style={{ fontSize: '24px', fontWeight: '800', color: 'var(--color-text-primary)' }}>₹{plan.price}</span>
+                    <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>/ {durationLower}</span>
                   </div>
 
                   <div style={{ background: 'var(--color-bg)', padding: '8px 12px', borderRadius: '8px', marginBottom: '16px', fontSize: '12px', color: 'var(--color-text-secondary)', display: 'flex', justifyContent: 'space-between' }}>
@@ -434,9 +404,7 @@ const MySyllabus = () => {
 
                   {plan.features && (
                     <div style={{ marginBottom: '16px' }}>
-                      <span style={{ fontSize: '10px', textTransform: 'uppercase', color: 'var(--color-text-tertiary)', fontWeight: '700', letterSpacing: '0.5px' }}>
-                        INCLUDED FEATURES:
-                      </span>
+                      <span style={{ fontSize: '10px', textTransform: 'uppercase', color: 'var(--color-text-tertiary)', fontWeight: '700', letterSpacing: '0.5px' }}>INCLUDED FEATURES:</span>
                       <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0 0 0', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                         {String(plan.features).split(',').map((feat, idx) => (
                           <li key={idx} style={{ fontSize: '12px', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -464,7 +432,6 @@ const MySyllabus = () => {
         </div>
       </div>
 
-      {/* Subjects Grid */}
       <div className={styles.sectionHeader}>
         <div>
           <h3 className={styles.sectionTitle}>
@@ -482,9 +449,7 @@ const MySyllabus = () => {
       </div>
 
       {loading ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: '#64748B' }}>
-          Loading dynamic syllabus from backend...
-        </div>
+        <div style={{ padding: '40px', textAlign: 'center', color: '#64748B' }}>Loading dynamic syllabus from backend...</div>
       ) : userSubscriptionStatus === 'FAILED' ? (
         <div className={styles.emptyState} style={{ background: '#FEF2F2', borderColor: '#FCA5A5' }}>
           <Lock size={40} color="#DC2626" style={{ marginBottom: '12px' }} />

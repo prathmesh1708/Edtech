@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit2, Trash2, X, BookOpen, Layers, CheckCircle } from 'lucide-react';
 import { useToast } from '../../../../../src/views/components/common/Toast/Toast';
 import syllabusManagementService from '../../../../../src/models/services/syllabusManagementService';
+import { BOARDS, STATE_BOARDS } from '../../../../../src/config/constants';
 import styles from './SyllabusContentManagement.module.css';
 
 const SubjectManagement = () => {
   const toast = useToast();
   const [subjects, setSubjects] = useState([]);
+  const [registeredBoards, setRegisteredBoards] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBoard, setSelectedBoard] = useState('All');
@@ -20,7 +22,7 @@ const SubjectManagement = () => {
   const [formData, setFormData] = useState({
     subjectName: '',
     subjectCode: '',
-    board: 'CBSE',
+    board: 'MP Board',
     classId: 'Class 10',
     price: '',
     quarterlyDiscount: '10',
@@ -30,11 +32,15 @@ const SubjectManagement = () => {
     status: 'Active'
   });
 
-  const fetchSubjects = async () => {
+  const fetchSubjectsAndBoards = async () => {
     setIsLoading(true);
     try {
-      const res = await syllabusManagementService.getSubjects();
-      setSubjects(res.data || []);
+      const [subjRes, boardsRes] = await Promise.all([
+        syllabusManagementService.getSubjects(),
+        syllabusManagementService.getBoards().catch(() => ({ data: [] }))
+      ]);
+      setSubjects(subjRes.data || []);
+      setRegisteredBoards(boardsRes.data || []);
     } catch (err) {
       toast.error('Failed to load subject directory.', 'Error');
     } finally {
@@ -43,15 +49,45 @@ const SubjectManagement = () => {
   };
 
   useEffect(() => {
-    fetchSubjects();
+    fetchSubjectsAndBoards();
   }, []);
+
+  // Compute all available boards (standard + state boards + database registered)
+  const allBoardOptions = React.useMemo(() => {
+    const list = [
+      { name: 'CBSE', type: 'National' },
+      { name: 'ICSE', type: 'National' },
+      { name: 'IB', type: 'International' },
+      { name: 'Cambridge', type: 'International' },
+    ];
+
+    // Add STATE_BOARDS
+    STATE_BOARDS.forEach(sb => {
+      if (!list.some(b => b.name.toLowerCase() === sb.name.toLowerCase())) {
+        list.push({ name: sb.name, state: sb.state, type: 'State Board' });
+      }
+    });
+
+    // Add registered boards from backend DB
+    registeredBoards.forEach(rb => {
+      if (!list.some(b => b.name.toLowerCase() === rb.boardName.toLowerCase())) {
+        list.push({
+          name: rb.boardName,
+          state: rb.stateName || '',
+          type: rb.boardType || (rb.stateName ? 'State Board' : 'Custom')
+        });
+      }
+    });
+
+    return list;
+  }, [registeredBoards]);
 
   const handleOpenAdd = () => {
     setCurrentItem(null);
     setFormData({
       subjectName: '',
       subjectCode: '',
-      board: 'CBSE',
+      board: 'MP Board',
       classId: 'Class 10',
       price: '',
       quarterlyDiscount: '10',
@@ -97,7 +133,7 @@ const SubjectManagement = () => {
         toast.success(`Subject "${formData.subjectName}" created.`, 'Subject Created');
       }
       setIsModalOpen(false);
-      fetchSubjects();
+      fetchSubjectsAndBoards();
     } catch (err) {
       toast.error('Failed to save subject.', 'Error');
     } finally {
@@ -112,7 +148,7 @@ const SubjectManagement = () => {
       await syllabusManagementService.deleteSubject(currentItem._id);
       toast.success(`Subject "${currentItem.subjectName}" deleted.`, 'Deleted');
       setIsDeleteModalOpen(false);
-      fetchSubjects();
+      fetchSubjectsAndBoards();
     } catch (err) {
       toast.error('Failed to delete subject.', 'Error');
     } finally {
@@ -123,10 +159,15 @@ const SubjectManagement = () => {
   const filteredItems = subjects.filter(s => {
     const matchesSearch = (s.subjectName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
                           (s.subjectCode || '').toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesBoard = selectedBoard === 'All' || 
-                         s.board === selectedBoard || 
-                         (s.board && s.board.toLowerCase().includes(selectedBoard.toLowerCase())) ||
-                         (s.board && selectedBoard.toLowerCase().includes(s.board.toLowerCase()));
+    
+    let matchesBoard = selectedBoard === 'All';
+    if (!matchesBoard) {
+      const sBoard = String(s.board || '').toLowerCase();
+      const selBoard = String(selectedBoard).toLowerCase();
+      if (sBoard === selBoard || sBoard.includes(selBoard) || selBoard.includes(sBoard)) {
+        matchesBoard = true;
+      }
+    }
     
     let matchesClass = selectedClass === 'All';
     if (!matchesClass && s.classId) {
@@ -151,7 +192,7 @@ const SubjectManagement = () => {
       <header className={styles.header}>
         <div>
           <h1 className={styles.title}>Subject Management</h1>
-          <p className={styles.subtitle}>Configure subjects across different education boards and class levels.</p>
+          <p className={styles.subtitle}>Configure subjects across State Boards (UP, MP, Maharashtra, Bihar, etc.) and National Boards.</p>
         </div>
         <button className={styles.primaryButton} onClick={handleOpenAdd}>
           <Plus size={16} />
@@ -186,8 +227,8 @@ const SubjectManagement = () => {
             <Layers size={20} />
           </div>
           <div>
-            <div className={styles.kpiValue}>CBSE / ICSE / IB</div>
-            <div className={styles.kpiLabel}>Supported Boards</div>
+            <div className={styles.kpiValue}>{allBoardOptions.length} Boards</div>
+            <div className={styles.kpiLabel}>State & National Boards</div>
           </div>
         </div>
       </div>
@@ -198,7 +239,7 @@ const SubjectManagement = () => {
             <Search size={18} className={styles.searchIcon} />
             <input 
               type="text"
-              placeholder="Search subject name or code..."
+              placeholder="Search subject name, code, or board..."
               className={styles.searchInput}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -211,12 +252,17 @@ const SubjectManagement = () => {
               value={selectedBoard}
               onChange={(e) => setSelectedBoard(e.target.value)}
             >
-              <option value="All">All Boards</option>
-              <option value="CBSE">CBSE</option>
-              <option value="ICSE">ICSE</option>
-              <option value="State Board">State Board</option>
-              <option value="IB">IB</option>
-              <option value="Cambridge">Cambridge</option>
+              <option value="All">All Education Boards</option>
+              <optgroup label="State Boards">
+                {allBoardOptions.filter(b => b.type === 'State Board').map(b => (
+                  <option key={b.name} value={b.name}>{b.name} {b.state ? `(${b.state})` : ''}</option>
+                ))}
+              </optgroup>
+              <optgroup label="National & International">
+                {allBoardOptions.filter(b => b.type !== 'State Board').map(b => (
+                  <option key={b.name} value={b.name}>{b.name}</option>
+                ))}
+              </optgroup>
             </select>
 
             <select 
@@ -259,17 +305,30 @@ const SubjectManagement = () => {
                   const yDisc = item.yearlyDiscount !== undefined ? item.yearlyDiscount : 20;
                   const qPrice = Math.round(mPrice * 3 * (1 - qDisc / 100));
                   const yPrice = Math.round(mPrice * 12 * (1 - yDisc / 100));
+                  const isStateBoard = String(item.board).toLowerCase().includes('board') && !['CBSE', 'ICSE', 'IB', 'Cambridge'].includes(item.board) || String(item.board).toLowerCase().includes('state');
 
                   return (
                     <tr key={item._id}>
                       <td className={styles.cellName}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <span style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: item.color || '#1A73E8' }} />
-                          <span>{item.subjectName}</span>
+                          <span style={{ fontWeight: '600' }}>{item.subjectName}</span>
                         </div>
                       </td>
                       <td><span className={styles.versionTag}>{item.subjectCode}</span></td>
-                      <td>{item.board}</td>
+                      <td>
+                        <span style={{ 
+                          display: 'inline-flex',
+                          padding: '3px 8px', 
+                          borderRadius: '12px', 
+                          fontSize: '11px', 
+                          fontWeight: '600',
+                          background: isStateBoard ? 'rgba(245, 158, 11, 0.12)' : 'rgba(79, 110, 247, 0.12)',
+                          color: isStateBoard ? '#D97706' : '#4F6EF7'
+                        }}>
+                          {item.board}
+                        </span>
+                      </td>
                       <td>{item.classId}</td>
                       <td><strong style={{ color: mPrice ? 'var(--color-primary, #1A73E8)' : '#64748B' }}>{mPrice ? `₹${mPrice}` : 'Free'}</strong></td>
                       <td>
@@ -309,7 +368,7 @@ const SubjectManagement = () => {
               ) : (
                 <tr>
                   <td colSpan="9" style={{ textAlign: 'center', padding: '30px', color: 'var(--color-text-tertiary)' }}>
-                    No subjects found.
+                    No subjects found matching filters.
                   </td>
                 </tr>
               )}
@@ -336,7 +395,7 @@ const SubjectManagement = () => {
                       className={styles.formInput}
                       value={formData.subjectName}
                       onChange={(e) => setFormData({ ...formData, subjectName: e.target.value })}
-                      placeholder="e.g. Mathematics"
+                      placeholder="e.g. Mathematics (MPBSE Ganit)"
                     />
                   </div>
 
@@ -347,24 +406,29 @@ const SubjectManagement = () => {
                       className={styles.formInput}
                       value={formData.subjectCode}
                       onChange={(e) => setFormData({ ...formData, subjectCode: e.target.value })}
-                      placeholder="e.g. MATH-101"
+                      placeholder="e.g. MP-MATH-101"
                     />
                   </div>
                 </div>
 
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Education Board</label>
+                    <label className={styles.formLabel}>Education Board *</label>
                     <select 
                       className={styles.formSelect}
                       value={formData.board}
                       onChange={(e) => setFormData({ ...formData, board: e.target.value })}
                     >
-                      <option value="CBSE">CBSE</option>
-                      <option value="ICSE">ICSE</option>
-                      <option value="State Board">State Board</option>
-                      <option value="IB">IB</option>
-                      <option value="Cambridge">Cambridge</option>
+                      <optgroup label="State Boards (UP, MP, Maharashtra, Bihar, etc.)">
+                        {allBoardOptions.filter(b => b.type === 'State Board').map(b => (
+                          <option key={b.name} value={b.name}>{b.name} {b.state ? `(${b.state})` : ''}</option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="National & International Boards">
+                        {allBoardOptions.filter(b => b.type !== 'State Board').map(b => (
+                          <option key={b.name} value={b.name}>{b.name}</option>
+                        ))}
+                      </optgroup>
                     </select>
                   </div>
 

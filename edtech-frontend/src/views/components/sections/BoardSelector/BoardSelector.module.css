@@ -4,17 +4,230 @@
 .tag { display: inline-flex; padding: var(--space-1) var(--space-4); background: rgba(79,110,247,0.08); border-radius: var(--radius-full); font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--color-accent); margin-bottom: var(--space-4); }
 .title { font-size: var(--text-4xl); font-weight: var(--font-bold); margin-bottom: var(--space-4); }
 .subtitle { font-size: var(--text-lg); color: var(--color-text-secondary); max-width: 560px; margin: 0 auto; }
-.boards { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); margin-bottom: var(--space-12); }
+.boards { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); margin-bottom: var(--space-10); }
 .boardCard { padding: var(--space-6); background: var(--color-surface); border-radius: var(--radius-xl); border: 2px solid var(--color-border-light); text-align: center; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: var(--space-3); }
 .boardCard:hover, .boardCard.active { border-color: var(--color-accent); box-shadow: var(--shadow-card-hover); transform: translateY(-4px); }
-.boardCard.active { background: rgba(79,110,247,0.04); }
+.boardCard.active { background: rgba(79,110,247,0.04); border-color: var(--color-accent); }
 .boardIcon { width: 52px; height: 52px; border-radius: var(--radius-lg); background: rgba(79,110,247,0.08); display: flex; align-items: center; justify-content: center; color: var(--color-accent); }
 .boardName { font-family: var(--font-heading); font-size: var(--text-lg); font-weight: var(--font-semibold); }
 .boardFull { font-size: var(--text-xs); color: var(--color-text-tertiary); }
+
+/* State Board Selection Panel */
+.stateBoardSection {
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border-light);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-6);
+  margin-bottom: var(--space-10);
+  box-shadow: var(--shadow-sm);
+  animation: fadeIn 0.3s ease;
+}
+
+.stateBoardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.stateBoardTitle {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.stateSearchWrap {
+  display: flex;
+  align-items: center;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 6px 12px;
+  gap: 8px;
+  min-width: 260px;
+}
+
+.stateSearchInput {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  width: 100%;
+}
+
+.stateGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-3);
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.stateCard {
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stateCard:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.stateCardActive {
+  background: rgba(79, 110, 247, 0.08);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.stateCardLeft {
+  display: flex;
+  flex-direction: column;
+}
+
+.stateName {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+}
+
+.stateRegion {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+.stateBadge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  background: rgba(79, 110, 247, 0.1);
+  color: var(--color-accent);
+  border-radius: var(--radius-sm);
+}
+
+.activeSelectionNotice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-4);
+  font-weight: 500;
+}
+
 .classGrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-4); }
 .classCard { padding: var(--space-5) var(--space-4); background: var(--color-bg); border-radius: var(--radius-lg); text-align: center; cursor: pointer; transition: all 0.25s ease; border: 1.5px solid transparent; }
 .classCard:hover { background: var(--color-surface); border-color: var(--color-accent); box-shadow: var(--shadow-md); transform: translateY(-3px); }
 .classNum { font-family: var(--font-heading); font-size: var(--text-2xl); font-weight: var(--font-bold); color: var(--color-primary); }
 .classLabel { font-size: var(--text-sm); color: var(--color-text-secondary); }
-@media (max-width: 1024px) { .boards { grid-template-columns: repeat(2, 1fr); } .classGrid { grid-template-columns: repeat(4, 1fr); } }
-@media (max-width: 640px) { .boards { grid-template-columns: 1fr; } .classGrid { grid-template-columns: repeat(3, 1fr); } }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1024px) { 
+  .boards { grid-template-columns: repeat(2, 1fr); gap: var(--space-4); } 
+  .classGrid { grid-template-columns: repeat(4, 1fr); } 
+  .stateGrid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+
+@media (max-width: 640px) { 
+  .section { padding: var(--space-12) 0; }
+  .title { font-size: var(--text-2xl); }
+  .subtitle { font-size: var(--text-sm); }
+  
+  .boards { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 10px; 
+    margin-bottom: var(--space-6); 
+  } 
+  
+  .boardCard { 
+    padding: var(--space-4) var(--space-3); 
+    gap: var(--space-2);
+  }
+  
+  .boardIcon { 
+    width: 42px; 
+    height: 42px; 
+  }
+  
+  .boardName { 
+    font-size: var(--text-base); 
+  }
+  
+  .boardFull { 
+    font-size: 11px; 
+  }
+  
+  .stateBoardSection {
+    padding: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+  
+  .stateBoardHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .stateBoardTitle {
+    font-size: var(--text-base);
+  }
+  
+  .stateSearchWrap {
+    width: 100%;
+    min-width: unset;
+    box-sizing: border-box;
+  }
+  
+  .stateGrid { 
+    grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); 
+    gap: 8px;
+    max-height: 220px;
+  }
+  
+  .stateCard {
+    padding: 8px 10px;
+  }
+  
+  .stateName {
+    font-size: 12.5px;
+  }
+  
+  .stateRegion {
+    font-size: 10.5px;
+  }
+  
+  .classGrid { 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 8px; 
+  }
+  
+  .classCard { 
+    padding: 12px 6px; 
+  }
+  
+  .classNum { 
+    font-size: var(--text-xl); 
+  }
+  
+  .classLabel { 
+    font-size: 12px; 
+  }
+}

@@ -36,6 +36,9 @@ export const SyllabusProvider = ({ children }) => {
   const [selectedBoard, setSelectedBoard] = useState(() => {
     return user?.board ? user.board.toLowerCase() : 'cbse';
   });
+  const [selectedStateBoard, setSelectedStateBoard] = useState(() => {
+    return user?.stateBoard || 'state-mp';
+  });
   const [selectedClass, setSelectedClass] = useState(() => {
     return user?.classId ? String(user.classId) : '10';
   });
@@ -71,7 +74,13 @@ export const SyllabusProvider = ({ children }) => {
       setSelectedClass(String(user.classId));
     }
     if (user?.board) {
-      setSelectedBoard(user.board.toLowerCase());
+      const uBoard = user.board.toLowerCase();
+      if (uBoard.startsWith('state-') || uBoard === 'mp' || uBoard === 'up') {
+        setSelectedBoard('state');
+        setSelectedStateBoard(uBoard.startsWith('state-') ? uBoard : `state-${uBoard}`);
+      } else {
+        setSelectedBoard(uBoard);
+      }
     }
   }, [user?.classId, user?.board]);
 
@@ -80,7 +89,8 @@ export const SyllabusProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await syllabusService.getSubjects(selectedBoard, selectedClass);
+      const targetQueryBoard = selectedBoard === 'state' ? selectedStateBoard : selectedBoard;
+      const res = await syllabusService.getSubjects(targetQueryBoard, selectedClass);
       let subjectList = [];
       if (Array.isArray(res.data)) {
         subjectList = res.data;
@@ -103,13 +113,35 @@ export const SyllabusProvider = ({ children }) => {
         setSubjects(formattedSubjects);
       } else {
         const nc = String(selectedClass).replace(/\D+/g, '') || '10';
-        const defaultFallbackSubjects = [
-          { id: `default-math-${nc}`, name: 'Mathematics', code: `MATH-${nc}`, color: '#4F6EF7', icon: 'BookOpen', chapters: [], chapterCount: 4, description: 'Mathematics Core' },
-          { id: `default-sci-${nc}`, name: 'Science', code: `SCI-${nc}`, color: '#22C55E', icon: 'BookOpen', chapters: [], chapterCount: 3, description: 'Physics, Chemistry & Biology' },
-          { id: `default-eng-${nc}`, name: 'English', code: `ENG-${nc}`, color: '#EC4899', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'English Grammar & Literature' },
-          { id: `default-sst-${nc}`, name: 'Social Science', code: `SST-${nc}`, color: '#F59E0B', icon: 'BookOpen', chapters: [], chapterCount: 3, description: 'History & Geography' },
-          { id: `default-hin-${nc}`, name: 'Hindi', code: `HIN-${nc}`, color: '#8B5CF6', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'Hindi Vyakaran' }
-        ];
+        const isMP = targetQueryBoard === 'state-mp' || targetQueryBoard === 'mp';
+        const isUP = targetQueryBoard === 'state-up' || targetQueryBoard === 'up';
+
+        let defaultFallbackSubjects = [];
+        if (isMP) {
+          defaultFallbackSubjects = [
+            { id: `default-mp-math-${nc}`, name: 'Mathematics (MPBSE Ganit)', code: `MP-MATH-${nc}`, color: '#4F6EF7', icon: 'Calculator', chapters: [], chapterCount: 4, description: 'MP Board Mathematics' },
+            { id: `default-mp-sci-${nc}`, name: 'Science (MPBSE Vigyan)', code: `MP-SCI-${nc}`, color: '#22C55E', icon: 'FlaskConical', chapters: [], chapterCount: 3, description: 'MP Board Science' },
+            { id: `default-mp-sst-${nc}`, name: 'Social Science (MPBSE Samajik Vigyan)', code: `MP-SST-${nc}`, color: '#F59E0B', icon: 'Globe', chapters: [], chapterCount: 3, description: 'MP Board Social Science' },
+            { id: `default-mp-hin-${nc}`, name: 'Hindi (MPBSE Hindi Vishesh)', code: `MP-HIN-${nc}`, color: '#8B5CF6', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'MP Board Hindi Special' },
+            { id: `default-mp-eng-${nc}`, name: 'English (MPBSE English General)', code: `MP-ENG-${nc}`, color: '#EC4899', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'MP Board English General' }
+          ];
+        } else if (isUP) {
+          defaultFallbackSubjects = [
+            { id: `default-up-math-${nc}`, name: 'Mathematics (UPMSP Ganit)', code: `UP-MATH-${nc}`, color: '#4F6EF7', icon: 'Calculator', chapters: [], chapterCount: 4, description: 'UP Board Mathematics' },
+            { id: `default-up-sci-${nc}`, name: 'Science (UPMSP Vigyan)', code: `UP-SCI-${nc}`, color: '#22C55E', icon: 'FlaskConical', chapters: [], chapterCount: 3, description: 'UP Board Science' },
+            { id: `default-up-sst-${nc}`, name: 'Social Science (UPMSP Samajik Vigyan)', code: `UP-SST-${nc}`, color: '#F59E0B', icon: 'Globe', chapters: [], chapterCount: 3, description: 'UP Board Social Science' },
+            { id: `default-up-hin-${nc}`, name: 'Hindi (UPMSP Hindi)', code: `UP-HIN-${nc}`, color: '#8B5CF6', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'UP Board Hindi' },
+            { id: `default-up-eng-${nc}`, name: 'English (UPMSP English)', code: `UP-ENG-${nc}`, color: '#EC4899', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'UP Board English' }
+          ];
+        } else {
+          defaultFallbackSubjects = [
+            { id: `default-math-${nc}`, name: 'Mathematics', code: `MATH-${nc}`, color: '#4F6EF7', icon: 'Calculator', chapters: [], chapterCount: 4, description: 'Mathematics Core' },
+            { id: `default-sci-${nc}`, name: 'Science', code: `SCI-${nc}`, color: '#22C55E', icon: 'FlaskConical', chapters: [], chapterCount: 3, description: 'Physics, Chemistry & Biology' },
+            { id: `default-eng-${nc}`, name: 'English', code: `ENG-${nc}`, color: '#EC4899', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'English Grammar & Literature' },
+            { id: `default-sst-${nc}`, name: 'Social Science', code: `SST-${nc}`, color: '#F59E0B', icon: 'Globe', chapters: [], chapterCount: 3, description: 'History & Geography' },
+            { id: `default-hin-${nc}`, name: 'Hindi', code: `HIN-${nc}`, color: '#8B5CF6', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'Hindi Vyakaran' }
+          ];
+        }
         setSubjects(defaultFallbackSubjects);
       }
     } catch (err) {
@@ -117,17 +149,17 @@ export const SyllabusProvider = ({ children }) => {
       setError(err.message || 'Failed to fetch syllabus data');
       const nc = String(selectedClass).replace(/\D+/g, '') || '10';
       const defaultFallbackSubjects = [
-        { id: `default-math-${nc}`, name: 'Mathematics', code: `MATH-${nc}`, color: '#4F6EF7', icon: 'BookOpen', chapters: [], chapterCount: 4, description: 'Mathematics Core' },
-        { id: `default-sci-${nc}`, name: 'Science', code: `SCI-${nc}`, color: '#22C55E', icon: 'BookOpen', chapters: [], chapterCount: 3, description: 'Physics, Chemistry & Biology' },
+        { id: `default-math-${nc}`, name: 'Mathematics', code: `MATH-${nc}`, color: '#4F6EF7', icon: 'Calculator', chapters: [], chapterCount: 4, description: 'Mathematics Core' },
+        { id: `default-sci-${nc}`, name: 'Science', code: `SCI-${nc}`, color: '#22C55E', icon: 'FlaskConical', chapters: [], chapterCount: 3, description: 'Physics, Chemistry & Biology' },
         { id: `default-eng-${nc}`, name: 'English', code: `ENG-${nc}`, color: '#EC4899', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'English Grammar & Literature' },
-        { id: `default-sst-${nc}`, name: 'Social Science', code: `SST-${nc}`, color: '#F59E0B', icon: 'BookOpen', chapters: [], chapterCount: 3, description: 'History & Geography' },
+        { id: `default-sst-${nc}`, name: 'Social Science', code: `SST-${nc}`, color: '#F59E0B', icon: 'Globe', chapters: [], chapterCount: 3, description: 'History & Geography' },
         { id: `default-hin-${nc}`, name: 'Hindi', code: `HIN-${nc}`, color: '#8B5CF6', icon: 'BookOpen', chapters: [], chapterCount: 2, description: 'Hindi Vyakaran' }
       ];
       setSubjects(defaultFallbackSubjects);
     } finally {
       setLoading(false);
     }
-  }, [selectedBoard, selectedClass]);
+  }, [selectedBoard, selectedStateBoard, selectedClass]);
 
   const fetchPlans = useCallback(async () => {
     try {
@@ -339,6 +371,8 @@ export const SyllabusProvider = ({ children }) => {
     <SyllabusContext.Provider value={{
       selectedBoard,
       setSelectedBoard,
+      selectedStateBoard,
+      setSelectedStateBoard,
       selectedClass,
       setSelectedClass,
       subjects: filteredSubjects,

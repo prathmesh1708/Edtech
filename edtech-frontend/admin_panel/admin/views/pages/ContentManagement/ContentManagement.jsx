@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '../../../../../src/views/components/common/Toast/Toast';
 import syllabusService from '../../../../../src/models/services/syllabusService';
-import { BOARDS, CLASSES } from '../../../../../src/config/constants';
+import { BOARDS, STATE_BOARDS, CLASSES } from '../../../../../src/config/constants';
 import styles from './ContentManagement.module.css';
 
 const initialContent = [
@@ -441,9 +441,16 @@ const ContentManagement = () => {
                       value={formData.board}
                       onChange={handleInputChange}
                     >
-                      {BOARDS.map(b => (
-                        <option key={b.id} value={b.id}>{b.name} ({b.fullName})</option>
-                      ))}
+                      <optgroup label="National / International Boards">
+                        {BOARDS.filter(b => b.id !== 'state').map(b => (
+                          <option key={b.id} value={b.id}>{b.name} ({b.fullName})</option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="State Boards (UP, MP, Bihar, Maharashtra, etc.)">
+                        {STATE_BOARDS.map(sb => (
+                          <option key={sb.id} value={sb.id}>{sb.name} ({sb.state})</option>
+                        ))}
+                      </optgroup>
                     </select>
                   </div>
 
@@ -565,9 +572,16 @@ const ContentManagement = () => {
                       value={formData.board}
                       onChange={handleInputChange}
                     >
-                      {BOARDS.map(b => (
-                        <option key={b.id} value={b.id}>{b.name} ({b.fullName})</option>
-                      ))}
+                      <optgroup label="National / International Boards">
+                        {BOARDS.filter(b => b.id !== 'state').map(b => (
+                          <option key={b.id} value={b.id}>{b.name} ({b.fullName})</option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="State Boards (UP, MP, Bihar, Maharashtra, etc.)">
+                        {STATE_BOARDS.map(sb => (
+                          <option key={sb.id} value={sb.id}>{sb.name} ({sb.state})</option>
+                        ))}
+                      </optgroup>
                     </select>
                   </div>
 
