@@ -24,6 +24,7 @@ const NotFound = lazy(() => import('./views/pages/public/NotFound/NotFound'));
 // Auth Pages
 const ClassSelection = lazy(() => import('./views/pages/auth/ClassSelection/ClassSelection'));
 const Login = lazy(() => import('./views/pages/auth/Login/Login'));
+const AdminLogin = lazy(() => import('./views/pages/admin/AdminLogin/AdminLogin'));
 const Register = lazy(() => import('./views/pages/auth/Register/Register'));
 const OTPVerification = lazy(() => import('./views/pages/auth/OTPVerification/OTPVerification'));
 
@@ -82,7 +83,8 @@ function App() {
                 {/* Auth Pages (no Navbar/Footer) */}
                 <Route path={ROUTES.SELECT_CLASS} element={<ClassSelection />} />
                 <Route path={ROUTES.LOGIN} element={<Login />} />
-                <Route path={ROUTES.ADMIN_LOGIN} element={<Login />} />
+                <Route path={ROUTES.ADMIN_LOGIN} element={<AdminLogin />} />
+                <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path={ROUTES.REGISTER} element={<Register />} />
                 <Route path={ROUTES.OTP_VERIFICATION} element={<OTPVerification />} />
 

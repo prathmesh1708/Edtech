@@ -18,7 +18,7 @@ const useAuthController = () => {
       const { token, ...user } = data;
       
       const currentPath = window.location.pathname;
-      const isAdminFlow = currentPath === ROUTES.ADMIN_LOGIN || currentPath.startsWith('/login/admin');
+      const isAdminFlow = currentPath === ROUTES.ADMIN_LOGIN || currentPath.startsWith('/login/admin') || currentPath === '/admin/login' || currentPath.startsWith('/admin/login');
       
       if (isAdminFlow && user.role !== 'admin') {
         throw new Error('Access Denied: Only administrators can log in here.');
