@@ -103,20 +103,36 @@ export const registerUser = async (req, res, next) => {
 // @route   POST /api/auth/login
 // @access  Public
 export const loginUser = async (req, res, next) => {
-  const { email, password } = req.body;
+  const { password } = req.body;
+  // The login form sends the email-or-mobile value as `email`; `identifier` is also accepted.
+  const rawIdentifier = req.body.identifier ?? req.body.email;
+  const identifier = typeof rawIdentifier === 'string' ? rawIdentifier.trim() : '';
 
   try {
-    if (!email || !password) {
+    if (!identifier || !password) {
       res.status(400);
-      throw new Error('Please include email and password');
+      throw new Error('Please include your email or mobile number and password');
+    }
+
+    // Build the lookup: email as typed or lowercased (Admin emails are not lowercased
+    // on save), or a 10-digit mobile in the formats registration may have stored.
+    let query = null;
+    if (identifier.includes('@')) {
+      query = { email: { $in: [identifier, identifier.toLowerCase()] } };
+    } else {
+      const digits = identifier.replace(/\D/g, '');
+      const local = digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits;
+      if (local.length === 10) {
+        query = { phone: { $in: [identifier, local, `+91${local}`, `91${local}`] } };
+      }
     }
 
     // Check Admin collection first
-    let user = await Admin.findOne({ email });
+    let user = query ? await Admin.findOne(query) : null;
     let isAdminModel = true;
 
-    if (!user) {
-      user = await User.findOne({ email });
+    if (!user && query) {
+      user = await User.findOne(query);
       isAdminModel = false;
     }
 
@@ -135,7 +151,7 @@ export const loginUser = async (req, res, next) => {
       });
     } else {
       res.status(401);
-      throw new Error('Invalid email or password');
+      throw new Error('Invalid email/mobile number or password');
     }
   } catch (error) {
     next(error);
@@ -168,6 +184,72 @@ export const getUserProfile = async (req, res, next) => {
       res.status(404);
       throw new Error('User not found');
     }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Send OTP to user mobile
+// @route   POST /api/auth/send-otp
+// @access  Public
+export const sendOTP = async (req, res, next) => {
+  const { phone } = req.body;
+  try {
+    if (!phone) {
+      res.status(400);
+      throw new Error('Please enter your mobile number');
+    }
+    const clean = phone.replace(/\D/g, '');
+    const user = await User.findOne({
+      phone: { $in: [phone, clean, `+91${clean}`, `91${clean}`] }
+    });
+
+    if (!user) {
+      res.status(404);
+      throw new Error('No account found with this mobile number. Please sign up first.');
+    }
+
+    res.json({
+      success: true,
+      message: 'OTP sent successfully to your mobile number',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Verify OTP & Authenticate
+// @route   POST /api/auth/verify-otp
+// @access  Public
+export const verifyOTP = async (req, res, next) => {
+  const { phone, otp } = req.body;
+  try {
+    if (!phone || !otp) {
+      res.status(400);
+      throw new Error('Please provide both mobile number and OTP');
+    }
+    const clean = phone.replace(/\D/g, '');
+    const user = await User.findOne({
+      phone: { $in: [phone, clean, `+91${clean}`, `91${clean}`] }
+    });
+
+    if (!user) {
+      res.status(404);
+      throw new Error('User not found');
+    }
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      phone: user.phone,
+      schoolName: user.schoolName,
+      childName: user.childName,
+      classId: user.classId,
+      board: user.board,
+      token: generateToken(user._id),
+    });
   } catch (error) {
     next(error);
   }

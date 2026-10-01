@@ -26,27 +26,39 @@ const TESTIMONIALS = [
   },
 ];
 
-const mapAuthError = (rawError) => {
+// Maps a failed sign-in to user-facing copy. The HTTP status decides first, so a missing
+// API route (404 "Not Found - /api/...") is never shown as "no account with this number".
+const mapAuthError = (rawError, status, loginMode) => {
   if (!rawError) return null;
   const errStr = String(rawError).toLowerCase();
 
-  if (errStr.includes('network') || errStr.includes('econnrefused') || errStr.includes('failed to fetch')) {
-    return "Couldn't reach the server. Check your connection and retry";
+  if (!status) {
+    if (errStr.includes('network') || errStr.includes('econnrefused') || errStr.includes('failed to fetch') || errStr.includes('timeout')) {
+      return "Couldn't reach the server. Check your connection and retry";
+    }
+    return rawError; // client-side errors, e.g. "Access Denied: ..."
   }
-  if (errStr.includes('429') || errStr.includes('too many') || errStr.includes('rate limit')) {
+  if (status === 429) {
     return "Too many attempts. Try again in 5 minutes";
   }
-  if (errStr.includes('not found') || errStr.includes('no account') || errStr.includes('user not found')) {
-    return "No account with this number. Create one instead?";
+  // Express notFound() says "Not Found - /api/..." when the route itself is missing;
+  // any other 404 (e.g. "No account found with this mobile number") is shown as sent.
+  if (status === 404 && errStr.startsWith('not found - ')) {
+    return loginMode === 'otp'
+      ? "Mobile OTP login isn't available right now. Use password login instead"
+      : "Login is temporarily unavailable. Please try again later";
   }
-  if (errStr.includes('invalid') || errStr.includes('incorrect') || errStr.includes('password') || errStr.includes('401')) {
-    return "Incorrect password. Try again or reset it";
+  if (status >= 500) {
+    return "Something went wrong on our side. Please try again";
+  }
+  if (status === 401) {
+    return "Incorrect email/mobile number or password. Try again or reset it";
   }
   if (errStr.includes('expired')) {
     return "This code expired. Request a new one";
   }
-  if (errStr.includes('otp')) {
-    return "That code isn't right. Check and re-enter";
+  if (errStr.includes('no account') || errStr.includes('user not found')) {
+    return "No account with this number. Create one instead?";
   }
   return rawError;
 };
@@ -85,7 +97,7 @@ const Login = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
-  const { loginWithEmail, sendOTP, loading, error: authError } = useAuthController();
+  const { loginWithEmail, sendOTP, loading, error: authError, errorStatus: authErrorStatus } = useAuthController();
 
   useEffect(() => {
     const handleResize = () => {
@@ -190,7 +202,7 @@ const Login = () => {
   };
 
   const activeTestimonial = TESTIMONIALS[testimonialIdx];
-  const formErrorMessage = mapAuthError(authError);
+  const formErrorMessage = mapAuthError(authError, authErrorStatus, loginMode);
 
   const backLinkTarget = isAdminFlow
     ? ROUTES.HOME

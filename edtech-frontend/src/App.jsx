@@ -36,6 +36,9 @@ const ChapterView = lazy(() => import('./views/pages/student/ChapterView/Chapter
 const AITutor = lazy(() => import('./views/pages/student/AITutor/AITutor'));
 const Notes = lazy(() => import('./views/pages/student/Notes/Notes'));
 const Settings = lazy(() => import('./views/pages/student/Settings/Settings'));
+const StudyMaterials = lazy(() => import('./views/pages/student/StudyMaterials/StudyMaterials'));
+const StudyMaterialDetail = lazy(() => import('./views/pages/student/StudyMaterialDetail/StudyMaterialDetail'));
+const Bookmarks = lazy(() => import('./views/pages/student/Bookmarks/Bookmarks'));
 
 // Admin Pages
 const AdminDashboard = lazy(() => import('../admin_panel/admin/views/pages/Dashboard/Dashboard'));
@@ -100,6 +103,9 @@ function App() {
                   <Route path={ROUTES.AI_TUTOR} element={<AITutor />} />
                   <Route path={ROUTES.NOTES} element={<Notes />} />
                   <Route path={ROUTES.SETTINGS} element={<Settings />} />
+                  <Route path={ROUTES.STUDY_MATERIALS} element={<StudyMaterials />} />
+                  <Route path={ROUTES.STUDY_MATERIAL_DETAIL} element={<StudyMaterialDetail />} />
+                  <Route path={ROUTES.BOOKMARKS} element={<Bookmarks />} />
                 </Route>
 
                 {/* Master Admin Portal */}

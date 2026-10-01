@@ -31,6 +31,7 @@ export const ROUTES = {
   SUBJECT_DETAIL: '/student/dashboard/subject/:subjectId',
   CHAPTER_VIEW: '/student/dashboard/chapter/:chapterId',
   STUDY_MATERIALS: '/student/dashboard/materials',
+  STUDY_MATERIAL_DETAIL: '/student/dashboard/materials/:contentId',
   AI_TUTOR: '/student/dashboard/ai-tutor',
   BOOKMARKS: '/student/dashboard/bookmarks',
   NOTES: '/student/dashboard/notes',

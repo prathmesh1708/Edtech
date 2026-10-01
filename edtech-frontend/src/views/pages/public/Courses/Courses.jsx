@@ -15,6 +15,7 @@ import * as Icons from 'lucide-react';
 import { SUBJECTS, BOARDS, STATE_BOARDS, CLASSES, resolveBoardInfo } from '../../../../config/constants';
 import { ROUTES, generateRoute } from '../../../../config/routes';
 import Badge from '../../../components/common/Badge/Badge';
+import DikshaFeaturedSection from '../../../components/diksha/DikshaFeaturedSection/DikshaFeaturedSection';
 import useScrollAnimation from '../../../../hooks/useScrollAnimation';
 import styles from './Courses.module.css';
 
@@ -231,6 +232,12 @@ const Courses = () => {
             );
           })}
         </div>
+
+        {/* Free resources from DIKSHA for the selected board / class */}
+        <DikshaFeaturedSection
+          board={activeBoard === 'all' ? undefined : isStateBoardActive ? selectedStateBoard : activeBoard}
+          grade={activeClass === 'all' ? undefined : activeClass}
+        />
       </div>
     </div>
   );
