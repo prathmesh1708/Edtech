@@ -189,68 +189,25 @@ export const getUserProfile = async (req, res, next) => {
   }
 };
 
-// @desc    Send OTP to user mobile
+// Mobile OTP login is disabled until an SMS provider is integrated. The previous
+// handlers issued a login token for any registered number without checking the code
+// (account takeover) and revealed which numbers are registered. Both endpoints now
+// refuse without touching the database. Password login is unaffected.
+
+// @desc    Send OTP to user mobile (not available yet)
 // @route   POST /api/auth/send-otp
 // @access  Public
-export const sendOTP = async (req, res, next) => {
-  const { phone } = req.body;
-  try {
-    if (!phone) {
-      res.status(400);
-      throw new Error('Please enter your mobile number');
-    }
-    const clean = phone.replace(/\D/g, '');
-    const user = await User.findOne({
-      phone: { $in: [phone, clean, `+91${clean}`, `91${clean}`] }
-    });
-
-    if (!user) {
-      res.status(404);
-      throw new Error('No account found with this mobile number. Please sign up first.');
-    }
-
-    res.json({
-      success: true,
-      message: 'OTP sent successfully to your mobile number',
-    });
-  } catch (error) {
-    next(error);
-  }
+export const sendOTP = async (req, res) => {
+  res.status(501).json({
+    message: 'Mobile OTP login is not available yet. Please log in with your password.',
+  });
 };
 
-// @desc    Verify OTP & Authenticate
+// @desc    Verify OTP & Authenticate (not available yet)
 // @route   POST /api/auth/verify-otp
 // @access  Public
-export const verifyOTP = async (req, res, next) => {
-  const { phone, otp } = req.body;
-  try {
-    if (!phone || !otp) {
-      res.status(400);
-      throw new Error('Please provide both mobile number and OTP');
-    }
-    const clean = phone.replace(/\D/g, '');
-    const user = await User.findOne({
-      phone: { $in: [phone, clean, `+91${clean}`, `91${clean}`] }
-    });
-
-    if (!user) {
-      res.status(404);
-      throw new Error('User not found');
-    }
-
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      phone: user.phone,
-      schoolName: user.schoolName,
-      childName: user.childName,
-      classId: user.classId,
-      board: user.board,
-      token: generateToken(user._id),
-    });
-  } catch (error) {
-    next(error);
-  }
+export const verifyOTP = async (req, res) => {
+  res.status(501).json({
+    message: 'Mobile OTP login is not available yet. Please log in with your password.',
+  });
 };

@@ -48,7 +48,7 @@ const mapAuthError = (rawError, status, loginMode) => {
       ? "Mobile OTP login isn't available right now. Use password login instead"
       : "Login is temporarily unavailable. Please try again later";
   }
-  if (status >= 500) {
+  if (status >= 500 && status !== 501) { // 501 = feature not available; its message is shown as sent
     return "Something went wrong on our side. Please try again";
   }
   if (status === 401) {
