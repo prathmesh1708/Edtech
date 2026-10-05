@@ -103,20 +103,36 @@ export const registerUser = async (req, res, next) => {
 // @route   POST /api/auth/login
 // @access  Public
 export const loginUser = async (req, res, next) => {
-  const { email, password } = req.body;
+  const { password } = req.body;
+  // The login form sends the email-or-mobile value as `email`; `identifier` is also accepted.
+  const rawIdentifier = req.body.identifier ?? req.body.email;
+  const identifier = typeof rawIdentifier === 'string' ? rawIdentifier.trim() : '';
 
   try {
-    if (!email || !password) {
+    if (!identifier || !password) {
       res.status(400);
-      throw new Error('Please include email and password');
+      throw new Error('Please include your email or mobile number and password');
+    }
+
+    // Build the lookup: email as typed or lowercased (Admin emails are not lowercased
+    // on save), or a 10-digit mobile in the formats registration may have stored.
+    let query = null;
+    if (identifier.includes('@')) {
+      query = { email: { $in: [identifier, identifier.toLowerCase()] } };
+    } else {
+      const digits = identifier.replace(/\D/g, '');
+      const local = digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits;
+      if (local.length === 10) {
+        query = { phone: { $in: [identifier, local, `+91${local}`, `91${local}`] } };
+      }
     }
 
     // Check Admin collection first
-    let user = await Admin.findOne({ email });
+    let user = query ? await Admin.findOne(query) : null;
     let isAdminModel = true;
 
-    if (!user) {
-      user = await User.findOne({ email });
+    if (!user && query) {
+      user = await User.findOne(query);
       isAdminModel = false;
     }
 
@@ -135,7 +151,7 @@ export const loginUser = async (req, res, next) => {
       });
     } else {
       res.status(401);
-      throw new Error('Invalid email or password');
+      throw new Error('Invalid email/mobile number or password');
     }
   } catch (error) {
     next(error);
@@ -226,4 +242,27 @@ export const removeFcmToken = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+// Mobile OTP login is disabled until an SMS provider is integrated. The previous
+// handlers issued a login token for any registered number without checking the code
+// (account takeover) and revealed which numbers are registered. Both endpoints now
+// refuse without touching the database. Password login is unaffected.
+
+// @desc    Send OTP to user mobile (not available yet)
+// @route   POST /api/auth/send-otp
+// @access  Public
+export const sendOTP = async (req, res) => {
+  res.status(501).json({
+    message: 'Mobile OTP login is not available yet. Please log in with your password.',
+  });
+};
+
+// @desc    Verify OTP & Authenticate (not available yet)
+// @route   POST /api/auth/verify-otp
+// @access  Public
+export const verifyOTP = async (req, res) => {
+  res.status(501).json({
+    message: 'Mobile OTP login is not available yet. Please log in with your password.',
+  });
 };

@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ROUTES } from './config/routes';
 import { AuthProvider } from './models/context/AuthContext';
+import PushNotificationManager from './models/context/PushNotificationManager';
 import { SyllabusProvider } from './models/context/SyllabusContext';
 import { ThemeProvider } from './models/context/ThemeContext';
 import { ToastProvider } from './views/components/common/Toast/Toast';
@@ -36,6 +37,9 @@ const ChapterView = lazy(() => import('./views/pages/student/ChapterView/Chapter
 const AITutor = lazy(() => import('./views/pages/student/AITutor/AITutor'));
 const Notes = lazy(() => import('./views/pages/student/Notes/Notes'));
 const Settings = lazy(() => import('./views/pages/student/Settings/Settings'));
+const StudyMaterials = lazy(() => import('./views/pages/student/StudyMaterials/StudyMaterials'));
+const StudyMaterialDetail = lazy(() => import('./views/pages/student/StudyMaterialDetail/StudyMaterialDetail'));
+const Bookmarks = lazy(() => import('./views/pages/student/Bookmarks/Bookmarks'));
 
 // Admin Pages
 const AdminDashboard = lazy(() => import('../admin_panel/admin/views/pages/Dashboard/Dashboard'));
@@ -64,6 +68,7 @@ function App() {
     <ThemeProvider>
       <Router>
         <AuthProvider>
+          <PushNotificationManager />
           <SyllabusProvider>
             <ToastProvider>
             <Suspense fallback={<Loader fullScreen text="Loading Study Wisely..." />}>
@@ -100,6 +105,9 @@ function App() {
                   <Route path={ROUTES.AI_TUTOR} element={<AITutor />} />
                   <Route path={ROUTES.NOTES} element={<Notes />} />
                   <Route path={ROUTES.SETTINGS} element={<Settings />} />
+                  <Route path={ROUTES.STUDY_MATERIALS} element={<StudyMaterials />} />
+                  <Route path={ROUTES.STUDY_MATERIAL_DETAIL} element={<StudyMaterialDetail />} />
+                  <Route path={ROUTES.BOOKMARKS} element={<Bookmarks />} />
                 </Route>
 
                 {/* Master Admin Portal */}

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { unregisterPushToken } from '../../utils/pushNotifications';
 
 const AuthContext = createContext(null);
 
@@ -49,6 +50,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    unregisterPushToken(); // fire-and-forget; needs the token still in localStorage
     setUser(null);
     setToken(null);
     localStorage.removeItem('sw_token');

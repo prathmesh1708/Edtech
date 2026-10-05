@@ -1,4 +1,5 @@
 import Notification from '../models/Notification.js';
+import { sendPushToTarget } from '../services/pushService.js';
 
 // Helper for relative time formatting
 const getRelativeTime = (date) => {
@@ -55,6 +56,13 @@ export const broadcastNotification = async (req, res, next) => {
       category: category || 'Announcement',
     });
 
+    // Best-effort push to saved devices; never blocks or fails the broadcast
+    const push = await sendPushToTarget(newNotification.target, {
+      title: newNotification.title,
+      body: newNotification.message,
+      data: { notificationId: String(newNotification._id), category: newNotification.category },
+    });
+
     res.status(201).json({
       id: newNotification.customId,
       _id: newNotification._id,
@@ -64,6 +72,7 @@ export const broadcastNotification = async (req, res, next) => {
       category: newNotification.category,
       time: 'Just now',
       createdAt: newNotification.createdAt,
+      push,
     });
   } catch (error) {
     next(error);

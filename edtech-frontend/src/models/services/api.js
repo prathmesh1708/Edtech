@@ -23,7 +23,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // A 401 from a sign-in request means wrong credentials, not an expired session:
+    // let the form show the error instead of reloading the login page.
+    const isAuthAttempt = /\/auth\/(login|register|verify-otp)$/.test(error.config?.url || '');
+    if (error.response?.status === 401 && !isAuthAttempt) {
       let isAdmin = false;
       try {
         const storedUser = localStorage.getItem('sw_user');

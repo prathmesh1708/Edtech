@@ -49,3 +49,5 @@ The frontend falls back to `http://localhost:5001/api` when
 The root `package.json` / `package-lock.json` exist only for Vercel. Running
 `npm install` at the root installs nothing — always `cd` into
 `edtech-backend` or `edtech-frontend` first.
+
+DIKSHA content integration (env vars, endpoints, licensing): see [DIKSHA_INTEGRATION.md](DIKSHA_INTEGRATION.md).

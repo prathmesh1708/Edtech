@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
-import { Home, LogOut, Settings, Bell, BookOpen, FileText, Trash2, X } from 'lucide-react';
+import { Home, LogOut, Settings, Bell, BookOpen, FileText, Trash2, X, Library, Bookmark } from 'lucide-react';
 import Logo from '../../../../../src/views/components/common/Logo/Logo';
 import { ROUTES } from '../../../../../src/config/routes';
 import { useAuth } from '../../../../../src/models/context/AuthContext';
@@ -13,6 +13,8 @@ const MENU_ITEMS = [
   { path: ROUTES.STUDENT_DASHBOARD, label: 'Home', icon: Home },
   { path: ROUTES.MY_SYLLABUS, label: 'My Syllabus', icon: BookOpen },
   { path: ROUTES.NOTES, label: 'Notes', icon: FileText },
+  { path: ROUTES.STUDY_MATERIALS, label: 'Study Materials', icon: Library },
+  { path: ROUTES.BOOKMARKS, label: 'Bookmarks', icon: Bookmark },
   { path: ROUTES.SETTINGS, label: 'Settings', icon: Settings },
 ];
 
