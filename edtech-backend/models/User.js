@@ -60,6 +60,14 @@ const userSchema = new mongoose.Schema(
     batch: { type: String },
     photoUrl: { type: String },
     emailVerified: { type: Boolean, default: true },
+    fcmTokens: [
+      {
+        _id: false,
+        token: { type: String, required: true },
+        deviceType: { type: String, enum: ['android', 'ios', 'web'], default: 'android' },
+        updatedAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   {
     timestamps: true,

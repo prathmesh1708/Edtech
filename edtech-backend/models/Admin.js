@@ -29,6 +29,14 @@ const adminSchema = new mongoose.Schema(
     phone: {
       type: String,
     },
+    fcmTokens: [
+      {
+        _id: false,
+        token: { type: String, required: true },
+        deviceType: { type: String, enum: ['android', 'ios', 'web'], default: 'android' },
+        updatedAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   {
     timestamps: true,

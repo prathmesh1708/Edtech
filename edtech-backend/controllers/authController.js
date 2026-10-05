@@ -172,3 +172,58 @@ export const getUserProfile = async (req, res, next) => {
     next(error);
   }
 };
+
+const FCM_DEVICE_TYPES = ['android', 'ios', 'web'];
+
+// @desc    Save (or refresh) the FCM device token for the logged-in user
+// @route   POST /api/auth/fcm-token
+// @access  Private
+export const saveFcmToken = async (req, res, next) => {
+  try {
+    const { fcmToken, deviceType = 'android' } = req.body;
+
+    if (!fcmToken || typeof fcmToken !== 'string') {
+      res.status(400);
+      throw new Error('fcmToken is required');
+    }
+    if (!FCM_DEVICE_TYPES.includes(deviceType)) {
+      res.status(400);
+      throw new Error('deviceType must be one of: ' + FCM_DEVICE_TYPES.join(', '));
+    }
+
+    // A device token belongs to one account at a time: detach it from everyone first
+    await Promise.all([User, Admin].map((Model) =>
+      Model.updateMany({ 'fcmTokens.token': fcmToken }, { $pull: { fcmTokens: { token: fcmToken } } })
+    ));
+
+    const Model = req.user.role === 'admin' ? Admin : User;
+    await Model.updateOne(
+      { _id: req.user._id },
+      { $push: { fcmTokens: { token: fcmToken, deviceType, updatedAt: new Date() } } }
+    );
+
+    res.json({ message: 'FCM token saved' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Remove an FCM device token (call on logout)
+// @route   DELETE /api/auth/fcm-token
+// @access  Private
+export const removeFcmToken = async (req, res, next) => {
+  try {
+    const { fcmToken } = req.body;
+    if (!fcmToken) {
+      res.status(400);
+      throw new Error('fcmToken is required');
+    }
+
+    const Model = req.user.role === 'admin' ? Admin : User;
+    await Model.updateOne({ _id: req.user._id }, { $pull: { fcmTokens: { token: fcmToken } } });
+
+    res.json({ message: 'FCM token removed' });
+  } catch (error) {
+    next(error);
+  }
+};
