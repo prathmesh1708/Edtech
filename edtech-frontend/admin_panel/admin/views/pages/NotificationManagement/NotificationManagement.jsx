@@ -13,6 +13,9 @@ import {
 } from 'lucide-react';
 import { useToast } from '../../../../../src/views/components/common/Toast/Toast';
 import { API_BASE_URL } from '../../../../../src/config/constants';
+
+// Admin-only notification routes require the logged-in admin's token
+const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('sw_token')}` });
 import styles from './NotificationManagement.module.css';
 
 const NotificationManagement = () => {
@@ -36,7 +39,7 @@ const NotificationManagement = () => {
   const fetchAdminNotifications = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/notifications/admin`);
+      const res = await fetch(`${API_BASE_URL}/notifications/admin`, { headers: authHeaders() });
       if (res.ok) {
         const data = await res.json();
         setLogs(data);
@@ -74,7 +77,7 @@ const NotificationManagement = () => {
       setIsSubmitting(true);
       const res = await fetch(`${API_BASE_URL}/notifications/broadcast`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...authHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
@@ -105,6 +108,7 @@ const NotificationManagement = () => {
     try {
       const res = await fetch(`${API_BASE_URL}/notifications/${id}`, {
         method: 'DELETE',
+        headers: authHeaders(),
       });
       if (res.ok) {
         setLogs(prev => prev.filter(l => l.id !== id && l._id !== id));

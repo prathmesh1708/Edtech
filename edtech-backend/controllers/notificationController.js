@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Notification from '../models/Notification.js';
 import { sendPushToTarget } from '../services/pushService.js';
 
@@ -165,6 +166,7 @@ export const getUserNotifications = async (req, res, next) => {
 
     if (userId) {
       query.$or.push({ user: userId });
+      query.dismissedBy = { $ne: userId };
     }
 
     let notifications = await Notification.find(query).sort({ createdAt: -1 });
@@ -246,6 +248,51 @@ export const markAllNotificationsAsRead = async (req, res, next) => {
     }
 
     res.json({ message: 'All notifications marked as read' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Hide one notification from a user's own list (others still see it)
+// @route   DELETE /api/notifications/:id/dismiss
+// @access  Public / User
+export const dismissNotification = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?._id || req.body.userId;
+
+    if (!userId || !mongoose.isValidObjectId(userId)) {
+      res.status(400);
+      throw new Error('A valid userId is required');
+    }
+
+    const filter = mongoose.isValidObjectId(id) ? { _id: id } : { customId: id };
+    await Notification.updateOne(filter, { $addToSet: { dismissedBy: userId } });
+
+    res.json({ message: 'Notification dismissed', id });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Hide every notification from a user's own list
+// @route   DELETE /api/notifications/clear-all
+// @access  Public / User
+export const clearAllNotifications = async (req, res, next) => {
+  try {
+    const userId = req.user?._id || req.body.userId;
+
+    if (!userId || !mongoose.isValidObjectId(userId)) {
+      res.status(400);
+      throw new Error('A valid userId is required');
+    }
+
+    await Notification.updateMany(
+      { dismissedBy: { $ne: userId } },
+      { $addToSet: { dismissedBy: userId } }
+    );
+
+    res.json({ message: 'All notifications cleared' });
   } catch (error) {
     next(error);
   }

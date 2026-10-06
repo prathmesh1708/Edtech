@@ -96,7 +96,7 @@ const StudentLayout = () => {
   const clearSingleNotification = async (id) => {
     setNotifications(prev => prev.filter(n => n.id !== id && n._id !== id));
     try {
-      await fetch(`${API_BASE_URL}/notifications/${id}`, {
+      await fetch(`${API_BASE_URL}/notifications/${id}/dismiss`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user?._id }),

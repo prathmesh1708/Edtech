@@ -1,20 +1,12 @@
 .page {
-<<<<<<< HEAD
   padding-top: 0;
-=======
-  padding-top: 56px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   min-height: 100vh;
   background-color: var(--color-bg);
   box-sizing: border-box;
 }
 
 .hero {
-<<<<<<< HEAD
   padding: 18px 0 8px;
-=======
-  padding: 24px 0 14px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   background: var(--gradient-surface, linear-gradient(180deg, rgba(79, 110, 247, 0.04) 0%, transparent 100%));
   border-bottom: 1px solid var(--color-border-light);
 }
@@ -27,11 +19,7 @@
 }
 
 .title {
-<<<<<<< HEAD
   font-size: var(--text-3xl, 26px);
-=======
-  font-size: var(--text-3xl, 28px);
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   font-weight: 800;
   margin: 0 0 4px 0;
   font-family: var(--font-heading);
@@ -40,39 +28,24 @@
 }
 
 .subtitle {
-<<<<<<< HEAD
   font-size: var(--text-sm, 13.5px);
   color: var(--color-text-secondary);
   max-width: 620px;
   line-height: 1.45;
-=======
-  font-size: var(--text-sm, 14px);
-  color: var(--color-text-secondary);
-  max-width: 600px;
-  line-height: 1.5;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   margin: 0;
 }
 
 /* Board Filter Row */
 .filterSection {
-<<<<<<< HEAD
   padding: 10px 0 4px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-=======
-  padding: 14px 0 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
 }
 
 .filtersRow {
   display: flex;
   gap: 8px;
-<<<<<<< HEAD
   overflow-x: auto;
   flex-wrap: nowrap;
   padding: 2px 0 4px;
@@ -87,36 +60,19 @@
 
 .filterBtn {
   padding: 6px 13px;
-=======
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.filterBtn {
-  padding: 7px 14px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   border-radius: var(--radius-full, 9999px);
   border: 1.5px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text-secondary);
-<<<<<<< HEAD
   font-size: 12.5px;
-=======
-  font-size: 13px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
-<<<<<<< HEAD
   gap: 5px;
   white-space: nowrap;
   flex-shrink: 0;
-=======
-  gap: 6px;
-  white-space: nowrap;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
 }
 
 .filterBtn:hover {
@@ -129,26 +85,16 @@
   background: var(--color-primary) !important;
   color: #FFFFFF !important;
   border-color: var(--color-primary) !important;
-<<<<<<< HEAD
   box-shadow: 0 3px 8px rgba(79, 110, 247, 0.22);
-=======
-  box-shadow: 0 3px 10px rgba(79, 110, 247, 0.24);
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
 }
 
 /* State Board Selection Drawer */
 .stateBoardDrawer {
   background: var(--color-surface);
   border: 1.5px solid var(--color-border-light);
-<<<<<<< HEAD
   border-radius: var(--radius-xl, 14px);
   padding: 12px 14px;
   box-shadow: var(--shadow-md, 0 6px 20px rgba(0, 0, 0, 0.06));
-=======
-  border-radius: var(--radius-xl, 16px);
-  padding: 14px 16px;
-  box-shadow: var(--shadow-md, 0 8px 24px rgba(0, 0, 0, 0.06));
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   animation: slideDown 0.2s ease-out;
   box-sizing: border-box;
 }
@@ -156,11 +102,7 @@
 @keyframes slideDown {
   from {
     opacity: 0;
-<<<<<<< HEAD
     transform: translateY(-5px);
-=======
-    transform: translateY(-6px);
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   }
   to {
     opacity: 1;
@@ -173,15 +115,9 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-<<<<<<< HEAD
   gap: 8px;
   margin-bottom: 8px;
   padding-bottom: 8px;
-=======
-  gap: 10px;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   border-bottom: 1px solid var(--color-border-light);
 }
 
@@ -192,15 +128,9 @@
 }
 
 .stateIconWrap {
-<<<<<<< HEAD
   width: 28px;
   height: 28px;
   border-radius: var(--radius-md, 6px);
-=======
-  width: 30px;
-  height: 30px;
-  border-radius: var(--radius-md, 8px);
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   background: rgba(79, 110, 247, 0.1);
   color: var(--color-primary);
   display: flex;
@@ -210,22 +140,14 @@
 }
 
 .stateBoardTitle {
-<<<<<<< HEAD
   font-size: 13.5px;
-=======
-  font-size: 14.5px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   font-weight: 700;
   color: var(--color-text-primary);
   margin: 0;
 }
 
 .stateBoardSub {
-<<<<<<< HEAD
   font-size: 11px;
-=======
-  font-size: 11.5px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   color: var(--color-text-tertiary);
   margin: 1px 0 0 0;
 }
@@ -233,21 +155,12 @@
 .stateSearchWrap {
   display: flex;
   align-items: center;
-<<<<<<< HEAD
   gap: 6px;
   background: var(--color-bg);
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md, 8px);
   padding: 5px 10px;
   min-width: 220px;
-=======
-  gap: 8px;
-  background: var(--color-bg);
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-lg, 10px);
-  padding: 6px 12px;
-  min-width: 240px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   max-width: 100%;
   box-sizing: border-box;
   transition: all 0.2s ease;
@@ -255,22 +168,14 @@
 
 .stateSearchWrap:focus-within {
   border-color: var(--color-primary);
-<<<<<<< HEAD
   box-shadow: 0 0 0 2px rgba(79, 110, 247, 0.15);
-=======
-  box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.15);
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
 }
 
 .stateSearchInput {
   border: none;
   background: transparent;
   outline: none;
-<<<<<<< HEAD
   font-size: 12px;
-=======
-  font-size: 12.5px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   color: var(--color-text-primary);
   width: 100%;
 }
@@ -291,22 +196,14 @@
 }
 
 .stateGridScroll {
-<<<<<<< HEAD
   max-height: 220px;
-=======
-  max-height: 240px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   overflow-y: auto;
   padding: 2px;
   overscroll-behavior: contain;
 }
 
 .stateGridScroll::-webkit-scrollbar {
-<<<<<<< HEAD
   width: 4px;
-=======
-  width: 5px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
 }
 
 .stateGridScroll::-webkit-scrollbar-track {
@@ -320,46 +217,27 @@
 
 .stateGrid {
   display: grid;
-<<<<<<< HEAD
   grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   gap: 6px;
-=======
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 8px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
 }
 
 .stateCard {
   background: var(--color-bg);
   border: 1.5px solid var(--color-border-light);
-<<<<<<< HEAD
   border-radius: var(--radius-md, 8px);
   padding: 7px 10px;
-=======
-  border-radius: var(--radius-lg, 10px);
-  padding: 8px 12px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
-<<<<<<< HEAD
   gap: 6px;
   transition: all 0.15s ease;
-=======
-  gap: 8px;
-  transition: all 0.18s ease;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   box-sizing: border-box;
 }
 
 .stateCard:hover {
   border-color: var(--color-primary);
   background: var(--color-surface);
-<<<<<<< HEAD
-=======
-  transform: translateY(-1px);
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
 }
 
 .stateCardActive {
@@ -374,11 +252,7 @@
 }
 
 .stateName {
-<<<<<<< HEAD
   font-size: 12px;
-=======
-  font-size: 12.5px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   font-weight: 700;
   color: var(--color-text-primary);
   white-space: nowrap;
@@ -391,11 +265,7 @@
 }
 
 .stateRegion {
-<<<<<<< HEAD
   font-size: 10px;
-=======
-  font-size: 10.5px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   color: var(--color-text-tertiary);
   white-space: nowrap;
   overflow: hidden;
@@ -403,15 +273,9 @@
 }
 
 .stateBadge {
-<<<<<<< HEAD
   font-size: 9px;
   font-weight: 700;
   padding: 1px 4px;
-=======
-  font-size: 9.5px;
-  font-weight: 700;
-  padding: 1.5px 5px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   border-radius: 4px;
   background: var(--color-surface);
   color: var(--color-text-secondary);
@@ -422,22 +286,15 @@
 
 .noStatesFound {
   text-align: center;
-<<<<<<< HEAD
   padding: 16px;
   color: var(--color-text-tertiary);
   font-size: 11.5px;
-=======
-  padding: 18px;
-  color: var(--color-text-tertiary);
-  font-size: 12px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   grid-column: 1 / -1;
 }
 
 /* Class Filter Row */
 .classFiltersRow {
   display: flex;
-<<<<<<< HEAD
   gap: 5px;
   overflow-x: auto;
   flex-wrap: nowrap;
@@ -446,13 +303,6 @@
   margin-bottom: 10px;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-=======
-  gap: 6px;
-  overflow-x: auto;
-  padding: 2px 0 6px 0;
-  margin-bottom: 6px;
-  scrollbar-width: none;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
 }
 
 .classFiltersRow::-webkit-scrollbar {
@@ -460,13 +310,8 @@
 }
 
 .classBtn {
-<<<<<<< HEAD
   padding: 4.5px 10px;
   border-radius: 6px;
-=======
-  padding: 5px 11px;
-  border-radius: 8px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   border: 1px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text-secondary);
@@ -474,12 +319,8 @@
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-<<<<<<< HEAD
   flex-shrink: 0;
   transition: all 0.15s ease;
-=======
-  transition: all 0.2s ease;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
 }
 
 .classBtn:hover {
@@ -511,21 +352,13 @@
   cursor: pointer;
   display: flex;
   flex-direction: column;
-<<<<<<< HEAD
   gap: 10px;
-=======
-  gap: 12px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   box-sizing: border-box;
   text-decoration: none;
 }
 
 .card:hover {
-<<<<<<< HEAD
   transform: translateY(-2px);
-=======
-  transform: translateY(-3px);
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   box-shadow: var(--shadow-md);
   border-color: var(--color-primary);
 }
@@ -537,15 +370,9 @@
 }
 
 .icon {
-<<<<<<< HEAD
   width: 40px;
   height: 40px;
   border-radius: var(--radius-md, 8px);
-=======
-  width: 42px;
-  height: 42px;
-  border-radius: var(--radius-lg, 10px);
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   display: flex;
   align-items: center;
   justify-content: center;
@@ -554,19 +381,11 @@
 .cardBody {
   display: flex;
   flex-direction: column;
-<<<<<<< HEAD
   gap: 3px;
 }
 
 .cardTitle {
   font-size: 16px;
-=======
-  gap: 4px;
-}
-
-.cardTitle {
-  font-size: 16.5px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   font-weight: 700;
   font-family: var(--font-heading);
   color: var(--color-text-primary);
@@ -575,13 +394,8 @@
 
 .cardMeta {
   display: flex;
-<<<<<<< HEAD
   gap: 6px;
   font-size: 11px;
-=======
-  gap: 8px;
-  font-size: 11.5px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   color: var(--color-text-tertiary);
   align-items: center;
 }
@@ -591,26 +405,17 @@
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
-<<<<<<< HEAD
   padding-top: 8px;
-=======
-  padding-top: 10px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   border-top: 1px solid var(--color-border-light);
 }
 
 .cardActionText {
-<<<<<<< HEAD
   font-size: 12px;
-=======
-  font-size: 12.5px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   color: var(--color-primary);
   font-weight: 700;
 }
 
 /* ==========================================================================
-<<<<<<< HEAD
    MOBILE RESPONSIVENESS OVERRIDES
    ========================================================================== */
 
@@ -625,31 +430,10 @@
 
   .title {
     font-size: 19px;
-=======
-   MOBILE & TABLET RESPONSIVENESS OVERRIDES
-   ========================================================================== */
-
-@media (max-width: 768px) {
-  .page {
-    padding-top: 56px;
-  }
-
-  .hero {
-    padding: 14px 0 8px;
-  }
-
-  .container {
-    padding: 0 14px;
-  }
-
-  .title {
-    font-size: 20px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
     margin-bottom: 2px;
   }
 
   .subtitle {
-<<<<<<< HEAD
     font-size: 11.5px;
     line-height: 1.35;
   }
@@ -672,58 +456,24 @@
   .stateBoardDrawer {
     padding: 10px;
     border-radius: 10px;
-=======
-    font-size: 12.5px;
-    line-height: 1.4;
-  }
-
-  .filterSection {
-    padding: 10px 0 4px;
-    gap: 8px;
-  }
-
-  .filtersRow {
-    gap: 6px;
-  }
-
-  .filterBtn {
-    padding: 6px 11px;
-    font-size: 11.5px;
-  }
-
-  .stateBoardDrawer {
-    padding: 12px;
-    border-radius: var(--radius-lg, 12px);
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   }
 
   .stateBoardHeader {
     flex-direction: column;
     align-items: stretch;
-<<<<<<< HEAD
     gap: 6px;
     margin-bottom: 6px;
     padding-bottom: 6px;
-=======
-    gap: 8px;
-    margin-bottom: 8px;
-    padding-bottom: 8px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   }
 
   .stateSearchWrap {
     min-width: 100%;
     width: 100%;
-<<<<<<< HEAD
     padding: 5px 8px;
-=======
-    padding: 6px 10px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   }
 
   .stateGrid {
     grid-template-columns: 1fr 1fr;
-<<<<<<< HEAD
     gap: 5px;
   }
 
@@ -756,44 +506,10 @@
     padding: 3.5px 8px;
     font-size: 10.5px;
     border-radius: 5px;
-=======
-    gap: 6px;
-  }
-
-  .stateCard {
-    padding: 7px 9px;
-    border-radius: 8px;
-  }
-
-  .stateName {
-    font-size: 11.5px;
-  }
-
-  .stateRegion {
-    font-size: 10px;
-  }
-
-  .stateBadge {
-    font-size: 8.5px;
-    padding: 1px 4px;
-  }
-
-  .classFiltersRow {
-    gap: 5px;
-    padding: 0 0 4px 0;
-    margin-bottom: 4px;
-  }
-
-  .classBtn {
-    padding: 4.5px 9px;
-    font-size: 11px;
-    border-radius: 6px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   }
 
   .grid {
     grid-template-columns: 1fr;
-<<<<<<< HEAD
     gap: 8px;
     padding-bottom: 24px;
   }
@@ -815,39 +531,12 @@
 
   .cardFooter {
     padding-top: 6px;
-=======
-    gap: 10px;
-    padding-bottom: 30px;
-  }
-
-  .card {
-    padding: 12px 14px;
-    border-radius: var(--radius-lg, 12px);
-    gap: 8px;
-  }
-
-  .icon {
-    width: 36px;
-    height: 36px;
-  }
-
-  .cardTitle {
-    font-size: 15px;
-  }
-
-  .cardFooter {
-    padding-top: 8px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   }
 }
 
 @media (max-width: 420px) {
   .stateGrid {
     grid-template-columns: 1fr;
-<<<<<<< HEAD
     gap: 4px;
-=======
-    gap: 5px;
->>>>>>> 045bd6324f415187dda6a0e1a7a06bded6e0db76
   }
 }

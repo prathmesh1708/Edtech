@@ -5,6 +5,9 @@ import { useToast } from '../../../../../src/views/components/common/Toast/Toast
 import { useAuth } from '../../../../../src/models/context/AuthContext';
 import { useTheme } from '../../../../../src/models/context/ThemeContext';
 import { API_BASE_URL } from '../../../../../src/config/constants';
+
+// Admin-only notification routes require the logged-in admin's token
+const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('sw_token')}` });
 import styles from './Topbar.module.css';
 
 const Topbar = () => {
@@ -34,7 +37,7 @@ const Topbar = () => {
   useEffect(() => {
     const fetchCount = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/notifications/admin`);
+        const res = await fetch(`${API_BASE_URL}/notifications/admin`, { headers: authHeaders() });
         if (res.ok) {
           const logs = await res.json();
           setNotificationCount(logs.length);

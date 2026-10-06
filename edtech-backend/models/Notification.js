@@ -37,6 +37,13 @@ const notificationSchema = new mongoose.Schema(
         ref: 'User',
       },
     ],
+    // Users who cleared this notification from their own list; it stays visible to everyone else
+    dismissedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
     readStatus: {
       type: Boolean,
       default: false,
