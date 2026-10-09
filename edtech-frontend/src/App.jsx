@@ -20,6 +20,7 @@ const CourseDetail = lazy(() => import('./views/pages/public/CourseDetail/Course
 const Syllabus = lazy(() => import('./views/pages/public/Syllabus/Syllabus'));
 const SyllabusDetail = lazy(() => import('./views/pages/public/SyllabusDetail/SyllabusDetail'));
 const Contact = lazy(() => import('./views/pages/public/Contact/Contact'));
+const PrivacyPolicy = lazy(() => import('./views/pages/public/PrivacyPolicy/PrivacyPolicy'));
 const NotFound = lazy(() => import('./views/pages/public/NotFound/NotFound'));
 
 // Auth Pages
@@ -83,6 +84,7 @@ function App() {
                   <Route path={ROUTES.SYLLABUS} element={<Syllabus />} />
                   <Route path={ROUTES.SYLLABUS_DETAIL} element={<SyllabusDetail />} />
                   <Route path={ROUTES.CONTACT} element={<Contact />} />
+                  <Route path={ROUTES.PRIVACY_POLICY} element={<PrivacyPolicy />} />
                 </Route>
 
                 {/* Auth Pages (no Navbar/Footer) */}

@@ -9,6 +9,7 @@ import {
   RotateCw
 } from 'lucide-react';
 import { useToast } from '../../../../../src/views/components/common/Toast/Toast';
+import PolicyManagement from './PolicyManagement';
 import styles from './SystemSettings.module.css';
 
 const SystemSettings = () => {
@@ -30,6 +31,7 @@ const SystemSettings = () => {
     compressBackups: true
   });
 
+  const [activeTab, setActiveTab] = useState('system');
   const [lastBackup, setLastBackup] = useState('2 hours ago');
   const [isBackingUp, setIsBackingUp] = useState(false);
 
@@ -80,6 +82,17 @@ const SystemSettings = () => {
           <p className={styles.subtitle}>Monitor server health, configure automated database backups, and manage systems parameters.</p>
         </div>
       </header>
+
+      <div className={styles.tabs} role="tablist">
+        <button type="button" role="tab" aria-selected={activeTab === 'system'}
+          className={`${styles.tab} ${activeTab === 'system' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('system')}>System</button>
+        <button type="button" role="tab" aria-selected={activeTab === 'privacy'}
+          className={`${styles.tab} ${activeTab === 'privacy' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('privacy')}>Privacy Policy</button>
+      </div>
+
+      {activeTab === 'privacy' ? <PolicyManagement /> : (<>
 
       {/* Health Metrics Dashboard */}
       <div className={styles.metricsGrid}>
@@ -271,6 +284,7 @@ const SystemSettings = () => {
           </button>
         </form>
       </div>
+      </>)}
     </div>
   );
 };

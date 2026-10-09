@@ -120,7 +120,7 @@ export const downloadPDF = async (fileName, title, subject, grade, description, 
   // 5. Footer Banner
   doc.setFontSize(8);
   doc.setTextColor(148, 163, 184);
-  doc.text('Study Wisely Platform — Official Student Study Material • http://localhost:5174/student/dashboard/notes', 14, 285);
+  doc.text(`Study Wisely Platform — Official Student Study Material • ${window.location.origin}/student/dashboard/notes`, 14, 285);
 
   const safeFileName = (fileName || 'Study_Resource').replace(/[^a-zA-Z0-9_-]/g, '_');
   const finalName = safeFileName.toLowerCase().endsWith('.pdf') ? safeFileName : `${safeFileName}.pdf`;

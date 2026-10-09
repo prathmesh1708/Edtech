@@ -15,6 +15,7 @@ export const ROUTES = {
   CONTACT: '/contact',
   SUPPORT: '/support',
   SCHOOL_ONBOARDING: '/school-onboarding',
+  PRIVACY_POLICY: '/privacy',
 
   // Auth Pages
   SELECT_CLASS: '/select-class',
