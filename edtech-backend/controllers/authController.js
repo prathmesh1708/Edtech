@@ -244,25 +244,82 @@ export const removeFcmToken = async (req, res, next) => {
   }
 };
 
-// Mobile OTP login is disabled until an SMS provider is integrated. The previous
-// handlers issued a login token for any registered number without checking the code
-// (account takeover) and revealed which numbers are registered. Both endpoints now
-// refuse without touching the database. Password login is unaffected.
+// Mobile OTP login has no SMS provider yet. The only supported mode is a LOCAL DEVELOPMENT
+// one: with ENABLE_DEV_OTP=true every registered number accepts the fixed code below.
+// That means anyone who knows a phone number can log in as that user, so the flag must
+// never be set on a deployed server. With the flag off (the default) both endpoints refuse.
+const DEV_OTP_CODE = '1234';
+let devOtpWarned = false;
+const devOtpEnabled = () => {
+  if (process.env.ENABLE_DEV_OTP !== 'true') return false;
+  if (!devOtpWarned) {
+    devOtpWarned = true;
+    console.warn(`WARNING: ENABLE_DEV_OTP is on — every mobile number accepts OTP ${DEV_OTP_CODE}. Never use this in production.`);
+  }
+  return true;
+};
+const OTP_UNAVAILABLE = 'Mobile OTP login is not available yet. Please log in with your password.';
 
-// @desc    Send OTP to user mobile (not available yet)
-// @route   POST /api/auth/send-otp
-// @access  Public
-export const sendOTP = async (req, res) => {
-  res.status(501).json({
-    message: 'Mobile OTP login is not available yet. Please log in with your password.',
-  });
+const findUserByPhone = (phone) => {
+  const clean = String(phone).replace(/\D/g, '');
+  const local = clean.length === 12 && clean.startsWith('91') ? clean.slice(2) : clean;
+  return User.findOne({ phone: { $in: [phone, clean, local, `+91${local}`, `91${local}`] } });
 };
 
-// @desc    Verify OTP & Authenticate (not available yet)
+// @desc    Send OTP to user mobile (dev mode only — no SMS is actually sent)
+// @route   POST /api/auth/send-otp
+// @access  Public
+export const sendOTP = async (req, res, next) => {
+  if (!devOtpEnabled()) return res.status(501).json({ message: OTP_UNAVAILABLE });
+
+  try {
+    const { phone } = req.body;
+    if (!phone || typeof phone !== 'string') {
+      res.status(400);
+      throw new Error('Please enter your mobile number');
+    }
+    const user = await findUserByPhone(phone);
+    if (!user) {
+      res.status(404);
+      throw new Error('No account found with this mobile number. Please sign up first.');
+    }
+    res.json({ success: true, message: 'OTP sent successfully to your mobile number' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Verify OTP & Authenticate (dev mode only — accepts the fixed code)
 // @route   POST /api/auth/verify-otp
 // @access  Public
-export const verifyOTP = async (req, res) => {
-  res.status(501).json({
-    message: 'Mobile OTP login is not available yet. Please log in with your password.',
-  });
+export const verifyOTP = async (req, res, next) => {
+  if (!devOtpEnabled()) return res.status(501).json({ message: OTP_UNAVAILABLE });
+
+  try {
+    const { phone, otp } = req.body;
+    if (!phone || typeof phone !== 'string' || !otp) {
+      res.status(400);
+      throw new Error('Please provide both mobile number and OTP');
+    }
+    // Same message for "wrong code" and "unknown number" so this can't be used to probe numbers
+    const user = String(otp) === DEV_OTP_CODE ? await findUserByPhone(phone) : null;
+    if (!user) {
+      res.status(401);
+      throw new Error('Invalid OTP. Please try again.');
+    }
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      phone: user.phone,
+      schoolName: user.schoolName,
+      childName: user.childName,
+      classId: user.classId,
+      board: user.board,
+      token: generateToken(user._id),
+    });
+  } catch (error) {
+    next(error);
+  }
 };

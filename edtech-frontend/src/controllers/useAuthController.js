@@ -52,7 +52,7 @@ const useAuthController = () => {
     setErrorStatus(null);
     try {
       await authService.sendOTP(phone);
-      navigate(ROUTES.OTP_VERIFICATION);
+      navigate(ROUTES.OTP_VERIFICATION, { state: { phone } });
     } catch (err) {
       failWith(err, 'Failed to send OTP');
     } finally {
