@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams, useLocation } from 'react-router-dom';
-import { ArrowLeft, Check, Eye, EyeOff, Lock, Users, HelpCircle, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Lock, Users, HelpCircle, AlertCircle } from 'lucide-react';
 import { ROUTES } from '../../../../config/routes';
 import useAuthController from '../../../../controllers/useAuthController';
 import styles from './Login.module.css';
@@ -28,7 +28,7 @@ const TESTIMONIALS = [
 
 // Maps a failed sign-in to user-facing copy. The HTTP status decides first, so a missing
 // API route (404 "Not Found - /api/...") is never shown as "no account with this number".
-const mapAuthError = (rawError, status, loginMode) => {
+const mapAuthError = (rawError, status) => {
   if (!rawError) return null;
   const errStr = String(rawError).toLowerCase();
 
@@ -41,34 +41,22 @@ const mapAuthError = (rawError, status, loginMode) => {
   if (status === 429) {
     return "Too many attempts. Try again in 5 minutes";
   }
-  // Express notFound() says "Not Found - /api/..." when the route itself is missing;
-  // any other 404 (e.g. "No account found with this mobile number") is shown as sent.
   if (status === 404 && errStr.startsWith('not found - ')) {
-    return loginMode === 'otp'
-      ? "Mobile OTP login isn't available right now. Use password login instead"
-      : "Login is temporarily unavailable. Please try again later";
+    return "Login is temporarily unavailable. Please try again later";
   }
   if (status >= 500 && status !== 501) { // 501 = feature not available; its message is shown as sent
     return "Something went wrong on our side. Please try again";
   }
   if (status === 401) {
-    return "Incorrect email/mobile number or password. Try again or reset it";
+    return "Incorrect email or password. Try again or reset it";
   }
   if (errStr.includes('expired')) {
     return "This code expired. Request a new one";
   }
   if (errStr.includes('no account') || errStr.includes('user not found')) {
-    return "No account with this number. Create one instead?";
+    return "No account with this email. Create one instead?";
   }
   return rawError;
-};
-
-const formatPhoneNumber = (value) => {
-  const digits = value.replace(/\D/g, '').slice(0, 10);
-  if (digits.length > 5) {
-    return `${digits.slice(0, 5)} ${digits.slice(5)}`;
-  }
-  return digits;
 };
 
 const Login = () => {
@@ -77,10 +65,8 @@ const Login = () => {
   const location = useLocation();
   const isAdminFlow = location.pathname === ROUTES.ADMIN_LOGIN;
 
-  // Default mode: Mobile OTP as specified
-  const [loginMode, setLoginMode] = useState('otp'); // 'otp' | 'password'
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({ phone: '', username: '', password: '' });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [, setTouched] = useState({});
 
@@ -97,7 +83,7 @@ const Login = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
-  const { loginWithEmail, sendOTP, loading, error: authError, errorStatus: authErrorStatus } = useAuthController();
+  const { loginWithEmail, loading, error: authError, errorStatus: authErrorStatus } = useAuthController();
 
   useEffect(() => {
     const handleResize = () => {
@@ -124,17 +110,6 @@ const Login = () => {
     return () => clearInterval(interval);
   }, [isDesktop, isHovered, prefersReducedMotion]);
 
-  const rawPhone = useMemo(() => formData.phone.replace(/\D/g, ''), [formData.phone]);
-  const isPhoneValid = rawPhone.length === 10;
-
-  const handlePhoneChange = (e) => {
-    const formatted = formatPhoneNumber(e.target.value);
-    setFormData((prev) => ({ ...prev, phone: formatted }));
-    if (errors.phone) {
-      setErrors((prev) => ({ ...prev, phone: '' }));
-    }
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -144,18 +119,12 @@ const Login = () => {
   };
 
   const validateField = useCallback((field, value) => {
-    if (field === 'phone') {
-      const clean = (value || '').replace(/\D/g, '');
-      if (!clean) {
-        return "Enter your 10-digit mobile number";
-      }
-      if (clean.length !== 10) {
-        return "That doesn't look like a valid mobile number";
-      }
-    }
-    if (field === 'username') {
+    if (field === 'email') {
       if (!value || !value.trim()) {
-        return "Enter your email address or mobile number";
+        return "Enter your email address";
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
+        return "Enter a valid email address";
       }
     }
     if (field === 'password') {
@@ -177,15 +146,10 @@ const Login = () => {
 
   const validateAll = () => {
     const newErrors = {};
-    if (loginMode === 'otp') {
-      const phoneErr = validateField('phone', formData.phone);
-      if (phoneErr) newErrors.phone = phoneErr;
-    } else {
-      const userErr = validateField('username', formData.username);
-      if (userErr) newErrors.username = userErr;
-      const passErr = validateField('password', formData.password);
-      if (passErr) newErrors.password = passErr;
-    }
+    const emailErr = validateField('email', formData.email);
+    if (emailErr) newErrors.email = emailErr;
+    const passErr = validateField('password', formData.password);
+    if (passErr) newErrors.password = passErr;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -194,15 +158,11 @@ const Login = () => {
     e.preventDefault();
     if (!validateAll()) return;
 
-    if (loginMode === 'otp') {
-      await sendOTP(rawPhone);
-    } else {
-      await loginWithEmail(formData.username.trim(), formData.password);
-    }
+    await loginWithEmail(formData.email.trim(), formData.password);
   };
 
   const activeTestimonial = TESTIMONIALS[testimonialIdx];
-  const formErrorMessage = mapAuthError(authError, authErrorStatus, loginMode);
+  const formErrorMessage = mapAuthError(authError, authErrorStatus);
 
   const backLinkTarget = isAdminFlow
     ? ROUTES.HOME
@@ -245,189 +205,88 @@ const Login = () => {
                 : "Log in to pick up where you left off."}
             </p>
 
-            {/* Method Segmented Control */}
-            <div 
-              className={styles.segmentedControl} 
-              role="tablist" 
-              aria-label="Login method"
-            >
-              <div 
-                className={styles.segmentPill} 
-                style={{
-                  transform: loginMode === 'otp' ? 'translateX(0%)' : 'translateX(100%)'
-                }}
-                aria-hidden="true"
-              />
-              <button
-                type="button"
-                role="tab"
-                id="tab-otp"
-                aria-selected={loginMode === 'otp'}
-                aria-controls="panel-otp"
-                className={`${styles.segmentBtn} ${loginMode === 'otp' ? styles.segmentBtnActive : ''}`}
-                onClick={() => {
-                  setLoginMode('otp');
-                  setErrors({});
-                }}
-              >
-                Mobile OTP
-              </button>
-              <button
-                type="button"
-                role="tab"
-                id="tab-password"
-                aria-selected={loginMode === 'password'}
-                aria-controls="panel-password"
-                className={`${styles.segmentBtn} ${loginMode === 'password' ? styles.segmentBtnActive : ''}`}
-                onClick={() => {
-                  setLoginMode('password');
-                  setErrors({});
-                }}
-              >
-                Password
-              </button>
-            </div>
-
             {/* Form */}
             <form className={styles.form} onSubmit={handleSubmit} noValidate>
-              {loginMode === 'otp' ? (
-                /* Mobile OTP View */
-                <div 
-                  id="panel-otp" 
-                  role="tabpanel" 
-                  aria-labelledby="tab-otp"
-                  className={styles.fieldGroup}
-                >
-                  <label htmlFor="mobile-input" className={styles.label}>
-                    Mobile number
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Email Field */}
+                <div className={styles.fieldGroup}>
+                  <label htmlFor="email-input" className={styles.label}>
+                    Email address
                   </label>
                   <div 
-                    className={`${styles.inputControl} ${errors.phone ? styles.inputError : ''}`}
+                    className={`${styles.inputControl} ${errors.email ? styles.inputError : ''}`}
                   >
-                    <span className={styles.prefix} aria-hidden="true">+91</span>
                     <input
-                      id="mobile-input"
-                      name="phone"
-                      type="tel"
-                      inputMode="numeric"
-                      autoComplete="tel"
-                      maxLength={11}
-                      placeholder="98765 43210"
-                      value={formData.phone}
-                      onChange={handlePhoneChange}
-                      onBlur={() => handleBlur('phone')}
-                      aria-invalid={!!errors.phone}
-                      aria-describedby={errors.phone ? "phone-error" : "phone-helper"}
+                      id="email-input"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="student@email.com"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      onBlur={() => handleBlur('email')}
+                      aria-invalid={!!errors.email}
+                      aria-describedby={errors.email ? "email-error" : undefined}
+                      className={styles.input}
+                    />
+                  </div>
+                  {errors.email && (
+                    <div id="email-error" role="alert" className={styles.fieldError}>
+                      <AlertCircle size={12} aria-hidden="true" />
+                      <span>{errors.email}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Password Field */}
+                <div className={styles.fieldGroup}>
+                  <div className={styles.labelRow}>
+                    <label htmlFor="password-input" className={styles.label}>
+                      Password
+                    </label>
+                    <Link 
+                      to={ROUTES.FORGOT_PASSWORD} 
+                      className={styles.forgotLink}
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
+                  <div 
+                    className={`${styles.inputControl} ${errors.password ? styles.inputError : ''}`}
+                  >
+                    <input
+                      id="password-input"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      placeholder="••••••••"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      onBlur={() => handleBlur('password')}
+                      aria-invalid={!!errors.password}
+                      aria-describedby={errors.password ? "password-error" : undefined}
                       className={styles.input}
                     />
                     <div className={styles.iconRightWrapper}>
-                      <Check 
-                        size={16} 
-                        className={`${styles.checkIcon} ${isPhoneValid ? styles.checkIconVisible : ''}`}
-                        aria-hidden="true" 
-                      />
+                      <button
+                        type="button"
+                        className={styles.togglePassBtn}
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-pressed={showPassword}
+                      >
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
                     </div>
                   </div>
-
-                  {errors.phone ? (
-                    <div id="phone-error" role="alert" className={styles.fieldError}>
+                  {errors.password && (
+                    <div id="password-error" role="alert" className={styles.fieldError}>
                       <AlertCircle size={12} aria-hidden="true" />
-                      <span>{errors.phone}</span>
+                      <span>{errors.password}</span>
                     </div>
-                  ) : (
-                    <span id="phone-helper" className={styles.helperText}>
-                      We'll send a 6-digit code. Standard rates apply.
-                    </span>
                   )}
                 </div>
-              ) : (
-                /* Password View (Supports Email or Mobile + Password) */
-                <div 
-                  id="panel-password" 
-                  role="tabpanel" 
-                  aria-labelledby="tab-password"
-                  style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
-                >
-                  {/* Email or Mobile Field */}
-                  <div className={styles.fieldGroup}>
-                    <label htmlFor="username-input" className={styles.label}>
-                      Email address or mobile
-                    </label>
-                    <div 
-                      className={`${styles.inputControl} ${errors.username ? styles.inputError : ''}`}
-                    >
-                      <input
-                        id="username-input"
-                        name="username"
-                        type="text"
-                        autoComplete="username"
-                        placeholder="student@email.com or 98765 43210"
-                        value={formData.username}
-                        onChange={handleInputChange}
-                        onBlur={() => handleBlur('username')}
-                        aria-invalid={!!errors.username}
-                        aria-describedby={errors.username ? "username-error" : undefined}
-                        className={styles.input}
-                      />
-                    </div>
-                    {errors.username && (
-                      <div id="username-error" role="alert" className={styles.fieldError}>
-                        <AlertCircle size={12} aria-hidden="true" />
-                        <span>{errors.username}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Password Field */}
-                  <div className={styles.fieldGroup}>
-                    <div className={styles.labelRow}>
-                      <label htmlFor="password-input" className={styles.label}>
-                        Password
-                      </label>
-                      <Link 
-                        to={ROUTES.FORGOT_PASSWORD} 
-                        className={styles.forgotLink}
-                      >
-                        Forgot password?
-                      </Link>
-                    </div>
-                    <div 
-                      className={`${styles.inputControl} ${errors.password ? styles.inputError : ''}`}
-                    >
-                      <input
-                        id="password-input"
-                        name="password"
-                        type={showPassword ? 'text' : 'password'}
-                        autoComplete="current-password"
-                        placeholder="••••••••"
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        onBlur={() => handleBlur('password')}
-                        aria-invalid={!!errors.password}
-                        aria-describedby={errors.password ? "password-error" : undefined}
-                        className={styles.input}
-                      />
-                      <div className={styles.iconRightWrapper}>
-                        <button
-                          type="button"
-                          className={styles.togglePassBtn}
-                          onClick={() => setShowPassword((prev) => !prev)}
-                          aria-label={showPassword ? "Hide password" : "Show password"}
-                          aria-pressed={showPassword}
-                        >
-                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                        </button>
-                      </div>
-                    </div>
-                    {errors.password && (
-                      <div id="password-error" role="alert" className={styles.fieldError}>
-                        <AlertCircle size={12} aria-hidden="true" />
-                        <span>{errors.password}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+              </div>
 
               {/* Form Level Error Banner */}
               {formErrorMessage && (
@@ -446,10 +305,10 @@ const Login = () => {
                 {loading ? (
                   <>
                     <span className={styles.spinner} aria-hidden="true" />
-                    <span>{loginMode === 'otp' ? 'Sending code' : 'Logging in'}</span>
+                    <span>Logging in</span>
                   </>
                 ) : (
-                  <span>{loginMode === 'otp' ? 'Send code' : 'Log in'}</span>
+                  <span>Log in</span>
                 )}
               </button>
             </form>
