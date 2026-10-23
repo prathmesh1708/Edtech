@@ -8,7 +8,7 @@ import { useAuth } from '../../../../models/context/AuthContext';
 import ConversationList from './components/ConversationList';
 import MessageBubble from './components/MessageBubble';
 import ChatComposer from './components/ChatComposer';
-import { AI_SUBJECTS, getSuggestions } from './aiChatConfig';
+import { getSuggestions } from './aiChatConfig';
 import styles from './AIChat.module.css';
 
 const contextLabel = (context) => context?.chapterName || context?.materialTitle || context?.topic || null;
@@ -91,8 +91,6 @@ const AIChat = () => {
           conversations={chat.conversations}
           loading={chat.listLoading}
           activeId={chat.activeId}
-          subjectFilter={chat.subjectFilter}
-          onFilterChange={chat.setSubjectFilter}
           onNewChat={startNewChat}
           onOpen={openConversation}
           onRename={chat.renameConversation}
@@ -112,25 +110,16 @@ const AIChat = () => {
               <Sparkles size={18} className={styles.titleIcon} />
               <span>{activeMeta?.title || 'AI Study Assistant'}</span>
             </h2>
-            <div className={styles.headerMeta}>
-              {activeMeta || chat.messages.length ? (
-                subject !== 'General' && <span className={styles.subjectBadge}>{subject}</span>
-              ) : (
-                <select
-                  className={`${styles.select} ${styles.selectCompact}`}
-                  value={chat.draftSubject}
-                  onChange={(e) => chat.setDraftSubject(e.target.value)}
-                  aria-label="Subject for this chat"
-                >
-                  {AI_SUBJECTS.map((s) => <option key={s} value={s}>{s === 'General' ? 'Any subject' : s}</option>)}
-                </select>
-              )}
-              {focus && (
-                <span className={styles.contextChip} title={focus}>
-                  <BookOpen size={12} /> {focus}
-                </span>
-              )}
-            </div>
+            {(focus || (subject && subject !== 'General')) && (
+              <div className={styles.headerMeta}>
+                {subject && subject !== 'General' && <span className={styles.subjectBadge}>{subject}</span>}
+                {focus && (
+                  <span className={styles.contextChip} title={focus}>
+                    <BookOpen size={12} /> {focus}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <Link
