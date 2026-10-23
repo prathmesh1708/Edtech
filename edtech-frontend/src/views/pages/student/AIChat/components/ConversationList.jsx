@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, MessageSquare, Pencil, Trash2, Check, X } from 'lucide-react';
-import { AI_SUBJECTS, formatRelativeTime } from '../aiChatConfig';
+import { formatRelativeTime } from '../aiChatConfig';
 import styles from '../AIChat.module.css';
 
 const ConversationItem = ({ conversation, active, onOpen, onRename, onDelete }) => {
@@ -70,25 +70,17 @@ const ConversationItem = ({ conversation, active, onOpen, onRename, onDelete }) 
   );
 };
 
-const ConversationList = ({ conversations, loading, activeId, subjectFilter, onFilterChange, onNewChat, onOpen, onRename, onDelete }) => (
+const ConversationList = ({ conversations, loading, activeId, onNewChat, onOpen, onRename, onDelete }) => (
   <div className={styles.historyInner}>
     <button type="button" className={styles.newChatButton} onClick={onNewChat}>
       <Plus size={18} /> New chat
     </button>
 
-    <label className={styles.filterLabel}>
-      <span>Subject</span>
-      <select className={styles.select} value={subjectFilter} onChange={(e) => onFilterChange(e.target.value)}>
-        <option value="">All subjects</option>
-        {AI_SUBJECTS.map((s) => <option key={s} value={s}>{s}</option>)}
-      </select>
-    </label>
-
     <p className={styles.historyHeading}>Your doubts</p>
     {loading && !conversations.length ? (
       <p className={styles.historyEmpty}>Loading...</p>
     ) : conversations.length === 0 ? (
-      <p className={styles.historyEmpty}>{subjectFilter ? `No ${subjectFilter} chats yet.` : 'Your past chats will appear here.'}</p>
+      <p className={styles.historyEmpty}>Your past chats will appear here.</p>
     ) : (
       <ul className={styles.convList}>
         {conversations.map((c) => (
