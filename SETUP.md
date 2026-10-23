@@ -51,3 +51,5 @@ The root `package.json` / `package-lock.json` exist only for Vercel. Running
 `edtech-backend` or `edtech-frontend` first.
 
 DIKSHA content integration (env vars, endpoints, licensing): see [DIKSHA_INTEGRATION.md](DIKSHA_INTEGRATION.md).
+
+AI Learning Assistant (Gemini setup, env vars, endpoints, launch checklist): see [AI_ASSISTANT.md](AI_ASSISTANT.md).

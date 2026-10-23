@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   Zap, Clock, ArrowRight, BookOpen, 
-  ChevronRight, CheckCircle2, Circle, Trophy, Plus, Trash2, Lock
+  ChevronRight, CheckCircle2, Circle, Trophy, Plus, Trash2, Lock, Sparkles, ClipboardList, MessageCircleQuestion
 } from 'lucide-react';
 import { ROUTES, generateRoute } from '../../../../../src/config/routes';
 import { useAuth } from '../../../../../src/models/context/AuthContext';
@@ -177,6 +177,23 @@ const StudentDashboard = () => {
         </div>
       </div>
 
+      {/* AI Study Assistant entry point */}
+      <div className={styles.aiPrompt}>
+        <div className={styles.aiPromptIcon}><Sparkles size={22} /></div>
+        <div className={styles.aiPromptText}>
+          <p className={styles.aiPromptTitle}>Stuck on a doubt?</p>
+          <p className={styles.aiPromptSub}>Ask your AI tutor — type it, say it, or snap a photo of the question.</p>
+        </div>
+        <div className={styles.aiPromptActions}>
+          <Button variant="outline" size="sm" iconLeft={<ClipboardList size={16} />} onClick={() => navigate(ROUTES.AI_PRACTICE)}>
+            Practice
+          </Button>
+          <Button variant="primary" size="sm" iconRight={<ArrowRight size={16} />} onClick={() => navigate(ROUTES.AI_CHAT)}>
+            Ask AI
+          </Button>
+        </div>
+      </div>
+
       {/* Live Admin Banners Section (Positioned between Good Afternoon & Stats Grid) */}
       <div style={{ margin: 'var(--space-6) 0', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -237,7 +254,7 @@ const StudentDashboard = () => {
       </div>
 
       {/* Grid of Key Progress statistics */}
-      <div className={`${styles.statsGrid} responsive-grid-3`}>
+      <div className={`${styles.statsGrid} responsive-grid-4`}>
         <Card style={{ padding: 0 }}>
           <div className={styles.statCard}>
             <div>
@@ -270,6 +287,18 @@ const StudentDashboard = () => {
             </div>
             <div className={styles.statIcon} style={{ background: 'rgba(245, 158, 11, 0.1)', color: 'var(--color-warning)' }}>
               <Trophy size={20} />
+            </div>
+          </div>
+        </Card>
+
+        <Card clickable style={{ padding: 0 }} onClick={() => navigate(ROUTES.AI_CHAT)}>
+          <div className={styles.statCard}>
+            <div>
+              <span style={{ fontSize: '10px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', fontWeight: '700' }}>AI Doubts Asked</span>
+              <h3 style={{ fontSize: 'var(--text-2xl)', fontWeight: '800', marginTop: '4px' }}>{stats.aiQueriesCount || 0}</h3>
+            </div>
+            <div className={styles.statIcon} style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8B5CF6' }}>
+              <MessageCircleQuestion size={20} />
             </div>
           </div>
         </Card>

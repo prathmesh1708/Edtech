@@ -59,6 +59,9 @@
   gap: var(--space-4);
   position: relative;
   overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 .featureCard::before {
@@ -68,6 +71,7 @@
   left: 0;
   right: 0;
   height: 3px;
+  background: var(--card-color, var(--color-accent));
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   opacity: 0;
   transition: opacity var(--transition-base);
@@ -76,7 +80,7 @@
 .featureCard:hover {
   transform: translateY(-6px);
   box-shadow: var(--shadow-card-hover);
-  border-color: rgba(79, 110, 247, 0.15);
+  border-color: rgba(79, 110, 247, 0.25);
 }
 
 .featureCard:hover::before {
@@ -128,7 +132,8 @@
 }
 
 .highlighted:hover {
-  box-shadow: var(--shadow-glow);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px -6px rgba(79, 110, 247, 0.45);
 }
 
 @media (max-width: 1024px) {

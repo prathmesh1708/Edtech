@@ -35,7 +35,8 @@ const StudentDashboard = lazy(() => import('../admin_panel/student/views/pages/D
 const MySyllabus = lazy(() => import('./views/pages/student/MySyllabus/MySyllabus'));
 const SubjectDetail = lazy(() => import('./views/pages/student/SubjectDetail/SubjectDetail'));
 const ChapterView = lazy(() => import('./views/pages/student/ChapterView/ChapterView'));
-const AITutor = lazy(() => import('./views/pages/student/AITutor/AITutor'));
+const AIChat = lazy(() => import('./views/pages/student/AIChat/AIChat'));
+const AIPractice = lazy(() => import('./views/pages/student/AIPractice/AIPractice'));
 const Notes = lazy(() => import('./views/pages/student/Notes/Notes'));
 const Settings = lazy(() => import('./views/pages/student/Settings/Settings'));
 const StudyMaterials = lazy(() => import('./views/pages/student/StudyMaterials/StudyMaterials'));
@@ -50,6 +51,7 @@ const TeacherManagement = lazy(() => import('../admin_panel/admin/views/pages/Te
 const SubscriptionManagement = lazy(() => import('../admin_panel/admin/views/pages/SubscriptionManagement/SubscriptionManagement'));
 const BannersManagement = lazy(() => import('../admin_panel/admin/views/pages/BannersManagement/BannersManagement'));
 const NotificationManagement = lazy(() => import('../admin_panel/admin/views/pages/NotificationManagement/NotificationManagement'));
+const AISafetyReview = lazy(() => import('../admin_panel/admin/views/pages/AISafetyReview/AISafetyReview'));
 const SyllabusManagement = lazy(() => import('./views/pages/admin/SyllabusManagement/SyllabusManagement')); // Assuming this one remains unchanged for now, or point to ContentManagement if combined
 const ContentManagement = lazy(() => import('../admin_panel/admin/views/pages/ContentManagement/ContentManagement'));
 const PlatformSettings = lazy(() => import('../admin_panel/admin/views/pages/PlatformManagement/PlatformManagement'));
@@ -104,7 +106,9 @@ function App() {
                   <Route path={ROUTES.MY_SYLLABUS} element={<MySyllabus />} />
                   <Route path={ROUTES.SUBJECT_DETAIL} element={<SubjectDetail />} />
                   <Route path={ROUTES.CHAPTER_VIEW} element={<ChapterView />} />
-                  <Route path={ROUTES.AI_TUTOR} element={<AITutor />} />
+                  <Route path={ROUTES.AI_CHAT} element={<AIChat />} />
+                  <Route path={ROUTES.AI_PRACTICE} element={<AIPractice />} />
+                  <Route path={ROUTES.AI_TUTOR} element={<Navigate to={ROUTES.AI_CHAT} replace />} />
                   <Route path={ROUTES.NOTES} element={<Notes />} />
                   <Route path={ROUTES.SETTINGS} element={<Settings />} />
                   <Route path={ROUTES.STUDY_MATERIALS} element={<StudyMaterials />} />
@@ -121,6 +125,7 @@ function App() {
                   <Route path={ROUTES.ADMIN_SUBSCRIPTIONS} element={<SubscriptionManagement />} />
                   <Route path={ROUTES.ADMIN_BANNERS} element={<BannersManagement />} />
                   <Route path={ROUTES.ADMIN_NOTIFICATIONS} element={<NotificationManagement />} />
+                  <Route path={ROUTES.ADMIN_AI_SAFETY} element={<AISafetyReview />} />
                   <Route path={ROUTES.ADMIN_SYLLABUS} element={<GlobalSyllabusManagement />} />
                   <Route path={ROUTES.ADMIN_CONTENT} element={<EducationalMaterialOrganization />} />
                   

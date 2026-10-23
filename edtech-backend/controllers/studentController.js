@@ -2,6 +2,14 @@ import Todo from '../models/Todo.js';
 import Activity from '../models/Activity.js';
 import Syllabus from '../models/Syllabus.js';
 import User from '../models/User.js';
+import { countChatQuestions } from '../utils/aiCommon.js';
+import crypto from 'crypto';
+
+const PRIVATE_FIELDS = '-password -fcmTokens';
+const toPublicStudent = (doc) => {
+  const { password, fcmTokens, ...rest } = doc.toObject();
+  return rest;
+};
 
 const DEFAULT_TODOS = [
   { id: 'todo-1', text: 'Complete Math Quiz on Real Numbers', completed: true },
@@ -101,10 +109,13 @@ export const getDashboardData = async (req, res) => {
     // Class rank: If user has completed chapters/quizzes show rank, otherwise '#--' (Unranked)
     const userClassRank = (overallSyllabusProgress > 0 || userStudyHours > 0) ? '#1' : '#--';
 
+    // Questions the student has asked the AI tutor (all time).
+    const aiQueriesCount = userId ? await countChatQuestions(userId) : 0;
+
     res.json({
       stats: {
         overallSyllabusProgress,
-        aiQueriesCount: req.user?.aiQueriesCount || 0,
+        aiQueriesCount,
         studyHours: userStudyHours,
         classRank: userClassRank,
         streak: userStreak
@@ -222,95 +233,8 @@ export const deleteTodo = async (req, res) => {
  */
 export const getStudentsAdmin = async (req, res, next) => {
   try {
-    let students = await User.find({ role: { $ne: 'admin' } }).sort({ createdAt: -1 });
-
-    if (students.length === 0) {
-      const initialSeeds = [
-        {
-          name: 'Alex Morgan',
-          email: 'alex.morgan@student.edu',
-          password: 'password123',
-          role: 'student',
-          phone: '+1 (555) 234-5678',
-          classId: 'Class 10',
-          board: 'CBSE',
-          status: 'Active',
-          studentId: 'STU-2026-1042',
-          dob: '2008-05-15',
-          gender: 'Male',
-          address: '42 Wallaby Way, Sydney',
-          parentName: 'Robert Morgan',
-          parentPhone: '+1 (555) 987-6543',
-          section: 'A',
-          rollNumber: '104',
-          batch: '2025-2026',
-          emailVerified: true
-        },
-        {
-          name: 'Sophia Chen',
-          email: 'sophia.chen@student.edu',
-          password: 'password123',
-          role: 'student',
-          phone: '+1 (555) 345-6789',
-          classId: 'Class 10',
-          board: 'CBSE',
-          status: 'Active',
-          studentId: 'STU-2026-1043',
-          dob: '2008-08-22',
-          gender: 'Female',
-          address: '88 Innovation Ave, Tech City',
-          parentName: 'David Chen',
-          parentPhone: '+1 (555) 876-5432',
-          section: 'B',
-          rollNumber: '108',
-          batch: '2025-2026',
-          emailVerified: true
-        },
-        {
-          name: 'Liam Johnson',
-          email: 'liam.j@student.edu',
-          password: 'password123',
-          role: 'student',
-          phone: '+1 (555) 456-7890',
-          classId: 'Class 9',
-          board: 'ICSE',
-          status: 'Suspended',
-          studentId: 'STU-2026-1044',
-          dob: '2009-03-10',
-          gender: 'Male',
-          address: '15 Oak Street, Springfield',
-          parentName: 'Sarah Johnson',
-          parentPhone: '+1 (555) 765-4321',
-          section: 'A',
-          rollNumber: '102',
-          batch: '2025-2026',
-          emailVerified: false
-        },
-        {
-          name: 'Emma Watson',
-          email: 'emma.w@student.edu',
-          password: 'password123',
-          role: 'student',
-          phone: '+1 (555) 567-8901',
-          classId: 'Class 12',
-          board: 'CBSE',
-          status: 'Active',
-          studentId: 'STU-2026-1045',
-          dob: '2007-11-04',
-          gender: 'Female',
-          address: '742 Evergreen Terrace, Sector 4',
-          parentName: 'John Watson',
-          parentPhone: '+1 (555) 654-3210',
-          section: 'C',
-          rollNumber: '120',
-          batch: '2024-2025',
-          emailVerified: true
-        }
-      ];
-
-      await User.insertMany(initialSeeds);
-      students = await User.find({ role: { $ne: 'admin' } }).sort({ createdAt: -1 });
-    }
+    // Never send password hashes or device push tokens to the browser.
+    const students = await User.find({ role: { $ne: 'admin' } }).select(PRIVATE_FIELDS).sort({ createdAt: -1 });
 
     res.json(students);
   } catch (error) {
@@ -341,7 +265,9 @@ export const createStudentAdmin = async (req, res, next) => {
       throw new Error('Student email already registered');
     }
 
-    const studentPassword = password || '123456';
+    // No fixed default password: generate a one-time one and show it to the admin once.
+    const temporaryPassword = password ? undefined : crypto.randomBytes(6).toString('base64url');
+    const studentPassword = password || temporaryPassword;
 
     const student = await User.create({
       name,
@@ -365,7 +291,7 @@ export const createStudentAdmin = async (req, res, next) => {
       emailVerified: emailVerified !== undefined ? emailVerified : true
     });
 
-    res.status(201).json(student);
+    res.status(201).json({ ...toPublicStudent(student), ...(temporaryPassword && { temporaryPassword }) });
   } catch (error) {
     next(error);
   }
@@ -409,7 +335,7 @@ export const updateStudentAdmin = async (req, res, next) => {
     if (password) student.password = password;
 
     const updatedStudent = await student.save();
-    res.json(updatedStudent);
+    res.json(toPublicStudent(updatedStudent));
   } catch (error) {
     next(error);
   }

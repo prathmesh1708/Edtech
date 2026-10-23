@@ -12,6 +12,7 @@ import bannerRoutes from './routes/bannerRoutes.js';
 import subscriptionPlanRoutes from './routes/subscriptionPlanRoutes.js';
 import dikshaRoutes from './routes/dikshaRoutes.js';
 import policyRoutes from './routes/policyRoutes.js';
+import aiTutorRoutes from './routes/aiTutorRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 // Load environment variables
@@ -21,6 +22,11 @@ dotenv.config();
 connectDB();
 
 const app = express();
+
+// Behind nginx / a load balancer, set TRUST_PROXY=1 so req.ip (used by the rate limiters)
+// is the real client address. Leave unset when Node faces the internet directly, otherwise
+// clients could fake their IP with an X-Forwarded-For header.
+if (process.env.TRUST_PROXY) app.set('trust proxy', Number(process.env.TRUST_PROXY) || process.env.TRUST_PROXY);
 
 // Standard middleware
 const allowedOrigins = [
@@ -43,9 +49,10 @@ if (process.env.FRONTEND_URL) {
 }
 
 const corsOptions = {
+  // Only our own sites may call the API from a browser. Requests without an Origin header
+  // (mobile apps, server-to-server, curl) are not browser cross-site calls and are allowed.
   origin: (origin, callback) => {
-    // Reflect request origin to allow credentials
-    callback(null, true);
+    callback(null, !origin || allowedOrigins.includes(origin.replace(/\/+$/, '')));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -55,6 +62,9 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+// AI chat accepts a photo or voice recording as base64, so it needs a larger body
+// limit than the 100 KB default. Registered first; the global parser below then skips it.
+app.use('/api/ai', express.json({ limit: '10mb' }));
 app.use(express.json());
 
 // Main server status route
@@ -73,6 +83,7 @@ app.use('/api/banners', bannerRoutes);
 app.use('/api/subscription-plans', subscriptionPlanRoutes);
 app.use('/api/diksha', dikshaRoutes);
 app.use('/api/policies', policyRoutes);
+app.use('/api/ai', aiTutorRoutes);
 
 // Error Handling middleware
 app.use(notFound);

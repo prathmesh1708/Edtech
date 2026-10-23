@@ -19,6 +19,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ComposedChart
 } from 'recharts';
 import analyticsService from '../../../../../src/models/services/analyticsService';
+import AITutorInsights from './AITutorInsights';
 import styles from './Analytics.module.css';
 
 const Analytics = () => {
@@ -517,6 +518,8 @@ const Analytics = () => {
           </div>
         </div>
       </div>
+
+      <AITutorInsights timeRange={timeRange} />
     </div>
   );
 };

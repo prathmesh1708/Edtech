@@ -9,6 +9,7 @@ import dikshaService from '../../../../models/services/dikshaService';
 import { useToast } from '../../../components/common/Toast/Toast';
 import Badge from '../../../components/common/Badge/Badge';
 import Button from '../../../components/common/Button/Button';
+import AskAIButton from '../../../components/common/AskAIButton/AskAIButton';
 import Loader from '../../../components/common/Loader/Loader';
 import DikshaAttribution from '../../../components/diksha/DikshaAttribution/DikshaAttribution';
 import { getDikshaTypeIcon } from '../../../components/diksha/dikshaTypeIcon';
@@ -168,6 +169,12 @@ const StudyMaterialDetail = () => {
               >
                 {saved ? 'Bookmarked' : 'Bookmark'}
               </Button>
+              <AskAIButton
+                subject={item.subject?.[0]}
+                context={{ materialId: item.id, materialTitle: item.name }}
+              >
+                Ask AI about this
+              </AskAIButton>
               {item.contentUrl && (
                 <a href={item.contentUrl} target="_blank" rel="noopener noreferrer" className={styles.openLink}>
                   {openLabel(item.contentUrl)} <ExternalLink size={14} />

@@ -5,6 +5,7 @@ import { BOARDS, CLASSES, resolveBoardInfo } from '../../../../config/constants'
 import { ROUTES, generateRoute } from '../../../../config/routes';
 import useSyllabusController from '../../../../controllers/useSyllabusController';
 import Badge from '../../../components/common/Badge/Badge';
+import AskAIButton from '../../../components/common/AskAIButton/AskAIButton';
 
 const s = {
   header: {
@@ -108,6 +109,14 @@ const SubjectDetail = () => {
                 {activeSubject.description}
               </p>
             )}
+            <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', marginTop: 'var(--space-3)' }}>
+              <AskAIButton subject={activeSubject.name}>
+                Ask AI a {activeSubject.name} doubt
+              </AskAIButton>
+              <AskAIButton practice subject={activeSubject.name}>
+                {activeSubject.name} practice quiz
+              </AskAIButton>
+            </div>
           </div>
         </div>
       </div>

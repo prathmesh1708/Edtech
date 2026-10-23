@@ -35,10 +35,26 @@ if (!fs.existsSync(envPath)) {
 
 const env = fs.readFileSync(envPath, 'utf8');
 const missing = REQUIRED.filter((key) => {
-  const match = env.match(new RegExp(`^\\s*${key}\\s*=\\s*(.*)$`, 'm'));
+  // [ \t]* rather than \s*: \s also matches newlines, so an empty value would read the next line.
+  const match = env.match(new RegExp(`^[ \\t]*${key}[ \\t]*=[ \\t]*(.*)$`, 'm'));
   const value = match?.[1]?.trim();
   return !value || value.includes('<') || value.includes('change_me');
 });
+
+// Optional features: the server still starts, but say clearly what is switched off.
+const gemini = env.match(/^[ \t]*GEMINI_API_KEY[ \t]*=[ \t]*(.*)$/m)?.[1]?.trim().replace(/^["']|["']$/g, '');
+if (!gemini && !missing.length) {
+  console.warn(`
+------------------------------------------------------------------
+  GEMINI_API_KEY is not set in edtech-backend/.env, so the AI tutor
+  (AI Chat, Practice Quiz) is OFF. Students will see "The AI tutor is
+  not available right now."
+
+  Get a key at https://aistudio.google.com/apikey, paste it after
+  GEMINI_API_KEY= in edtech-backend/.env, and restart the backend.
+------------------------------------------------------------------
+`);
+}
 
 if (missing.length) {
   console.error(`

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
-import { Home, LogOut, Settings, Bell, BookOpen, FileText, Trash2, X, Library, Bookmark } from 'lucide-react';
+import { Home, LogOut, Settings, Bell, BookOpen, FileText, Trash2, X, Library, Bookmark, Sparkles } from 'lucide-react';
 import Logo from '../../../../../src/views/components/common/Logo/Logo';
 import { ROUTES } from '../../../../../src/config/routes';
 import { useAuth } from '../../../../../src/models/context/AuthContext';
@@ -9,9 +9,16 @@ import Button from '../../../../../src/views/components/common/Button/Button';
 import { API_BASE_URL } from '../../../../../src/config/constants';
 import styles from '../../../../../src/views/components/layout/StudentLayout.module.css';
 
+// Notification routes need the signed-in user's token.
+const authHeaders = () => {
+  const token = localStorage.getItem('sw_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 const MENU_ITEMS = [
   { path: ROUTES.STUDENT_DASHBOARD, label: 'Home', icon: Home },
   { path: ROUTES.MY_SYLLABUS, label: 'My Syllabus', icon: BookOpen },
+  { path: ROUTES.AI_CHAT, label: 'AI Chat', icon: Sparkles },
   { path: ROUTES.NOTES, label: 'Notes', icon: FileText },
   { path: ROUTES.STUDY_MATERIALS, label: 'Study Materials', icon: Library },
   { path: ROUTES.BOOKMARKS, label: 'Bookmarks', icon: Bookmark },
@@ -38,9 +45,7 @@ const StudentLayout = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const userId = user?._id || '';
-        const role = user?.role || 'student';
-        const res = await fetch(`${API_BASE_URL}/notifications/user?role=${role}&userId=${userId}`);
+        const res = await fetch(`${API_BASE_URL}/notifications/user`, { headers: authHeaders() });
         if (res.ok) {
           const data = await res.json();
           setNotifications(data);
@@ -78,7 +83,7 @@ const StudentLayout = () => {
     try {
       await fetch(`${API_BASE_URL}/notifications/read-all`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ userId: user?._id }),
       });
     } catch (err) {
@@ -91,7 +96,7 @@ const StudentLayout = () => {
     try {
       await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ userId: user?._id }),
       });
     } catch (err) {
@@ -104,7 +109,7 @@ const StudentLayout = () => {
     try {
       await fetch(`${API_BASE_URL}/notifications/clear-all`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ userId: user?._id }),
       });
     } catch (err) {
@@ -117,7 +122,7 @@ const StudentLayout = () => {
     try {
       await fetch(`${API_BASE_URL}/notifications/${id}/dismiss`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ userId: user?._id }),
       });
     } catch (err) {

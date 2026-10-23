@@ -48,3 +48,21 @@ export const authorize = (...roles) => {
     next();
   };
 };
+
+// Attaches req.user when a valid token is sent; anonymous requests continue without one.
+// Used for public reads that personalise when signed in. Never falls back to a default secret.
+export const optionalAuth = async (req, res, next) => {
+  const header = req.headers.authorization;
+  if (header && header.startsWith('Bearer ') && process.env.JWT_SECRET) {
+    try {
+      const decoded = jwt.verify(header.split(' ')[1], process.env.JWT_SECRET);
+      req.user = (await Admin.findById(decoded.id).select('-password')) || (await User.findById(decoded.id).select('-password'));
+    } catch {
+      // invalid/expired token: treat as anonymous
+    }
+  }
+  next();
+};
+
+// Signed-in admin only.
+export const adminOnly = [protect, authorize('admin')];

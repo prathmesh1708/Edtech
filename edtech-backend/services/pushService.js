@@ -16,6 +16,10 @@ const INVALID_TOKEN_CODES = [
 ];
 
 const collectTokens = async (target) => {
+  if (target === 'Admins') {
+    const admins = await Admin.find({ 'fcmTokens.0': { $exists: true } }).select('fcmTokens');
+    return admins.flatMap((a) => a.fcmTokens.map((t) => t.token));
+  }
   const roles = TARGET_ROLES[target];
   const userFilter = { 'fcmTokens.0': { $exists: true }, ...(roles && { role: { $in: roles } }) };
 
@@ -34,7 +38,7 @@ const pruneTokens = async (tokens) => {
 
 /**
  * Sends a push notification to every saved device of the targeted audience
- * ('All Users' | 'Students' | 'Teachers' | 'Parents'). Never throws — push is best-effort.
+ * ('All Users' | 'Students' | 'Teachers' | 'Parents' | 'Admins'). Never throws — push is best-effort.
  */
 export const sendPushToTarget = async (target, { title, body, data = {} }) => {
   try {

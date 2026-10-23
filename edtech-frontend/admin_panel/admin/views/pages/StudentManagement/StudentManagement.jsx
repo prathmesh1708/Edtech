@@ -255,6 +255,10 @@ const StudentManagement = () => {
           const res = await studentService.createStudentAdmin(formData);
           if (res.data && (res.data._id || res.data.id)) {
             const created = res.data;
+            if (created.temporaryPassword) {
+              // Shown once; the server keeps only the hash.
+              window.alert(`Student created.\n\nOne-time password: ${created.temporaryPassword}\n\nShare it with the student securely. It will not be shown again.`);
+            }
             const newStudentObj = {
               id: created._id || created.id,
               studentId: created.studentId || formData.studentId,

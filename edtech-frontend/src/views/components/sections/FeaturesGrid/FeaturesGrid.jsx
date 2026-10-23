@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import * as Icons from 'lucide-react';
 import { FEATURES } from '../../../../config/constants';
 import useScrollAnimation from '../../../../hooks/useScrollAnimation';
@@ -22,17 +23,19 @@ const FeaturesGrid = () => {
         </div>
 
         <div className={styles.grid} ref={gridRef}>
-          {FEATURES.map((feature, index) => {
+          {FEATURES.map((feature) => {
             const Icon = Icons[feature.icon] || Icons.Sparkles;
             const isHighlighted = feature.id === 'ai-tutor';
 
             return (
-              <div
+              <Link
                 key={feature.id}
+                to={feature.path || '/features'}
                 className={`${styles.featureCard} ${isHighlighted ? styles.highlighted : ''}`}
                 style={{
                   '--card-color': feature.color,
                 }}
+                title={feature.title}
               >
                 <div
                   className={styles.iconWrapper}
@@ -45,13 +48,7 @@ const FeaturesGrid = () => {
                 </div>
                 <h3 className={styles.featureTitle}>{feature.title}</h3>
                 <p className={styles.featureDesc}>{feature.description}</p>
-                {!isHighlighted && (
-                  <div
-                    className={styles.featureCard}
-                    style={{ display: 'none' }}
-                  />
-                )}
-              </div>
+              </Link>
             );
           })}
         </div>

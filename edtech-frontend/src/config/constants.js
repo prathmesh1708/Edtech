@@ -96,6 +96,8 @@ export const SUBJECTS = [
   { id: 'economics', name: 'Economics', icon: 'TrendingUp', color: '#14B8A6' },
 ];
 
+import { ROUTES } from './routes';
+
 // Features for marketing pages
 export const FEATURES = [
   {
@@ -105,6 +107,7 @@ export const FEATURES = [
     icon: 'BotMessageSquare',
     color: '#7C5CFC',
     gradient: 'linear-gradient(135deg, #7C5CFC 0%, #4F6EF7 100%)',
+    path: ROUTES.AI_CHAT,
   },
   {
     id: 'pdf-study',
@@ -112,6 +115,7 @@ export const FEATURES = [
     description: 'Chat with books and study materials interactively.',
     icon: 'FileText',
     color: '#EF4444',
+    path: ROUTES.STUDY_MATERIALS,
   },
   {
     id: 'resources',
@@ -119,6 +123,7 @@ export const FEATURES = [
     description: 'Find best study materials and learning resources.',
     icon: 'Zap',
     color: '#4F6EF7',
+    path: ROUTES.STUDY_MATERIALS,
   },
   {
     id: 'audio-notes',
@@ -126,6 +131,7 @@ export const FEATURES = [
     description: 'Record & Summarize lectures and study sessions.',
     icon: 'Mic',
     color: '#F59E0B',
+    path: ROUTES.NOTES,
   },
   {
     id: 'smart-notes',
@@ -133,6 +139,7 @@ export const FEATURES = [
     description: 'Organize thoughts with intelligent note-taking.',
     icon: 'StickyNote',
     color: '#22C55E',
+    path: ROUTES.NOTES,
   },
   {
     id: 'focus-mode',
@@ -140,6 +147,7 @@ export const FEATURES = [
     description: 'AI doubt solver and more for distraction-free study.',
     icon: 'Target',
     color: '#3B82F6',
+    path: ROUTES.AI_PRACTICE,
   },
 ];
 

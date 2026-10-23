@@ -33,7 +33,9 @@ export const ROUTES = {
   CHAPTER_VIEW: '/student/dashboard/chapter/:chapterId',
   STUDY_MATERIALS: '/student/dashboard/materials',
   STUDY_MATERIAL_DETAIL: '/student/dashboard/materials/:contentId',
-  AI_TUTOR: '/student/dashboard/ai-tutor',
+  AI_CHAT: '/student/dashboard/ai-chat',
+  AI_PRACTICE: '/student/dashboard/ai-practice',
+  AI_TUTOR: '/student/dashboard/ai-tutor', // legacy path, redirects to AI_CHAT
   BOOKMARKS: '/student/dashboard/bookmarks',
   NOTES: '/student/dashboard/notes',
   STUDENT_PROFILE: '/student/dashboard/profile',
@@ -61,6 +63,7 @@ export const ROUTES = {
 
   ADMIN_BANNERS: '/admin/banners',
   ADMIN_NOTIFICATIONS: '/admin/notifications',
+  ADMIN_AI_SAFETY: '/admin/ai-safety',
   ADMIN_SETTINGS: '/admin/settings',
   ADMIN_PROFILE: '/admin/profile',
   ADMIN_SYSTEM_SETTINGS: '/admin/system-settings',

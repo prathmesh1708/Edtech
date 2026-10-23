@@ -22,7 +22,8 @@ import {
   Layers,
   ListOrdered,
   CheckSquare,
-  FileText
+  FileText,
+  ShieldAlert
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
@@ -69,6 +70,7 @@ const Sidebar = () => {
 
     { name: 'Banners', path: '/admin/banners', icon: Image },
     { name: 'Notifications', path: '/admin/notifications', icon: Bell },
+    { name: 'AI Safety Review', path: ROUTES.ADMIN_AI_SAFETY, icon: ShieldAlert },
     { name: 'Settings', path: '/admin/settings', icon: Settings },
     { name: 'My Profile', path: '/admin/profile', icon: User },
     { name: 'System Settings', path: '/admin/system-settings', icon: Cpu },

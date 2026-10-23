@@ -6,11 +6,13 @@ import {
   updateSubjectPricing 
 } from '../controllers/subscriptionPlanController.js';
 
+import { adminOnly } from '../middleware/authMiddleware.js';
+
 const router = express.Router();
 
 router.get('/', getSubscriptionPlans);
-router.post('/', createSubscriptionPlan);
+router.post('/', ...adminOnly, createSubscriptionPlan);
 router.get('/subject-pricing', getSubjectPricing);
-router.post('/subject-pricing', updateSubjectPricing);
+router.post('/subject-pricing', ...adminOnly, updateSubjectPricing);
 
 export default router;

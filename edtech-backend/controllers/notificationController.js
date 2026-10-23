@@ -145,8 +145,8 @@ export const deleteNotification = async (req, res, next) => {
 // @access  Public / User
 export const getUserNotifications = async (req, res, next) => {
   try {
-    const roleParam = (req.query.role || req.user?.role || 'student').toLowerCase();
-    const userId = req.user?._id || req.query.userId;
+    const roleParam = (req.user?.role || 'student').toLowerCase();
+    const userId = req.user._id; // only the signed-in user, never a client-supplied id
 
     let targetGroups = ['All Users'];
     if (roleParam === 'student') {
@@ -208,7 +208,7 @@ export const getUserNotifications = async (req, res, next) => {
 export const markNotificationAsRead = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const userId = req.user?._id || req.body.userId;
+    const userId = req.user._id;
 
     const notification = await Notification.findById(id) || await Notification.findOne({ customId: id });
 
@@ -236,7 +236,7 @@ export const markNotificationAsRead = async (req, res, next) => {
 // @access  Public / User
 export const markAllNotificationsAsRead = async (req, res, next) => {
   try {
-    const userId = req.user?._id || req.body.userId;
+    const userId = req.user._id;
 
     if (userId) {
       await Notification.updateMany(
@@ -259,7 +259,7 @@ export const markAllNotificationsAsRead = async (req, res, next) => {
 export const dismissNotification = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const userId = req.user?._id || req.body.userId;
+    const userId = req.user._id;
 
     if (!userId || !mongoose.isValidObjectId(userId)) {
       res.status(400);
@@ -280,7 +280,7 @@ export const dismissNotification = async (req, res, next) => {
 // @access  Public / User
 export const clearAllNotifications = async (req, res, next) => {
   try {
-    const userId = req.user?._id || req.body.userId;
+    const userId = req.user._id;
 
     if (!userId || !mongoose.isValidObjectId(userId)) {
       res.status(400);

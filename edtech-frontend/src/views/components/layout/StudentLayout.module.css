@@ -231,3 +231,15 @@
     display: none;
   }
 }
+
+/* Seven bottom-nav items must fit narrow phones */
+@media (max-width: 480px) {
+  .bottomItem {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-1) 2px;
+    font-size: 10px;
+    text-align: center;
+    line-height: 1.15;
+  }
+}

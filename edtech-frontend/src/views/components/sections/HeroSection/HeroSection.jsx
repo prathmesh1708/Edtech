@@ -7,10 +7,10 @@ import Button from '../../common/Button/Button';
 import styles from './HeroSection.module.css';
 
 const TOOLS = [
-  { icon: FileText, name: 'PDF Study', desc: 'Chat with books', color: '#EF4444', bg: '#FEE2E2' },
-  { icon: Zap, name: 'Resources', desc: 'Best materials', color: '#4F6EF7', bg: '#EEF2FF' },
-  { icon: Mic, name: 'Audio Notes', desc: 'Record & Summarize', color: '#F59E0B', bg: '#FEF3C7' },
-  { icon: StickyNote, name: 'Smart Notes', desc: 'Organize thoughts', color: '#22C55E', bg: '#DCFCE7' },
+  { icon: FileText, name: 'PDF Study', desc: 'Chat with books', color: '#EF4444', bg: '#FEE2E2', link: ROUTES.STUDY_MATERIALS },
+  { icon: Zap, name: 'Resources', desc: 'Best materials', color: '#4F6EF7', bg: '#EEF2FF', link: ROUTES.STUDY_MATERIALS },
+  { icon: Mic, name: 'Audio Notes', desc: 'Record & Summarize', color: '#F59E0B', bg: '#FEF3C7', link: ROUTES.NOTES },
+  { icon: StickyNote, name: 'Smart Notes', desc: 'Organize thoughts', color: '#22C55E', bg: '#DCFCE7', link: ROUTES.NOTES },
 ];
 
 const HeroSection = () => {
@@ -124,30 +124,36 @@ const HeroSection = () => {
         {/* Right Visual — Interactive Card */}
         <div className={styles.visual}>
           <div className={`${styles.heroCard} hero-card`} ref={cardRef}>
-            <div className={styles.heroCardHeader}>
-              <div className={styles.greeting}>
-                <span className={styles.greetingSmall}>Good Morning 👋</span>
-                <span className={styles.greetingLarge}>Ready to top it?</span>
+            <Link to={ROUTES.STUDENT_DASHBOARD} className={styles.heroCardHeaderLink} title="Open Student Dashboard">
+              <div className={styles.heroCardHeader}>
+                <div className={styles.greeting}>
+                  <span className={styles.greetingSmall}>Good Morning 👋</span>
+                  <span className={styles.greetingLarge}>Ready to top it?</span>
+                </div>
               </div>
-            </div>
+            </Link>
 
             {/* AI Doubt Solver Banner */}
-            <div className={styles.heroCardBanner}>
-              <span className={styles.bannerTag}>AI Doubt Solver</span>
-              <h3 className={styles.bannerTitle}>Stuck on a question?</h3>
-              <p className={styles.bannerDesc}>Snap, solve, understand it.</p>
-            </div>
+            <Link to={ROUTES.AI_CHAT} className={styles.heroCardBannerLink} title="Try AI Doubt Solver">
+              <div className={styles.heroCardBanner}>
+                <span className={styles.bannerTag}>AI Doubt Solver</span>
+                <h3 className={styles.bannerTitle}>Stuck on a question?</h3>
+                <p className={styles.bannerDesc}>Snap, solve, understand it.</p>
+              </div>
+            </Link>
 
             {/* Learning Tools Grid */}
             <div className={styles.toolsGrid}>
               {TOOLS.map((tool) => (
-                <div key={tool.name} className={styles.toolCard}>
-                  <div className={styles.toolIcon} style={{ background: tool.bg, color: tool.color }}>
-                    <tool.icon size={18} />
+                <Link key={tool.name} to={tool.link} className={styles.toolCardLink} title={tool.name}>
+                  <div className={styles.toolCard}>
+                    <div className={styles.toolIcon} style={{ background: tool.bg, color: tool.color }}>
+                      <tool.icon size={18} />
+                    </div>
+                    <span className={styles.toolName}>{tool.name}</span>
+                    <span className={styles.toolDesc}>{tool.desc}</span>
                   </div>
-                  <span className={styles.toolName}>{tool.name}</span>
-                  <span className={styles.toolDesc}>{tool.desc}</span>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

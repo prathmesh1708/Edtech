@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, Circle, X, FileDown, Info, Play } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, X, FileDown, Info, Play, Sparkles } from 'lucide-react';
 import { ROUTES } from '../../../../config/routes';
+import AskAIButton from '../../../components/common/AskAIButton/AskAIButton';
 import Card from '../../../components/common/Card/Card';
 import Badge from '../../../components/common/Badge/Badge';
 import { downloadPDF } from '../../../../utils/pdfGenerator';
@@ -186,6 +187,16 @@ const ChapterView = () => {
         <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)' }}>
           {activeDesc}
         </p>
+        {!loading && (
+          <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', marginTop: 'var(--space-3)' }}>
+            <AskAIButton subject={activeSubject} context={{ chapterId, chapterName: activeTitle }}>
+              Ask AI about this chapter
+            </AskAIButton>
+            <AskAIButton practice subject={activeSubject} context={{ chapterId, chapterName: activeTitle }}>
+              Practice quiz
+            </AskAIButton>
+          </div>
+        )}
       </div>
 
       <div style={s.grid} className="responsive-grid-2-1">
@@ -217,6 +228,24 @@ const ChapterView = () => {
                     {index + 1}. {topic.name}
                   </span>
                 </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(ROUTES.AI_CHAT, {
+                      state: {
+                        subject: activeSubject,
+                        context: { chapterId, chapterName: activeTitle, topic: topic.name },
+                        prefill: `Explain "${topic.name}" step by step`,
+                      },
+                    });
+                  }}
+                  title={`Ask AI about ${topic.name}`}
+                  aria-label={`Ask AI about ${topic.name}`}
+                  style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-accent)', padding: '4px' }}
+                >
+                  <Sparkles size={16} />
+                </button>
               </div>
             ))}
           </div>

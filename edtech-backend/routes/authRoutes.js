@@ -10,12 +10,14 @@ import {
 } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
+import { authAccountLimit, authIpLimit } from '../middleware/rateLimit.js';
+
 const router = express.Router();
 
-router.post('/register', registerUser);
-router.post('/login', loginUser);
-router.post('/send-otp', sendOTP);
-router.post('/verify-otp', verifyOTP);
+router.post('/register', authIpLimit, authAccountLimit, registerUser);
+router.post('/login', authIpLimit, authAccountLimit, loginUser);
+router.post('/send-otp', authIpLimit, authAccountLimit, sendOTP);
+router.post('/verify-otp', authIpLimit, authAccountLimit, verifyOTP);
 router.get('/profile', protect, getUserProfile);
 
 router.post('/fcm-token', protect, saveFcmToken);
