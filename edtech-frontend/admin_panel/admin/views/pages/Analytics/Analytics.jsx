@@ -15,8 +15,8 @@ import {
   Loader2
 } from 'lucide-react';
 import { 
-  AreaChart, Area, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, 
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ComposedChart
+  AreaChart, Area, PieChart, Pie, Cell, 
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import analyticsService from '../../../../../src/models/services/analyticsService';
 import AITutorInsights from './AITutorInsights';
@@ -401,120 +401,6 @@ const Analytics = () => {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Charts Row 2: Revenue Trend & Grade Distribution */}
-      <div className={styles.chartsGridTwo}>
-        {/* Revenue & Tier Distribution Bar/Line Chart */}
-        <div className={styles.chartCard}>
-          <div className={styles.cardHeader}>
-            <div>
-              <h2 className={styles.cardTitle}>Revenue & Subscription Tiers</h2>
-              <p className={styles.cardSubtitle}>Monthly subscription revenue (USD) & ARPU</p>
-            </div>
-          </div>
-
-          <div className={styles.chartWrapper}>
-            <ResponsiveContainer width="100%" height={280}>
-              <ComposedChart data={revenueData} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} dy={8} />
-                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} />
-                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-primary)', borderRadius: '12px', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--color-border)' }}
-                />
-                <Bar yAxisId="left" dataKey="basicPlan" stackId="a" fill="#38BDF8" radius={[0, 0, 0, 0]} name="Basic Plan ($)" />
-                <Bar yAxisId="left" dataKey="proPlan" stackId="a" fill="#818CF8" radius={[6, 6, 0, 0]} name="Pro Plan ($)" />
-                <Line yAxisId="right" type="monotone" dataKey="arpu" stroke="#F59E0B" strokeWidth={3} dot={{ r: 4 }} name="ARPU ($)" />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Grade Distribution Bar Chart */}
-        <div className={styles.chartCard}>
-          <div className={styles.cardHeader}>
-            <div>
-              <h2 className={styles.cardTitle}>Student Demographics by Grade</h2>
-              <p className={styles.cardSubtitle}>Enrolled students across Class 6 to 12</p>
-            </div>
-          </div>
-
-          <div className={styles.chartWrapper}>
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={gradeData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
-                <XAxis dataKey="grade" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} dy={8} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-primary)', borderRadius: '10px', boxShadow: 'var(--shadow-md)', border: '1px solid var(--color-border)' }}
-                />
-                <Bar dataKey="students" fill="#38BDF8" radius={[8, 8, 0, 0]} name="Enrolled Students" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {/* Row 3: Peak Study Hours & Top Performing Content */}
-      <div className={styles.chartsGridTwo}>
-        {/* Peak Study Hours Chart */}
-        <div className={styles.chartCard}>
-          <div className={styles.cardHeader}>
-            <div>
-              <h2 className={styles.cardTitle}>Peak Activity & Study Hours</h2>
-              <p className={styles.cardSubtitle}>Student concurrent activity throughout 24-hour cycle</p>
-            </div>
-          </div>
-
-          <div className={styles.chartWrapper}>
-            <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={peakHoursData} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
-                <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} dy={8} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 12 }} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-primary)', borderRadius: '12px', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--color-border)' }}
-                />
-                <Line type="monotone" dataKey="users" stroke="#EC4899" strokeWidth={3} dot={{ fill: '#EC4899', r: 5 }} name="Active Students" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Top Courses Table/List */}
-        <div className={styles.chartCard}>
-          <div className={styles.cardHeader}>
-            <div>
-              <h2 className={styles.cardTitle}>Top Performing Content</h2>
-              <p className={styles.cardSubtitle}>Highest engaged syllabus modules and completion</p>
-            </div>
-          </div>
-
-          <div className={styles.topList}>
-            {topCourses.map((course) => (
-              <div key={course.id} className={styles.topItem}>
-                <div className={styles.courseInfo}>
-                  <h4 className={styles.courseTitle}>{course.title}</h4>
-                  <span className={styles.courseStudents}>{(course.students || 0).toLocaleString()} Students Enrolled</span>
-                </div>
-                <div className={styles.progressSection}>
-                  <div className={styles.progressHeader}>
-                    <span className={styles.progressLabel}>Completion: {course.completion}%</span>
-                    <span className={styles.scoreBadge}>Avg: {course.avgScore}</span>
-                  </div>
-                  <div className={styles.progressBarBg}>
-                    <div 
-                      className={styles.progressBarFill} 
-                      style={{ width: `${course.completion}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>

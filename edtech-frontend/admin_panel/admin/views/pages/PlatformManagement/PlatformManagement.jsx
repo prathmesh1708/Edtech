@@ -3,10 +3,7 @@ import {
   Save, 
   Globe, 
   Shield, 
-  Bell, 
-  CreditCard,
-  Settings,
-  HelpCircle
+  CreditCard
 } from 'lucide-react';
 import { useToast } from '../../../../../src/views/components/common/Toast/Toast';
 import styles from './PlatformManagement.module.css';
@@ -108,13 +105,6 @@ const PlatformManagement = () => {
               <span>Security & Roles</span>
             </button>
             <button 
-              className={`${styles.navItem} ${activeTab === 'notifications' ? styles.active : ''}`}
-              onClick={() => setActiveTab('notifications')}
-            >
-              <Bell size={18} />
-              <span>Notifications</span>
-            </button>
-            <button 
               className={`${styles.navItem} ${activeTab === 'billing' ? styles.active : ''}`}
               onClick={() => setActiveTab('billing')}
             >
@@ -195,181 +185,64 @@ const PlatformManagement = () => {
           {activeTab === 'security' && (
             <div className={styles.card}>
               <div>
-                <h2 className={styles.cardTitle}>Security & Access Levels</h2>
-                <p className={styles.cardSubtitle}>Configure credential rules, session timeouts, and role permissions.</p>
-              </div>
-
-              <div className={styles.switchGroup}>
-                <div className={styles.switchText}>
-                  <span className={styles.switchLabel}>Two-Factor Authentication (2FA)</span>
-                  <span className={styles.switchDesc}>Enforce email/SMS verification for admin logins.</span>
-                </div>
-                <label className={styles.switch}>
-                  <input 
-                    type="checkbox" 
-                    name="twoFactorAuth"
-                    checked={settings.twoFactorAuth}
-                    onChange={handleInputChange}
-                  />
-                  <span className={styles.slider}></span>
-                </label>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Password Expiry Period</label>
-                <select 
-                  name="passwordExpiry"
-                  className={styles.select}
-                  value={settings.passwordExpiry}
-                  onChange={handleInputChange}
-                >
-                  <option>Never</option>
-                  <option>30 days</option>
-                  <option>90 days</option>
-                  <option>180 days</option>
-                </select>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Session Timeout Duration</label>
-                <select 
-                  name="sessionTimeout"
-                  className={styles.select}
-                  value={settings.sessionTimeout}
-                  onChange={handleInputChange}
-                >
-                  <option>15 mins</option>
-                  <option>30 mins</option>
-                  <option>1 hour</option>
-                  <option>4 hours</option>
-                </select>
-              </div>
-
-              <div className={styles.formGroup} style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-4)', marginTop: 'var(--space-2)' }}>
-                <label className={styles.formLabel}>Default Moderator Permissions</label>
-                <div className={styles.checkboxList}>
-                  <label className={styles.checkboxItem}>
-                    <input 
-                      type="checkbox" 
-                      name="permStudents"
-                      className={styles.checkbox}
-                      checked={settings.permStudents}
-                      onChange={handleInputChange}
-                    />
-                    <div className={styles.checkboxText}>
-                      <span className={styles.checkboxLabel}>Manage Students</span>
-                      <span className={styles.checkboxDesc}>Allow creating, editing, and deleting student records.</span>
-                    </div>
-                  </label>
-
-                  <label className={styles.checkboxItem}>
-                    <input 
-                      type="checkbox" 
-                      name="permContent"
-                      className={styles.checkbox}
-                      checked={settings.permContent}
-                      onChange={handleInputChange}
-                    />
-                    <div className={styles.checkboxText}>
-                      <span className={styles.checkboxLabel}>Manage Content</span>
-                      <span className={styles.checkboxDesc}>Allow modifying course modules, resources, and video lessons.</span>
-                    </div>
-                  </label>
-
-                  <label className={styles.checkboxItem}>
-                    <input 
-                      type="checkbox" 
-                      name="permSettings"
-                      className={styles.checkbox}
-                      checked={settings.permSettings}
-                      onChange={handleInputChange}
-                    />
-                    <div className={styles.checkboxText}>
-                      <span className={styles.checkboxLabel}>Manage Settings</span>
-                      <span className={styles.checkboxDesc}>Allow altering platform branding and default values.</span>
-                    </div>
-                  </label>
-
-                  <label className={styles.checkboxItem}>
-                    <input 
-                      type="checkbox" 
-                      name="permBilling"
-                      className={styles.checkbox}
-                      checked={settings.permBilling}
-                      onChange={handleInputChange}
-                    />
-                    <div className={styles.checkboxText}>
-                      <span className={styles.checkboxLabel}>Manage Billing</span>
-                      <span className={styles.checkboxDesc}>Allow checking plan levels and updating card details.</span>
-                    </div>
-                  </label>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Notifications Tab */}
-          {activeTab === 'notifications' && (
-            <div className={styles.card}>
-              <div>
-                <h2 className={styles.cardTitle}>Global Notifications Settings</h2>
-                <p className={styles.cardSubtitle}>Turn on/off default message dispatches for learners and staff.</p>
+                <h2 className={styles.cardTitle}>Default Moderator Permissions</h2>
+                <p className={styles.cardSubtitle}>Configure role permissions and access levels for platform moderators.</p>
               </div>
 
               <div className={styles.checkboxList}>
                 <label className={styles.checkboxItem}>
                   <input 
                     type="checkbox" 
-                    name="emailAlerts"
+                    name="permStudents"
                     className={styles.checkbox}
-                    checked={settings.emailAlerts}
+                    checked={settings.permStudents}
                     onChange={handleInputChange}
                   />
                   <div className={styles.checkboxText}>
-                    <span className={styles.checkboxLabel}>Email alerts for new syllabus releases</span>
-                    <span className={styles.checkboxDesc}>Dispatches automated summaries whenever content shifts to Published status.</span>
+                    <span className={styles.checkboxLabel}>Manage Students</span>
+                    <span className={styles.checkboxDesc}>Allow creating, editing, and deleting student records.</span>
                   </div>
                 </label>
 
                 <label className={styles.checkboxItem}>
                   <input 
                     type="checkbox" 
-                    name="smsAlerts"
+                    name="permContent"
                     className={styles.checkbox}
-                    checked={settings.smsAlerts}
+                    checked={settings.permContent}
                     onChange={handleInputChange}
                   />
                   <div className={styles.checkboxText}>
-                    <span className={styles.checkboxLabel}>SMS updates for urgent notifications</span>
-                    <span className={styles.checkboxDesc}>Dispatches short-form alerts directly to parent phones on Warning events.</span>
+                    <span className={styles.checkboxLabel}>Manage Content</span>
+                    <span className={styles.checkboxDesc}>Allow modifying course modules, resources, and video lessons.</span>
                   </div>
                 </label>
 
                 <label className={styles.checkboxItem}>
                   <input 
                     type="checkbox" 
-                    name="pushNotifications"
+                    name="permSettings"
                     className={styles.checkbox}
-                    checked={settings.pushNotifications}
+                    checked={settings.permSettings}
                     onChange={handleInputChange}
                   />
                   <div className={styles.checkboxText}>
-                    <span className={styles.checkboxLabel}>In-app push notifications</span>
-                    <span className={styles.checkboxDesc}>Enables interactive alert icons on student dashboards.</span>
+                    <span className={styles.checkboxLabel}>Manage Settings</span>
+                    <span className={styles.checkboxDesc}>Allow altering platform branding and default values.</span>
                   </div>
                 </label>
 
                 <label className={styles.checkboxItem}>
                   <input 
                     type="checkbox" 
-                    name="weeklyDigest"
+                    name="permBilling"
                     className={styles.checkbox}
-                    checked={settings.weeklyDigest}
+                    checked={settings.permBilling}
                     onChange={handleInputChange}
                   />
                   <div className={styles.checkboxText}>
-                    <span className={styles.checkboxLabel}>Weekly digest email reporting</span>
-                    <span className={styles.checkboxDesc}>Prepares dashboard engagement trends for admin review.</span>
+                    <span className={styles.checkboxLabel}>Manage Billing</span>
+                    <span className={styles.checkboxDesc}>Allow checking plan levels and updating card details.</span>
                   </div>
                 </label>
               </div>

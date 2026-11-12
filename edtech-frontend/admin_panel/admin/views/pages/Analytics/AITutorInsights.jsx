@@ -85,7 +85,6 @@ const AITutorInsights = ({ timeRange }) => {
     .filter((m) => m.value > 0);
   const modeTotal = modes.reduce((s, m) => s + m.value, 0);
   const classes = data.classes.map((c) => ({ ...c, label: classLabel(c.classId) }));
-  const hours = data.peakHours.map((h) => ({ ...h, label: `${String(h.hour).padStart(2, '0')}:00` }));
   const maxTopic = Math.max(1, ...data.topics.map((t) => t.questions));
 
   return (
@@ -217,26 +216,6 @@ const AITutorInsights = ({ timeRange }) => {
                     <YAxis axisLine={false} tickLine={false} tick={axisTick} allowDecimals={false} />
                     <Tooltip contentStyle={tooltipStyle} />
                     <Bar dataKey="questions" fill="#8B5CF6" radius={[6, 6, 0, 0]} name="Questions" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            <div className={styles.chartCard}>
-              <div className={styles.cardHeader}>
-                <div>
-                  <h2 className={styles.cardTitle}>Busiest Hours</h2>
-                  <p className={styles.cardSubtitle}>Questions by hour of day (IST)</p>
-                </div>
-              </div>
-              <div className={styles.chartWrapper}>
-                <ResponsiveContainer width="100%" height={260}>
-                  <BarChart data={hours} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
-                    <XAxis dataKey="label" axisLine={false} tickLine={false} tick={axisTick} dy={8} interval={3} />
-                    <YAxis axisLine={false} tickLine={false} tick={axisTick} allowDecimals={false} />
-                    <Tooltip contentStyle={tooltipStyle} />
-                    <Bar dataKey="questions" fill="#EC4899" radius={[4, 4, 0, 0]} name="Questions" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
