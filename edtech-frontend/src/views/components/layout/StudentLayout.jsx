@@ -23,6 +23,10 @@ const MENU_ITEMS = [
   { path: ROUTES.SETTINGS, label: 'Settings', icon: Settings },
 ];
 
+const BOTTOM_NAV_ITEMS = MENU_ITEMS.filter(
+  (item) => ![ROUTES.MY_SYLLABUS, ROUTES.STUDY_MATERIALS, ROUTES.BOOKMARKS].includes(item.path)
+);
+
 const StudentLayout = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -293,7 +297,7 @@ const StudentLayout = () => {
 
       {/* Bottom Nav Bar for Mobile */}
       <nav className={styles.bottomNav}>
-        {MENU_ITEMS.map((item) => {
+        {BOTTOM_NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
           return (
