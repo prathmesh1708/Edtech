@@ -195,7 +195,7 @@ const StudentDashboard = () => {
       </div>
 
       {/* Live Admin Banners Section (Positioned between Good Afternoon & Stats Grid) */}
-      <div style={{ margin: 'var(--space-6) 0', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+      <div className={styles.bannerSection}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Badge variant="primary">ANNOUNCEMENT</Badge>
           <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-tertiary)', fontWeight: '600' }}>Platform Updates</span>
@@ -307,9 +307,12 @@ const StudentDashboard = () => {
       {/* Subject Progress Cards */}
       <div>
         <div className={styles.sectionTitle}>
-          <span>My Enrolled Subjects ({currentUser.board?.toUpperCase() || 'CBSE'} Class {currentUser.classId || '10'})</span>
-          <Link to={ROUTES.MY_SYLLABUS} style={{ fontSize: 'var(--text-sm)', color: 'var(--color-accent)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            View Full Syllabus <ArrowRight size={14} />
+          <span className={styles.sectionTitleHeading}>
+            My Enrolled Subjects ({currentUser.board?.toUpperCase() || 'CBSE'} Class {currentUser.classId || '10'})
+          </span>
+          <Link to={ROUTES.MY_SYLLABUS} className={styles.sectionTitleLink}>
+            <span>View Full Syllabus</span>
+            <ArrowRight size={14} />
           </Link>
         </div>
 
@@ -371,8 +374,10 @@ const StudentDashboard = () => {
             ))}
           </div>
         ) : (
-          <div style={{ textAlign: 'center', padding: '24px', background: 'var(--color-surface)', borderRadius: 'var(--radius-xl)', marginBottom: 'var(--space-8)', border: '1px dashed var(--color-border)' }}>
-            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>No subjects found for your standard. Subjects added by Admin will appear here.</p>
+          <div className={styles.emptySubjectsBox}>
+            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', margin: 0 }}>
+              No subjects found for your standard. Subjects added by Admin will appear here.
+            </p>
           </div>
         )}
       </div>
@@ -389,7 +394,7 @@ const StudentDashboard = () => {
           <form onSubmit={addTodo} className={styles.inputGroup}>
             <input 
               type="text" 
-              placeholder="Add a study goal (e.g. Solve physics problems)..." 
+              placeholder="Add a study goal..." 
               value={newTodo}
               onChange={(e) => setNewTodo(e.target.value)}
               className={styles.todoInput}
@@ -409,26 +414,29 @@ const StudentDashboard = () => {
                 <div key={todo.id} className={styles.todoItem} style={{ opacity: todo.completed ? 0.6 : 1 }}>
                   <div 
                     onClick={() => toggleTodo(todo.id)} 
-                    style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', cursor: 'pointer', flex: 1 }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', cursor: 'pointer', flex: 1, minWidth: 0 }}
                   >
                     {todo.completed ? (
-                      <CheckCircle2 size={18} color="var(--color-success)" />
+                      <CheckCircle2 size={18} color="var(--color-success)" style={{ flexShrink: 0 }} />
                     ) : (
-                      <Circle size={18} color="var(--color-text-tertiary)" />
+                      <Circle size={18} color="var(--color-text-tertiary)" style={{ flexShrink: 0 }} />
                     )}
                     <span style={{ 
                       fontSize: 'var(--text-sm)', 
                       fontWeight: '500', 
                       color: 'var(--color-text-primary)',
                       textDecoration: todo.completed ? 'line-through' : 'none',
-                      transition: 'all 0.2s'
+                      transition: 'all 0.2s',
+                      wordBreak: 'break-word',
+                      overflowWrap: 'break-word'
                     }}>
                       {todo.text}
                     </span>
                   </div>
                   <button 
                     onClick={() => deleteTodo(todo.id)} 
-                    style={{ color: 'var(--color-text-tertiary)', cursor: 'pointer', padding: '4px', background: 'none', border: 'none' }}
+                    style={{ color: 'var(--color-text-tertiary)', cursor: 'pointer', padding: '4px', background: 'none', border: 'none', flexShrink: 0 }}
+                    title="Delete goal"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -439,19 +447,19 @@ const StudentDashboard = () => {
         </div>
 
         {/* Activity feed */}
-        <Card>
+        <Card className={styles.recentCard}>
           <h3 style={{ fontSize: 'var(--text-base)', fontWeight: '700', marginBottom: 'var(--space-4)', fontFamily: 'var(--font-heading)' }}>Recent Activity</h3>
           <div className={styles.recentList}>
             {activities.length > 0 ? (
               activities.map((r, i) => (
                 <div key={r.id || i} className={styles.recentRow}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                    <span style={{ fontSize: 'var(--text-sm)', fontWeight: '600', color: 'var(--color-text-primary)' }}>{r.text}</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0, flex: 1 }}>
+                    <span style={{ fontSize: 'var(--text-sm)', fontWeight: '600', color: 'var(--color-text-primary)', wordBreak: 'break-word' }}>{r.text}</span>
                     <span style={{ fontSize: '10px', color: 'var(--color-text-tertiary)' }}>
                       {r.createdAt ? new Date(r.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recently'}
                     </span>
                   </div>
-                  <Badge variant={i % 3 === 0 ? 'primary' : i % 3 === 1 ? 'secondary' : 'success'} size="sm">
+                  <Badge variant={i % 3 === 0 ? 'primary' : i % 3 === 1 ? 'secondary' : 'success'} size="sm" style={{ flexShrink: 0 }}>
                     {r.badge || 'Activity'}
                   </Badge>
                 </div>

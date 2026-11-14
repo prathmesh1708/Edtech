@@ -30,6 +30,13 @@
   transition: all 0.3s;
 }
 
+.bannerSection {
+  margin: var(--space-6) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
 .statsGrid {
   width: 100%;
   margin-bottom: var(--space-8);
@@ -102,6 +109,42 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.sectionTitleHeading {
+  font-size: inherit;
+  font-weight: inherit;
+  font-family: inherit;
+  color: inherit;
+  line-height: 1.3;
+}
+
+.sectionTitleLink {
+  font-size: var(--text-sm);
+  color: var(--color-accent);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.sectionTitleLink:hover {
+  color: var(--color-accent-hover);
+}
+
+.emptySubjectsBox {
+  text-align: center;
+  padding: 24px;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-8);
+  border: 1px dashed var(--color-border);
 }
 
 .subjectsGrid {
@@ -168,6 +211,7 @@
   padding: var(--space-3) 0;
   border-bottom: 1px solid var(--color-border-light);
   transition: opacity 0.2s;
+  gap: var(--space-2);
 }
 
 .inputGroup {
@@ -178,6 +222,7 @@
 
 .todoInput {
   flex: 1;
+  min-width: 0;
   padding: 10px 14px;
   border-radius: var(--radius-lg);
   border: 1.5px solid var(--color-border);
@@ -197,8 +242,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--space-3);
   padding: var(--space-3) 0;
   border-bottom: 1px solid var(--color-border-light);
+}
+
+.recentCard {
+  padding: var(--space-6);
 }
 
 /* =============================================
@@ -246,86 +296,6 @@
   border-radius: var(--radius-lg) !important;
   white-space: nowrap;
   flex-shrink: 0;
-}
-
-@media (max-width: 768px) {
-  .bulletinBanner {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 24px 20px;
-    min-height: auto;
-    gap: 12px;
-    border-radius: var(--radius-xl);
-  }
-
-  .bulletinTitle {
-    font-size: 18px;
-    margin-bottom: 6px;
-    color: #ffffff;
-  }
-
-  .bulletinSub {
-    font-size: 13.5px;
-    color: rgba(255, 255, 255, 0.92);
-    line-height: 1.5;
-  }
-
-  .bulletinBtn {
-    width: 100%;
-    text-align: center;
-    justify-content: center;
-    padding: 10px 16px !important;
-  }
-}
-
-@media (max-width: 768px) {
-  .welcomeCard {
-    padding: var(--space-5) var(--space-6);
-    margin-bottom: var(--space-6);
-  }
-
-  .welcomeTitle {
-    font-size: var(--text-2xl);
-  }
-
-  .aiCard {
-    padding: var(--space-5) var(--space-6);
-    margin-bottom: var(--space-6);
-  }
-
-  .subjectCard {
-    padding: var(--space-4);
-  }
-}
-
-@media (max-width: 640px) {
-  .welcomeCard {
-    gap: var(--space-4);
-  }
-
-  .aiCard {
-    gap: var(--space-4);
-  }
-}
-
-@media (max-width: 480px) {
-  .welcomeCard {
-    padding: var(--space-4);
-    border-radius: var(--radius-xl);
-  }
-
-  .welcomeTitle {
-    font-size: var(--text-xl);
-  }
-
-  .statCard {
-    padding: var(--space-4);
-  }
-
-  .todoCard {
-    padding: var(--space-4);
-    border-radius: var(--radius-xl);
-  }
 }
 
 /* AI Study Assistant entry point */
@@ -376,9 +346,243 @@
   flex-shrink: 0;
 }
 
-@media (max-width: 480px) {
+/* =============================================
+   Media Queries & Responsiveness
+   ============================================= */
+
+@media (max-width: 1024px) {
+  .welcomeCard {
+    padding: var(--space-5) var(--space-6);
+    margin-bottom: var(--space-6);
+  }
+
+  .welcomeTitle {
+    font-size: var(--text-2xl);
+  }
+}
+
+@media (max-width: 768px) {
+  .welcomeCard {
+    padding: var(--space-5);
+    margin-bottom: var(--space-5);
+  }
+
+  .bulletinBanner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px 20px;
+    min-height: auto;
+    gap: 12px;
+    border-radius: var(--radius-xl);
+  }
+
+  .bulletinTitle {
+    font-size: 18px;
+    margin-bottom: 6px;
+    color: #ffffff;
+  }
+
+  .bulletinSub {
+    font-size: 13.5px;
+    color: rgba(255, 255, 255, 0.92);
+    line-height: 1.5;
+  }
+
+  .bulletinBtn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    padding: 10px 16px !important;
+  }
+
+  .subjectCard {
+    padding: var(--space-4);
+  }
+}
+
+@media (max-width: 640px) {
+  .welcomeCard {
+    padding: var(--space-4);
+    border-radius: var(--radius-xl);
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .welcomeTitle {
+    font-size: var(--text-xl);
+  }
+
+  .welcomeSub {
+    font-size: var(--text-xs);
+    line-height: 1.5;
+  }
+
+  .streakBadge {
+    padding: 8px 14px;
+    margin-top: var(--space-2);
+    align-self: flex-start;
+  }
+
+  /* AI Prompt Card - Clean 2-row Grid to prevent text squeezing */
   .aiPrompt {
-    flex-wrap: wrap;
-    padding: var(--space-3) var(--space-4);
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: var(--space-4);
+    margin-top: var(--space-3);
+    border-radius: var(--radius-xl);
+  }
+
+  .aiPromptIcon {
+    grid-column: 1;
+    grid-row: 1;
+    width: 40px;
+    height: 40px;
+  }
+
+  .aiPromptText {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .aiPromptTitle {
+    font-size: var(--text-sm);
+  }
+
+  .aiPromptSub {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .aiPromptActions {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+    margin-top: 2px;
+  }
+
+  .aiPromptActions button,
+  .aiPromptActions > * {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .bannerSection {
+    margin: var(--space-4) 0;
+    gap: var(--space-3);
+  }
+
+  /* Compact 2x2 Stats Grid for Mobile */
+  .statsGrid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    margin-bottom: var(--space-5);
+  }
+
+  .statCard {
+    padding: 12px 14px;
+    gap: 8px;
+  }
+
+  .statCard h3 {
+    font-size: 1.25rem !important;
+    margin-top: 2px !important;
+  }
+
+  .statIcon {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+  }
+
+  .statIcon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Section Title & Link */
+  .sectionTitle {
+    font-size: var(--text-base);
+    gap: 6px 12px;
+    margin-bottom: var(--space-3);
+  }
+
+  .sectionTitleHeading {
+    font-size: 15px;
+  }
+
+  .sectionTitleLink {
+    font-size: var(--text-xs);
+  }
+
+  .emptySubjectsBox {
+    padding: 18px 14px;
+    margin-bottom: var(--space-5);
+  }
+
+  .interactiveGrid {
+    gap: var(--space-4) !important;
+    margin-bottom: var(--space-4);
+  }
+
+  .todoCard {
+    padding: var(--space-4);
+    gap: var(--space-3);
+    border-radius: var(--radius-xl);
+  }
+
+  .recentCard {
+    padding: var(--space-4) !important;
+  }
+
+  .todoItem {
+    padding: 10px 0;
+    gap: var(--space-2);
+  }
+
+  .recentRow {
+    padding: 10px 0;
+    gap: var(--space-2);
+  }
+}
+
+@media (max-width: 480px) {
+  .bulletinBanner {
+    padding: 20px 16px;
+    border-radius: var(--radius-lg);
+  }
+
+  .bulletinTitle {
+    font-size: 16px;
+  }
+
+  .bulletinSub {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .statCard {
+    padding: 10px 12px;
+  }
+
+  .statCard h3 {
+    font-size: 1.15rem !important;
+  }
+
+  .statIcon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .statIcon svg {
+    width: 16px;
+    height: 16px;
   }
 }
