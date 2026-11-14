@@ -26,6 +26,7 @@ import Input from '../../../components/common/Input/Input';
 import Card from '../../../components/common/Card/Card';
 import Badge from '../../../components/common/Badge/Badge';
 import { downloadPDF } from '../../../../utils/pdfGenerator';
+import styles from './Notes.module.css';
 
 // Helper function to extract numeric class digit (e.g. "Class 7th", "7th", "7" -> "7")
 const normalizeClass = (val) => {
@@ -486,177 +487,6 @@ const getMockDataForClass = (classNum, boardStr) => {
   };
 };
 
-const s = {
-  container: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 'var(--space-6)'
-  },
-  headerBanner: {
-    background: 'var(--gradient-card)',
-    border: '1px solid var(--color-border-light)',
-    borderRadius: 'var(--radius-2xl)',
-    padding: 'var(--space-6) var(--space-8)',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    boxShadow: 'var(--shadow-sm)',
-    position: 'relative',
-    overflow: 'visible',
-    flexWrap: 'wrap',
-    gap: 'var(--space-4)'
-  },
-  glowEffect: {
-    position: 'absolute',
-    top: '-50%',
-    right: '-10%',
-    width: '300px',
-    height: '300px',
-    borderRadius: '50%',
-    background: 'var(--shadow-glow)',
-    filter: 'blur(80px)',
-    opacity: 0.15,
-    pointerEvents: 'none'
-  },
-  primaryTabs: {
-    display: 'flex',
-    gap: 'var(--space-3)',
-    borderBottom: '2px solid var(--color-border-light)',
-    paddingBottom: 'var(--space-2)'
-  },
-  tabButton: (active) => ({
-    padding: 'var(--space-3) var(--space-5)',
-    border: 'none',
-    background: 'transparent',
-    color: active ? 'var(--color-accent)' : 'var(--color-text-secondary)',
-    fontWeight: '700',
-    fontSize: 'var(--text-base)',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'var(--space-2)',
-    position: 'relative',
-    borderBottom: active ? '3px solid var(--color-accent)' : '3px solid transparent',
-    transition: 'all 0.2s',
-    borderRadius: 'var(--radius-md) var(--radius-md) 0 0'
-  }),
-  subTabs: {
-    display: 'flex',
-    gap: 'var(--space-2)',
-    background: 'var(--color-bg-alt)',
-    padding: '6px',
-    borderRadius: 'var(--radius-lg)',
-    width: 'fit-content'
-  },
-  subTabBtn: (active) => ({
-    padding: '8px 16px',
-    border: 'none',
-    borderRadius: 'var(--radius-md)',
-    background: active ? 'var(--color-surface)' : 'transparent',
-    color: active ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-    fontWeight: '600',
-    fontSize: 'var(--text-xs)',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    boxShadow: active ? 'var(--shadow-xs)' : 'none',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px'
-  }),
-  chapterCard: {
-    background: 'var(--color-surface)',
-    border: '1px solid var(--color-border-light)',
-    borderRadius: 'var(--radius-xl)',
-    padding: 'var(--space-5) var(--space-6)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 'var(--space-4)',
-    cursor: 'pointer',
-    transition: 'all 0.25s',
-    boxShadow: 'var(--shadow-sm)'
-  },
-  topicRow: {
-    padding: 'var(--space-4) var(--space-5)',
-    background: 'var(--color-bg)',
-    borderRadius: 'var(--radius-lg)',
-    borderLeft: '4px solid var(--color-accent)',
-    borderTop: '1px solid var(--color-border-light)',
-    borderRight: '1px solid var(--color-border-light)',
-    borderBottom: '1px solid var(--color-border-light)',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 'var(--space-3)',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    boxShadow: 'var(--shadow-xs)'
-  },
-  videoCard: {
-    background: 'var(--color-surface)',
-    border: '1px solid var(--color-border-light)',
-    borderRadius: 'var(--radius-xl)',
-    overflow: 'hidden',
-    display: 'flex',
-    flexDirection: 'column',
-    transition: 'all 0.25s',
-    boxShadow: 'var(--shadow-sm)'
-  },
-  downloadCard: {
-    padding: 'var(--space-5)',
-    background: 'var(--color-surface)',
-    border: '1px solid var(--color-border-light)',
-    borderRadius: 'var(--radius-xl)',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    gap: 'var(--space-4)',
-    cursor: 'pointer',
-    transition: 'all 0.25s',
-    boxShadow: 'var(--shadow-sm)'
-  },
-  personalNotesGrid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 2fr',
-    gap: 'var(--space-6)'
-  },
-  noteCard: {
-    padding: 'var(--space-5)',
-    background: 'var(--color-surface)',
-    border: '1px solid var(--color-border-light)',
-    borderRadius: 'var(--radius-xl)',
-    boxShadow: 'var(--shadow-sm)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 'var(--space-3)'
-  },
-  modalOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(15, 23, 42, 0.8)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 9999,
-    padding: 'var(--space-4)',
-    backdropFilter: 'blur(8px)'
-  },
-  modalContent: {
-    background: 'var(--color-surface)',
-    borderRadius: 'var(--radius-2xl)',
-    width: '100%',
-    maxWidth: '720px',
-    boxShadow: 'var(--shadow-2xl)',
-    overflow: 'hidden',
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'relative'
-  }
-};
-
 const Notes = () => {
   const { user } = useAuth();
   const { notes, addNote, deleteNote } = useContentController();
@@ -971,44 +801,30 @@ const Notes = () => {
   };
 
   return (
-    <div style={s.container}>
+    <div className={styles.container}>
       {/* Immersive Header Banner with Multi-Subject Selection Dropdown */}
-      <div style={s.headerBanner}>
-        <div style={s.glowEffect} />
-        <div style={{ zIndex: 2 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-            <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: '900', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-heading)', margin: 0 }}>
+      <div className={styles.headerBanner}>
+        <div className={styles.glowEffect} />
+        <div className={styles.bannerInfo}>
+          <div className={styles.bannerTitleRow}>
+            <h2 className={styles.bannerTitle}>
               <Sparkles size={24} color="var(--color-accent)" /> Notes & Study Hub
             </h2>
             <Badge variant="primary" style={{ background: 'rgba(56, 189, 248, 0.12)', color: 'var(--color-accent)', border: '1px solid rgba(56, 189, 248, 0.3)', width: 'fit-content' }}>
               📚 Curated for {studentBoardStr} Class {studentClassNum}
             </Badge>
           </div>
-          <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)', marginTop: '4px' }}>
+          <p className={styles.bannerSubtitle}>
             Access curated syllabus notes, topic highlights, digital study materials, video walkthroughs, and downloads for {studentBoardStr} Class {studentClassNum}.
           </p>
         </div>
 
         {/* Multi-Select Subject Dropdown Component */}
-        <div style={{ position: 'relative', zIndex: 20 }} ref={dropdownRef}>
+        <div className={styles.dropdownWrapper} ref={dropdownRef}>
           <button 
             type="button"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            style={{
-              padding: '10px 18px',
-              borderRadius: 'var(--radius-xl)',
-              background: 'var(--color-surface)',
-              border: '1px solid var(--color-accent)',
-              color: 'var(--color-text-primary)',
-              fontWeight: '700',
-              fontSize: 'var(--text-sm)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              boxShadow: 'var(--shadow-sm)',
-              transition: 'all 0.2s'
-            }}
+            className={styles.dropdownButton}
           >
             <Filter size={16} color="var(--color-accent)" />
             <span>
@@ -1018,35 +834,22 @@ const Notes = () => {
                 ? (availableSubjectsList.find(s => s.id === selectedSubjects[0])?.name || '1 Subject Selected')
                 : `${selectedSubjects.length} Subjects Selected`}
             </span>
-            <ChevronDown size={16} style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+            <ChevronDown size={16} className={`${styles.dropdownChevron} ${isDropdownOpen ? styles.dropdownChevronOpen : ''}`} />
           </button>
 
           {/* Floating Dropdown Menu */}
           {isDropdownOpen && (
-            <div style={{
-              position: 'absolute',
-              top: 'calc(100% + 8px)',
-              right: 0,
-              width: '280px',
-              background: 'var(--color-surface)',
-              border: '1px solid var(--color-border-light)',
-              borderRadius: 'var(--radius-xl)',
-              boxShadow: 'var(--shadow-xl)',
-              padding: 'var(--space-3)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '8px',
-              zIndex: 999
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '6px', borderBottom: '1px solid var(--color-border-light)' }}>
-                <span style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>
+            <div className={styles.dropdownMenu}>
+              <div className={styles.dropdownMenuHeader}>
+                <span className={styles.dropdownMenuTitle}>
                   Filter Subjects
                 </span>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div className={styles.dropdownActions}>
                   <button 
                     type="button"
                     onClick={selectAllSubjects}
-                    style={{ background: 'none', border: 'none', color: 'var(--color-accent)', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}
+                    className={styles.dropdownActionBtn}
+                    style={{ color: 'var(--color-accent)' }}
                   >
                     Select All
                   </button>
@@ -1054,7 +857,8 @@ const Notes = () => {
                   <button 
                     type="button"
                     onClick={clearSubjectSelection}
-                    style={{ background: 'none', border: 'none', color: 'var(--color-text-tertiary)', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}
+                    className={styles.dropdownActionBtn}
+                    style={{ color: 'var(--color-text-tertiary)' }}
                   >
                     Reset
                   </button>
@@ -1062,23 +866,14 @@ const Notes = () => {
               </div>
 
               {/* Subject Checkbox Options */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '240px', overflowY: 'auto' }}>
+              <div className={styles.dropdownSubjectList}>
                 {availableSubjectsList.map(subj => {
                   const isChecked = selectedSubjects.includes(subj.id);
                   return (
                     <div 
                       key={subj.id}
                       onClick={() => toggleSubjectSelect(subj.id)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justify: 'space-between',
-                        padding: '8px 12px',
-                        borderRadius: 'var(--radius-md)',
-                        background: isChecked ? 'var(--color-bg-alt)' : 'transparent',
-                        cursor: 'pointer',
-                        transition: 'background 0.15s'
-                      }}
+                      className={`${styles.dropdownSubjectItem} ${isChecked ? styles.dropdownSubjectActive : ''}`}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div style={{
@@ -1089,7 +884,7 @@ const Notes = () => {
                           background: isChecked ? subj.color : 'transparent',
                           display: 'flex',
                           alignItems: 'center',
-                          justify: 'center',
+                          justifyContent: 'center',
                           color: '#fff',
                           transition: 'all 0.15s'
                         }}>
@@ -1110,25 +905,19 @@ const Notes = () => {
       </div>
 
       {/* Selected Subjects Chips bar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-text-tertiary)', textTransform: 'uppercase' }}>Active Filters:</span>
+      <div className={styles.chipsBar}>
+        <span className={styles.chipsLabel}>Active Filters:</span>
         {selectedSubjects.map(key => {
           const sObj = availableSubjectsList.find(s => s.id === key);
           if (!sObj) return null;
           return (
             <div 
               key={sObj.id}
+              className={styles.chipItem}
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '4px 10px',
-                borderRadius: 'var(--radius-full)',
                 background: `${sObj.color}15`,
                 color: sObj.color,
-                border: `1px solid ${sObj.color}30`,
-                fontSize: 'var(--text-xs)',
-                fontWeight: '700'
+                border: `1px solid ${sObj.color}30`
               }}
             >
               <span>{sObj.name}</span>
@@ -1141,9 +930,9 @@ const Notes = () => {
       </div>
 
       {/* Primary Tab Navigation */}
-      <div style={s.primaryTabs}>
+      <div className={styles.primaryTabs}>
         <button 
-          style={s.tabButton(primaryTab === 'materials')} 
+          className={`${styles.tabButton} ${primaryTab === 'materials' ? styles.tabButtonActive : ''}`}
           onClick={() => setPrimaryTab('materials')}
         >
           <BookOpen size={18} />
@@ -1151,7 +940,7 @@ const Notes = () => {
           <Badge variant="primary">Class {studentClassNum}</Badge>
         </button>
         <button 
-          style={s.tabButton(primaryTab === 'personal')} 
+          className={`${styles.tabButton} ${primaryTab === 'personal' ? styles.tabButtonActive : ''}`}
           onClick={() => setPrimaryTab('personal')}
         >
           <FileText size={18} />
@@ -1164,24 +953,24 @@ const Notes = () => {
       {primaryTab === 'materials' && (
         <div>
           {/* Sub Tab selection & Search bar */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-4)', marginBottom: 'var(--space-4)' }}>
-            <div style={s.subTabs}>
+          <div className={styles.subTabsControls}>
+            <div className={styles.subTabs}>
               <button 
-                style={s.subTabBtn(subTab === 'chapters')}
+                className={`${styles.subTabBtn} ${subTab === 'chapters' ? styles.subTabBtnActive : ''}`}
                 onClick={() => setSubTab('chapters')}
               >
                 <BookOpen size={14} />
                 <span>Chapter & Topic Notes</span>
               </button>
               <button 
-                style={s.subTabBtn(subTab === 'videos')}
+                className={`${styles.subTabBtn} ${subTab === 'videos' ? styles.subTabBtnActive : ''}`}
                 onClick={() => setSubTab('videos')}
               >
                 <Video size={14} />
                 <span>Video Tutorials</span>
               </button>
               <button 
-                style={s.subTabBtn(subTab === 'downloads')}
+                className={`${styles.subTabBtn} ${subTab === 'downloads' ? styles.subTabBtnActive : ''}`}
                 onClick={() => setSubTab('downloads')}
               >
                 <Download size={14} />
@@ -1189,7 +978,7 @@ const Notes = () => {
               </button>
             </div>
 
-            <div style={{ width: '280px' }}>
+            <div className={styles.searchWrapper}>
               <Input 
                 placeholder="Search notes, topics, videos..."
                 value={searchQuery}
@@ -1212,10 +1001,10 @@ const Notes = () => {
                 filteredChapters.map(ch => {
                   const isExpanded = expandedChapters[ch.id];
                   return (
-                    <div key={ch.id} style={s.chapterCard}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <div key={ch.id} className={styles.chapterCard}>
+                      <div className={styles.chapterHeader}>
+                        <div className={styles.chapterInfo}>
+                          <div className={styles.chapterMetaRow}>
                             <Badge variant="primary" style={{ background: `${ch.subjectColor || 'var(--color-accent)'}20`, color: ch.subjectColor || 'var(--color-accent)', border: `1px solid ${ch.subjectColor || 'var(--color-accent)'}40` }}>
                               {ch.subjectName || 'Syllabus Note'}
                             </Badge>
@@ -1223,12 +1012,11 @@ const Notes = () => {
                           </div>
                           <h3 
                             onClick={() => setActiveTopicModal({ chapter: ch, topic: ch.topics[0] })}
-                            style={{ fontSize: 'var(--text-lg)', fontWeight: '800', color: 'var(--color-text-primary)', fontFamily: 'var(--font-heading)', cursor: 'pointer' }}
-                            className="subject-card-hover"
+                            className={styles.chapterTitle}
                           >
                             {ch.title}
                           </h3>
-                          <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)', marginTop: '4px' }}>
+                          <p className={styles.chapterDesc}>
                             {ch.description}
                           </p>
                         </div>
@@ -1256,15 +1044,14 @@ const Notes = () => {
                           {ch.topics.map((t, idx) => (
                             <div 
                               key={idx} 
-                              style={s.topicRow}
+                              className={styles.topicRow}
                               onClick={() => setActiveTopicModal({ chapter: ch, topic: t })}
-                              className="subject-card-hover"
                             >
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                <span style={{ fontWeight: '700', fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)' }}>{t.title}</span>
-                                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5', whitespace: 'pre-line' }}>{t.content}</p>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: 0 }}>
+                                <span style={{ fontWeight: '700', fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)', wordBreak: 'break-word' }}>{t.title}</span>
+                                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5', whiteSpace: 'pre-line', wordBreak: 'break-word', margin: 0 }}>{t.content}</p>
                               </div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--color-accent)', fontWeight: '700', fontSize: 'var(--text-xs)', flexShrink: 0, paddingLeft: '12px' }}>
+                              <div className={styles.topicAction}>
                                 <span>Read Full Topic</span>
                                 <Sparkles size={14} />
                               </div>
@@ -1281,7 +1068,7 @@ const Notes = () => {
 
           {/* SECTION B: VIDEO TUTORIALS */}
           {subTab === 'videos' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 'var(--space-5)' }}>
+            <div className={styles.cardsGrid}>
               {filteredVideos.length === 0 ? (
                 <Card style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 'var(--space-8)' }}>
                   <Video size={40} color="var(--color-text-tertiary)" style={{ marginBottom: 'var(--space-2)' }} />
@@ -1290,8 +1077,8 @@ const Notes = () => {
                 </Card>
               ) : (
                 filteredVideos.map(vid => (
-                  <div key={vid.id} style={s.videoCard} className="subject-card-hover">
-                    <div style={{ position: 'relative', width: '100%', height: '180px', overflow: 'hidden' }}>
+                  <div key={vid.id} className={styles.videoCard}>
+                    <div className={styles.videoThumbnailWrap}>
                       <img src={vid.thumbnail} alt={vid.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <button 
@@ -1311,7 +1098,7 @@ const Notes = () => {
                         <Badge variant="secondary">{vid.subjectName || 'Tutorial'}</Badge>
                         <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>{vid.views}</span>
                       </div>
-                      <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', color: 'var(--color-text-primary)', lineHeight: '1.4' }}>
+                      <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', color: 'var(--color-text-primary)', lineHeight: '1.4', margin: 0 }}>
                         {vid.title}
                       </h4>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
@@ -1327,7 +1114,7 @@ const Notes = () => {
 
           {/* SECTION C: EDUCATIONAL PDFS & DOWNLOADS */}
           {subTab === 'downloads' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 'var(--space-5)' }}>
+            <div className={styles.cardsGrid}>
               {filteredDownloads.length === 0 ? (
                 <Card style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 'var(--space-8)' }}>
                   <Download size={40} color="var(--color-text-tertiary)" style={{ marginBottom: 'var(--space-2)' }} />
@@ -1340,9 +1127,8 @@ const Notes = () => {
                   return (
                     <div 
                       key={dl.id} 
-                      style={s.downloadCard}
+                      className={styles.downloadCard}
                       onClick={() => startMockDownload(dl)}
-                      className="subject-card-hover"
                     >
                       <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
@@ -1352,7 +1138,7 @@ const Notes = () => {
                         <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', color: 'var(--color-text-primary)', marginBottom: '4px' }}>
                           {dl.title}
                         </h4>
-                        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>
+                        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5', margin: 0 }}>
                           {dl.description}
                         </p>
                       </div>
@@ -1389,7 +1175,7 @@ const Notes = () => {
 
       {/* TAB 2: MY PERSONAL NOTES */}
       {primaryTab === 'personal' && (
-        <div style={s.personalNotesGrid}>
+        <div className={styles.personalNotesGrid}>
           {/* Note Editor */}
           <Card style={{ height: 'fit-content' }}>
             <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '700', marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1422,7 +1208,8 @@ const Notes = () => {
                     color: 'var(--color-text-primary)',
                     fontFamily: 'inherit',
                     fontSize: 'var(--text-sm)',
-                    outline: 'none'
+                    outline: 'none',
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
@@ -1442,10 +1229,10 @@ const Notes = () => {
               </Card>
             ) : (
               notes.map((note) => (
-                <div key={note.id} style={s.noteCard}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div>
-                      <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', color: 'var(--color-text-primary)' }}>{note.title}</h4>
+                <div key={note.id} className={styles.noteCard}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', color: 'var(--color-text-primary)', margin: 0, wordBreak: 'break-word' }}>{note.title}</h4>
                       <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
                         <Clock size={12} /> {note.createdAt || 'Just now'}
                       </span>
@@ -1454,12 +1241,12 @@ const Notes = () => {
                       variant="ghost" 
                       size="sm" 
                       onClick={() => deleteNote(note.id)}
-                      style={{ color: 'var(--color-error)' }}
+                      style={{ color: 'var(--color-error)', flexShrink: 0 }}
                     >
                       <Trash2 size={16} />
                     </Button>
                   </div>
-                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', lineHeight: '1.5', whitespace: 'pre-line' }}>
+                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', lineHeight: '1.5', whitespace: 'pre-line', margin: 0, wordBreak: 'break-word' }}>
                     {note.content}
                   </p>
                 </div>
@@ -1471,10 +1258,10 @@ const Notes = () => {
 
       {/* Interactive Topic Notes Reader Modal */}
       {activeTopicModal && (
-        <div style={s.modalOverlay} onClick={() => setActiveTopicModal(null)}>
-          <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div style={{ padding: 'var(--space-5) var(--space-6)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-border-light)', background: 'var(--color-bg-alt)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className={styles.modalOverlay} onClick={() => setActiveTopicModal(null)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 <Badge variant="primary">{activeTopicModal.chapter?.subjectName || 'Syllabus Notes'}</Badge>
                 <span style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-text-tertiary)' }}>
                   {studentBoardStr} Class {studentClassNum}
@@ -1488,12 +1275,12 @@ const Notes = () => {
               </button>
             </div>
 
-            <div style={{ padding: 'var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-5)', maxHeight: '80vh', overflowY: 'auto' }}>
+            <div className={styles.modalBody}>
               <div>
                 <span style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-accent)', textTransform: 'uppercase' }}>
                   {activeTopicModal.chapter?.title}
                 </span>
-                <h3 style={{ fontSize: 'var(--text-xl)', fontWeight: '900', color: 'var(--color-text-primary)', marginTop: '4px', fontFamily: 'var(--font-heading)' }}>
+                <h3 style={{ fontSize: 'var(--text-xl)', fontWeight: '900', color: 'var(--color-text-primary)', marginTop: '4px', fontFamily: 'var(--font-heading)', wordBreak: 'break-word' }}>
                   {activeTopicModal.topic?.title || activeTopicModal.chapter?.title}
                 </h3>
               </div>
@@ -1502,7 +1289,7 @@ const Notes = () => {
                 <h4 style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-text-primary)', textTransform: 'uppercase', marginBottom: '6px' }}>
                   📖 Chapter Overview & Syllabus Context
                 </h4>
-                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', lineHeight: '1.6' }}>
+                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', lineHeight: '1.6', margin: 0 }}>
                   {activeTopicModal.chapter?.digitalMaterial || activeTopicModal.chapter?.description}
                 </p>
               </div>
@@ -1511,7 +1298,7 @@ const Notes = () => {
                 <h4 style={{ fontSize: 'var(--text-sm)', fontWeight: '800', color: 'var(--color-text-primary)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Sparkles size={16} color="var(--color-accent)" /> Detailed Concept & Solution Breakdown
                 </h4>
-                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)', lineHeight: '1.7', whiteSpace: 'pre-line' }}>
+                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)', lineHeight: '1.7', whiteSpace: 'pre-line', margin: 0 }}>
                   {activeTopicModal.topic?.content}
                 </p>
               </div>
@@ -1520,12 +1307,12 @@ const Notes = () => {
                 <h4 style={{ fontSize: 'var(--text-xs)', fontWeight: '700', color: 'var(--color-text-primary)', textTransform: 'uppercase', marginBottom: '4px' }}>
                   💡 Exam Strategy & Formula Reminder
                 </h4>
-                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5', margin: 0 }}>
                   Revise definitions, solve textbook exercises, and memorize key theorems for your {studentBoardStr} Class {studentClassNum} examinations.
                 </p>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3)', paddingTop: 'var(--space-4)', borderTop: '1px solid var(--color-border-light)' }}>
+              <div className={styles.modalFooter}>
                 <Button 
                   variant="secondary" 
                   size="sm"
@@ -1549,16 +1336,16 @@ const Notes = () => {
 
       {/* Video Modal Player */}
       {playingVideo && (
-        <div style={s.modalOverlay} onClick={() => setPlayingVideo(null)}>
-          <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div style={{ padding: 'var(--space-4) var(--space-6)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-border-light)' }}>
-              <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', margin: 0 }}>{playingVideo.title}</h4>
-              <button onClick={() => setPlayingVideo(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-secondary)' }}>
+        <div className={styles.modalOverlay} onClick={() => setPlayingVideo(null)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h4 style={{ fontSize: 'var(--text-base)', fontWeight: '700', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{playingVideo.title}</h4>
+              <button onClick={() => setPlayingVideo(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-secondary)', padding: '4px' }}>
                 <X size={20} />
               </button>
             </div>
             
-            <div style={{ padding: '0', background: '#000', height: '360px', position: 'relative' }}>
+            <div className={styles.videoContainer}>
               {playingVideo.videoUrl && (playingVideo.videoUrl.includes('youtube') || playingVideo.videoUrl.includes('youtu.be') || playingVideo.videoUrl.includes('embed')) ? (
                 <iframe
                   key={playingVideo.id}
@@ -1579,9 +1366,9 @@ const Notes = () => {
               )}
             </div>
             
-            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ padding: 'var(--space-5)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                   <Badge variant="primary">{playingVideo.level || `${studentBoardStr} Class ${studentClassNum}`}</Badge>
                   <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>Duration: {playingVideo.duration || '10:00'} • {playingVideo.views || 'Standard'}</span>
                 </div>
@@ -1591,8 +1378,8 @@ const Notes = () => {
                   </Button>
                 )}
               </div>
-              <h3 style={{ fontSize: 'var(--text-base)', fontWeight: '800', color: 'var(--color-text-primary)' }}>{playingVideo.title}</h3>
-              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>
+              <h3 style={{ fontSize: 'var(--text-base)', fontWeight: '800', color: 'var(--color-text-primary)', margin: 0 }}>{playingVideo.title}</h3>
+              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: '1.5', margin: 0 }}>
                 This educational video explains fundamental concepts for {studentBoardStr} Class {studentClassNum} led by <b>{playingVideo.author || 'Instructor'}</b>.
               </p>
             </div>

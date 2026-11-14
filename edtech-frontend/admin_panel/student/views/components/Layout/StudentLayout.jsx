@@ -232,23 +232,8 @@ const StudentLayout = () => {
                     style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, cursor: 'default' }} 
                     onClick={() => setShowNotifications(false)} 
                   />
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    right: 0,
-                    marginTop: '8px',
-                    width: '320px',
-                    background: 'var(--color-surface)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-lg)',
-                    boxShadow: 'var(--shadow-lg)',
-                    padding: 'var(--space-4)',
-                    zIndex: 101,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-border-light)', paddingBottom: '8px' }}>
+                  <div className={styles.notificationsDropdown}>
+                    <div className={styles.notificationsHeader}>
                       <span style={{ fontWeight: '700', fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)' }}>Notifications</span>
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                         {notifications.length > 0 && (
@@ -270,7 +255,7 @@ const StudentLayout = () => {
                         )}
                       </div>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '240px', overflowY: 'auto' }}>
+                    <div className={styles.notificationsList}>
                       {notifications.length === 0 ? (
                         <p style={{ textAlign: 'center', color: 'var(--color-text-tertiary)', fontSize: 'var(--text-xs)', padding: '16px 0' }}>
                           No notifications
@@ -280,26 +265,17 @@ const StudentLayout = () => {
                           <div 
                             key={n.id} 
                             onClick={() => toggleRead(n.id)}
+                            className={styles.notificationItem}
                             style={{ 
-                              padding: '8px 12px', 
-                              borderRadius: 'var(--radius-md)', 
                               background: n.read ? 'transparent' : 'var(--color-bg)', 
-                              cursor: 'pointer',
-                              borderLeft: n.read ? '3px solid transparent' : '3px solid var(--color-accent)',
-                              transition: 'all 0.2s',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: '4px'
+                              borderLeft: n.read ? '3px solid transparent' : '3px solid var(--color-accent)'
                             }}
                           >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-                              <p style={{ 
-                                fontSize: 'var(--text-xs)', 
-                                fontWeight: n.read ? '400' : '600', 
-                                color: 'var(--color-text-primary)',
-                                lineHeight: '1.4',
-                                flex: 1
-                              }}>
+                              <p 
+                                className={styles.notificationText}
+                                style={{ fontWeight: n.read ? '400' : '600' }}
+                              >
                                 {n.text}
                               </p>
                               <button 
@@ -307,13 +283,13 @@ const StudentLayout = () => {
                                   e.stopPropagation();
                                   clearSingleNotification(n.id);
                                 }}
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-tertiary)', padding: '2px' }}
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-tertiary)', padding: '4px', display: 'flex', alignItems: 'center' }}
                                 title="Clear notification"
                               >
-                                <X size={12} />
+                                <X size={14} />
                               </button>
                             </div>
-                            <span style={{ fontSize: '9px', color: 'var(--color-text-tertiary)' }}>{n.time}</span>
+                            <span style={{ fontSize: '10px', color: 'var(--color-text-tertiary)' }}>{n.time}</span>
                           </div>
                         ))
                       )}
@@ -354,21 +330,7 @@ const StudentLayout = () => {
                     style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, cursor: 'default' }} 
                     onClick={() => setShowProfileMenu(false)} 
                   />
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    right: 0,
-                    marginTop: '8px',
-                    width: '200px',
-                    background: 'var(--color-surface)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-lg)',
-                    boxShadow: 'var(--shadow-lg)',
-                    padding: '8px 0',
-                    zIndex: 101,
-                    display: 'flex',
-                    flexDirection: 'column'
-                  }}>
+                  <div className={styles.profileDropdown}>
                     <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--color-border-light)', marginBottom: '4px' }}>
                       <p style={{ fontWeight: '700', fontSize: 'var(--text-xs)', color: 'var(--color-text-primary)' }}>{currentUser.name}</p>
                       <p style={{ fontSize: '10px', color: 'var(--color-text-tertiary)' }}>{currentUser.email}</p>
